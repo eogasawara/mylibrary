@@ -1,11 +1,8 @@
 #install.packages("gplots")
 #install.packages("ggplot2")
 
-library(gplots)
 library(ggplot2)
 library(scales)
-
-mycolors=c("darkblue", "darkgreen", "darkred", "orange", "purple")
 
 dataset_series <- function() {
   series <- NULL
@@ -105,18 +102,3 @@ plot.stackedbar <- function(series, labx="class", laby="y", colors=NULL) {
   return(grf)
 }
 
-series <- dataset_series()
-grf <- plot.series(series,colors=mycolors)
-ggsave( "plot_series.pdf", width = 5.5, height = 4)  
-
-series <- dataset_series()
-grf <- plot.boxplot(series, colors=mycolors[1])
-ggsave("plot_boxplot.pdf", width = 5.5, height = 4)  
-
-series <- dataset_bar()
-grf <- plot.bar(series, colors=mycolors)
-ggsave("plot_bar.pdf", width = 5.5, height = 4)    
-
-series <- dataset_stackedbar()
-grf <- plot.stackedbar(series, colors=mycolors)
-ggsave("plot_stackedbar.pdf", width = 5.5, height = 4)    
