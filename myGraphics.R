@@ -5,8 +5,8 @@ library(ggplot2)
 library(scales)
 
 plot.series <- function(series, label_series=" ", label_x="x", label_y="y", colors=NULL) {
-  grf <- ggplot(data=series, aes(x = x, y = y, colour=class))
-  grf <- grf + geom_line() + geom_point(data=series, aes(x = x, y = y, colour=class), size=0.5)
+  grf <- ggplot(data=series, aes(x = x, y = value, colour=variable))
+  grf <- grf + geom_line() + geom_point(data=series, aes(x = x, y = value, colour=variable), size=0.5)
   if (!is.null(colors)) {
     grf <- grf + scale_color_manual(values=colors)
   }
@@ -20,7 +20,7 @@ plot.series <- function(series, label_series=" ", label_x="x", label_y="y", colo
 }
 
 plot.boxplot <- function(series, labx = "x", laby = "y", colors = NULL) {
-  grf <- ggplot(aes(y = y, x = class), data = series)
+  grf <- ggplot(aes(y = value, x = variable), data = series)
   if (!is.null(colors)) {
     grf <- grf + geom_boxplot(color = colors)
   }
@@ -36,13 +36,13 @@ plot.boxplot <- function(series, labx = "x", laby = "y", colors = NULL) {
 
 plot.bar <- function(series, labx="class", laby="y", group=NULL, colors=NULL) {
   if (!is.null(group)) {
-    grf <- ggplot(series, aes(class, y, fill=group)) + geom_bar(stat = "identity",position = "dodge")
+    grf <- ggplot(series, aes(x, value, fill=variable)) + geom_bar(stat = "identity",position = "dodge")
     if (!is.null(colors)) {
       grf <- grf + scale_fill_manual("legend", values = colors)
     }
   }
   else {  
-    grf <- ggplot(series, aes(class, y))
+    grf <- ggplot(series, aes(variable, value))
     if (!is.null(colors)) {
       grf <- grf + geom_bar(stat = "identity",fill=colors)
     }
@@ -57,7 +57,7 @@ plot.bar <- function(series, labx="class", laby="y", group=NULL, colors=NULL) {
 }
 
 plot.stackedbar <- function(series, labx="class", laby="y", colors=NULL) {
-  grf <- ggplot(series, aes(x=class, y=y, fill=group)) + geom_bar(stat="identity", colour="white")
+  grf <- ggplot(series, aes(x=x, y=value, fill=variable)) + geom_bar(stat="identity", colour="white")
   if (!is.null(colors)) {
     grf <- grf + scale_fill_manual("legend", values = colors)
   }
