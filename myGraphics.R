@@ -34,7 +34,7 @@ plot.boxplot <- function(series, labx = "x", laby = "y", colors = NULL) {
   return(grf)
 }
 
-plot.bar <- function(series, labx="class", laby="y", group=NULL, colors=NULL) {
+plot.bar <- function(series, group=NULL, colors=NULL) {
   if (!is.null(group)) {
     grf <- ggplot(series, aes(x, value, fill=variable)) + geom_bar(stat = "identity",position = "dodge")
     if (!is.null(colors)) {
@@ -52,18 +52,18 @@ plot.bar <- function(series, labx="class", laby="y", group=NULL, colors=NULL) {
   }
   grf <- grf + theme_bw(base_size = 10)
   grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
-  grf <- grf + scale_x_discrete(limits = unique(series$class))
+  grf <- grf + scale_x_discrete(limits = unique(series$x))
   return(grf)
 }
 
-plot.stackedbar <- function(series, labx="class", laby="y", colors=NULL) {
+plot.stackedbar <- function(series, colors=NULL) {
   grf <- ggplot(series, aes(x=x, y=value, fill=variable)) + geom_bar(stat="identity", colour="white")
   if (!is.null(colors)) {
     grf <- grf + scale_fill_manual("legend", values = colors)
   }
   grf <- grf + theme_bw(base_size = 10)
   grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
-  grf <- grf + scale_x_discrete(limits = unique(series$class))
+  grf <- grf + scale_x_discrete(limits = unique(series$x))
   return(grf)
 }
 
