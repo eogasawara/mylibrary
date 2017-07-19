@@ -1,4 +1,6 @@
+#install.packages("reshape")
 library(reshape)
+
 
 dataset_series <- function() {
   series <- data.frame(x= 1:10, sin=sin(1:10), cos=cos(1:10))
@@ -27,28 +29,36 @@ dataset_stackedbar <- function() {
   series <- melt(series[,c('x','Map','Reduce')],id.vars = 1)
 }
 
+mycolors=c("darkblue", "darkred", "darkgreen", "orange", "purple")
 series <- dataset_series()
 grf <- plot.series(series,colors=mycolors)
 grf
-ggsave( "plot_series.pdf", width = 5.5, height = 4)
 
 series <- dataset_series()
 grf <- plot.boxplot(series, colors=mycolors[1])
 grf
-ggsave( "plot_boxplot.pdf", width = 5.5, height = 4)
 
 series <- dataset_bar()
 grf <- plot.bar(series, colors=mycolors)
 grf
-ggsave("plot_bar.pdf", width = 5.5, height = 4)
 
 series <- dataset_stackedbar()
-grf <- plot.bar(series, group="variable", colors=mycolors)
+grf <- plot.bar(series, group=TRUE, colors=mycolors)
 grf
-ggsave("plot_stackedbar.pdf", width = 5.5, height = 4)
 
 series <- dataset_stackedbar()
 grf <- plot.stackedbar(series, colors=mycolors)
 grf
-ggsave("plot_stackedbar.pdf", width = 5.5, height = 4)
+
+con <- url("https://github.com/eogasawara/mylibrary/raw/master/meses.RData")
+load(con)
+grf <- plot.bar(meses, group=TRUE, colors=mycolors)
+grf <- grf + xlab("")
+grf <- grf + guides(fill=guide_legend(title="velocidade"))
+grf <- grf + ylab("anomalias")
+grf <- grf + facet_wrap(~face, ncol = 3) 
+grf 
+
+
+ggsave( "myplot.pdf", width = 5.5, height = 4)
 

@@ -1,5 +1,5 @@
 #install.packages("gplots")
-#install.packages("ggplot2")
+#install.packages("ggplot2") 
 
 library(ggplot2)
 library(scales)
@@ -34,8 +34,8 @@ plot.boxplot <- function(series, labx = "x", laby = "y", colors = NULL) {
   return(grf)
 }
 
-plot.bar <- function(series, group=NULL, colors=NULL) {
-  if (!is.null(group)) {
+plot.bar <- function(series, group=FALSE, colors=NULL) {
+  if (group) {
     grf <- ggplot(series, aes(x, value, fill=variable)) + geom_bar(stat = "identity",position = "dodge")
     if (!is.null(colors)) {
       grf <- grf + scale_fill_manual("legend", values = colors)
@@ -66,4 +66,3 @@ plot.stackedbar <- function(series, colors=NULL) {
   grf <- grf + scale_x_discrete(limits = unique(series$x))
   return(grf)
 }
-
