@@ -1,6 +1,5 @@
-#install.packages("reshape")
-library(reshape)
-
+source("MGF-Graphics.R")
+loadlibrary("reshape")
 
 dataset_series <- function() {
   series <- data.frame(x= 1:10, sin=sin(1:10), cos=cos(1:10))

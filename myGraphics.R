@@ -1,10 +1,9 @@
-<<<<<<< Updated upstream
 #install.packages("gplots")
 #install.packages("ggplot2") 
 
 library(ggplot2)
 library(scales)
-=======
+
 loadlibrary <- function(x)
 {
   if (!require(x,character.only = TRUE))
@@ -16,7 +15,6 @@ loadlibrary <- function(x)
 
 loadlibrary("ggplot2")
 loadlibrary("scales")
->>>>>>> Stashed changes
 
 plot.series <- function(series, label_series=" ", label_x="x", label_y="y", colors=NULL) {
   grf <- ggplot(data=series, aes(x = x, y = value, colour=variable))
