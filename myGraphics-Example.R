@@ -41,6 +41,8 @@ dataset_bar <- function() {
   return(series)
 }
 mydatabar <- dataset_bar()
+save(mydatabar, file="mydatabar.RData") 
+
 
 dataset_stackedbar <- function() {
   series <- read.table(text = "x Map Reduce 
@@ -52,14 +54,21 @@ dataset_stackedbar <- function() {
   series <- melt(series[,c('x','Map','Reduce')],id.vars = 1)
 }
 mydatastackedbar <- dataset_stackedbar()
-
-con <- url("https://github.com/eogasawara/mylibrary/raw/master/meses.RData")
-load(con)
+save(mydatastackedbar, file="mydatastackedbar.RData") 
 
 mynorm <- data.frame(value=rnorm(10000))
 
 col.set <- brewer.pal(11, 'Spectral')
 mycolors <- col.set[c(1,3,5,7,9)]
+
+con <- url("https://github.com/eogasawara/mylibrary/raw/master/meses.RData")
+load(con)
+
+load(url("https://github.com/eogasawara/mylibrary/raw/master/mydatabar.RData"))
+
+load(url("https://github.com/eogasawara/mylibrary/raw/master/mydatastackedbar.RData"))
+
+
 
 grfs <- plot.series(mydataseries,colors=mycolors)
 options(repr.plot.width=4, repr.plot.height=3)
