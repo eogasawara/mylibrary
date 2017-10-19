@@ -1,11 +1,34 @@
-source("MGF-Graphics.R")
+#basedir <- "/Users/eogasawara/"
+#basedir <- "C:/Users/eduar/"
+#setwd(paste(basedir, "Dropbox/Git/mylibrary/", sep=""))
+
+source("mygraphics.R")
+
+loadlibrary("bibtex")
+loadlibrary("network")
+loadlibrary("RColorBrewer")
+loadlibrary("igraph")
+loadlibrary("ggplot2")
+loadlibrary("gridExtra")
+loadlibrary("plyr")
+loadlibrary("readr")
+loadlibrary("dplyr")
 loadlibrary("reshape")
+loadlibrary("tm")
+loadlibrary("SnowballC")
+loadlibrary("wordcloud")
+loadlibrary("readxl")
+loadlibrary("scales")
+loadlibrary("GGally")
+loadlibrary("ggthemes")
+loadlibrary("repr")
 
 dataset_series <- function() {
   series <- data.frame(x= 1:10, sin=sin(1:10), cos=cos(1:10))
   series <- melt(series[,c('x','sin','cos')],id.vars = 1)
   return(series)  
 }
+mydataseries <- dataset_series()
 
 dataset_bar <- function() {
   series <- matrix(nrow=5, ncol=2)
@@ -17,6 +40,7 @@ dataset_bar <- function() {
   series <- data.frame(variable=as.factor(series[,1]), value=as.double(series[,2]))  
   return(series)
 }
+mydatabar <- dataset_bar()
 
 dataset_stackedbar <- function() {
   series <- read.table(text = "x Map Reduce 
@@ -27,37 +51,60 @@ dataset_stackedbar <- function() {
                           maio 12 6",header = TRUE,sep = "")  
   series <- melt(series[,c('x','Map','Reduce')],id.vars = 1)
 }
-
-mycolors=c("darkblue", "darkred", "darkgreen", "orange", "purple")
-series <- dataset_series()
-grf <- plot.series(series,colors=mycolors)
-grf
-
-series <- dataset_series()
-grf <- plot.boxplot(series, colors=mycolors[1])
-grf
-
-series <- dataset_bar()
-grf <- plot.bar(series, colors=mycolors)
-grf
-
-series <- dataset_stackedbar()
-grf <- plot.bar(series, group=TRUE, colors=mycolors)
-grf
-
-series <- dataset_stackedbar()
-grf <- plot.stackedbar(series, colors=mycolors)
-grf
+mydatastackedbar <- dataset_stackedbar()
 
 con <- url("https://github.com/eogasawara/mylibrary/raw/master/meses.RData")
 load(con)
-grf <- plot.bar(meses, group=TRUE, colors=mycolors)
-grf <- grf + xlab("")
-grf <- grf + guides(fill=guide_legend(title="velocidade"))
-grf <- grf + ylab("anomalias")
-grf <- grf + facet_wrap(~face, ncol = 3) 
-grf 
+
+col.set <- brewer.pal(11, 'Spectral')
+mycolors <- col.set[c(1,3,5,7,9)]
+
+grfs <- plot.series(mydataseries,colors=mycolors)
+options(repr.plot.width=4, repr.plot.height=3)
+plot(grfs)
+
+grf <- plot.bar(mydatabar, colors=mycolors)
+options(repr.plot.width=4, repr.plot.height=3)
+plot(grf)
+
+grfb <- plot.bar(mydatastackedbar, group=TRUE, colors=mycolors)
+grfsb <- plot.stackedbar(mydatastackedbar, colors=mycolors)
+
+options(repr.plot.width=7, repr.plot.height=3)
+grid.arrange(grfb, grfsb, ncol=2)
+
+grfa <- plot.bar(meses, group=TRUE, colors=mycolors)
+grfa <- grfa + xlab("")
+grfa <- grfa + guides(fill=guide_legend(title="velocidade"))
+grfa <- grfa + ylab("anomalias")
+grfa <- grfa + facet_wrap(~face, ncol = 3) 
+
+options(repr.plot.width=7, repr.plot.height=3)
+plot(grfa)
+
+pdf("myplot.pdf", width=7, height=3)
+plot(grfa)
+dev.off()
+
+mymeses <- filter(meses, (face == "julho") & (variable == "Maior"))[, c("x", "value")]
+names(mymeses) <- c("variable", "value")
+mymeses$colors <- mycolors
+mymeses <- prepare.pieplot(mymeses)
+grfpie <- plot.pieplot(mymeses, label_x = "julho", colors=as.character(mymeses$colors))
+
+options(repr.plot.width=4, repr.plot.height=3)
+plot(grfpie)
+
+series <- data.frame(variable=meses$x, value=meses$value)
+grfgd <- plot.density(series, label_series = "distribuição", colors=mycolors)
+plot(grfgd)
+
+series <- data.frame(value=rnorm(10000))
+grfgh <- plot.hist(series, label_series = "distribuição", colors=mycolors[1])
+plot(grfgh)
+
+grfb <- plot.boxplot(mydataseries, colors=mycolors[1:2])
+plot(grfb)
 
 
-ggsave( "myplot.pdf", width = 5.5, height = 4)
 
