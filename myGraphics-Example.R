@@ -56,6 +56,8 @@ mydatastackedbar <- dataset_stackedbar()
 con <- url("https://github.com/eogasawara/mylibrary/raw/master/meses.RData")
 load(con)
 
+mynorm <- data.frame(value=rnorm(10000))
+
 col.set <- brewer.pal(11, 'Spectral')
 mycolors <- col.set[c(1,3,5,7,9)]
 
@@ -82,10 +84,6 @@ grfa <- grfa + facet_wrap(~face, ncol = 3)
 options(repr.plot.width=7, repr.plot.height=3)
 plot(grfa)
 
-pdf("myplot.pdf", width=7, height=3)
-plot(grfa)
-dev.off()
-
 mymeses <- filter(meses, (face == "julho") & (variable == "Maior"))[, c("x", "value")]
 names(mymeses) <- c("variable", "value")
 mymeses$colors <- mycolors
@@ -99,12 +97,15 @@ series <- data.frame(variable=meses$x, value=meses$value)
 grfgd <- plot.density(series, label_series = "distribuição", colors=mycolors)
 plot(grfgd)
 
-series <- data.frame(value=rnorm(10000))
-grfgh <- plot.hist(series, label_series = "distribuição", colors=mycolors[1])
+grfgh <- plot.hist(mynorm, label_series = "distribuição", colors=mycolors[1])
 plot(grfgh)
 
 grfb <- plot.boxplot(mydataseries, colors=mycolors[1:2])
 plot(grfb)
 
+
+pdf("myplot.pdf", width=7, height=3)
+plot(grfa)
+dev.off()
 
 
