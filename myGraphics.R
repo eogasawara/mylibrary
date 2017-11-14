@@ -1,10 +1,3 @@
-#install.packages("gplots")
-#install.packages("ggplot2") 
-#
-
-library(ggplot2)
-library(scales)
-
 loadlibrary <- function(x)
 {
   if (!require(x,character.only = TRUE))
