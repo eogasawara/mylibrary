@@ -1,8 +1,6 @@
-#basedir <- "/Users/eogasawara/"
-#basedir <- "C:/Users/eduar/"
-#setwd(paste(basedir, "Dropbox/Git/mylibrary/", sep=""))
+#setwd("C:/Users/Eduardo Ogasawara/Dropbox/Git/mylibrary/")
 
-source("mygraphics.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphics.R")
 
 loadlibrary("bibtex")
 loadlibrary("network")
