@@ -2,7 +2,7 @@ loadlibrary <- function(x)
 {
   if (!require(x,character.only = TRUE))
   {
-    install.packages(x, repos='http://cran.us.r-project.org', dep=TRUE)
+    install.packages(x, repos='http://cran.fiocruz.br', dep=TRUE)
     if(!require(x,character.only = TRUE)) stop("Package not found")
   }
 }
@@ -152,13 +152,13 @@ plot.density <-  function(series, label_series = "", label_x = "", label_y = "",
   return(grf)
 }
 
-plot.boxplot <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
+plot.boxplot <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL, barwith=0.25) {
   grf <- ggplot(aes(y = value, x = variable), data = series)
   if (!is.null(colors)) {
-    grf <- grf + geom_boxplot(fill = colors)
+    grf <- grf + geom_boxplot(fill = colors, width=barwith)
   }
   else {
-    grf <- grf + geom_boxplot()
+    grf <- grf + geom_boxplot(width=barwith)
   }
   grf <- grf + labs(color=label_series)
   if (!is.null(colors)) {
