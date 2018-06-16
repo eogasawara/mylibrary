@@ -9,6 +9,9 @@ loadlibrary <- function(x)
 
 loadlibrary("caret")
 
+
+# samples
+
 sample.random <- function(data, perc=0.8)
 {
   idx = sample(1:nrow(data),as.integer(perc*nrow(data)))
@@ -60,4 +63,24 @@ sample.stratified_kfold <- function(data, clabel, k=10)
   }
   sets = append(sets, list(data))
   return (sets)
+}
+
+# outlier analysis
+
+outliers.boxplot <- function(data, alpha = 1.5)
+{
+  out = rep(FALSE, nrow(data))
+  nums = unlist(lapply(data, is.numeric))
+  for (i in 1:ncol(data))
+  {
+    if (nums[i])
+    {
+      q = quantile(data[,i])
+      IQR = q[4] - q[2]
+      lq1 = q[2] - alpha*IQR
+      hq3 = q[4] + alpha*IQR
+      out = out | data[,i] < lq1 | data[,i] > hq3
+    }
+  }
+  return (out)
 }
