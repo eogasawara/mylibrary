@@ -65,6 +65,7 @@ sample.stratified_kfold <- function(data, clabel, k=10)
   return (sets)
 }
 
+
 # outlier analysis
 
 outliers.boxplot <- function(data, alpha = 1.5)
@@ -85,7 +86,36 @@ outliers.boxplot <- function(data, alpha = 1.5)
   return (out)
 }
 
-# NORMALIZACAO MIN-MAX
+
+# curvature analysis
+
+curvature.max <- function(x, y, df=3) {
+  smodel = smooth.spline(x, y, df = df)
+  curvature = predict(smodel, x = x, deriv = 2)
+  yv = max(curvature$y)
+  xv = match(yv,curvature$y)
+  plot(x, y)
+  points(x[xv], y[xv], pch=19)
+  res = data.frame(x[xv], y[xv], yv)
+  colnames(res) = c("x", "y", "z")
+  return (res)
+}
+
+curvature.min <- function(x, y, df=3) {
+  smodel = smooth.spline(x, y, df = df)
+  curvature = predict(smodel, x = x, deriv = 2)
+  yv = min(curvature$y)
+  xv = match(yv,curvature$y)
+  plot(x, y)
+  points(x[xv], y[xv], pch=19)
+  res = data.frame(x[xv], y[xv], yv)
+  colnames(res) = c("x", "y", "z")
+  return (res)
+}
+
+
+# min-max normalization
+
 normalize.minmax <- function(data, norm.set=NULL)
 {
   data = data.frame(data)
@@ -102,30 +132,34 @@ normalize.minmax <- function(data, norm.set=NULL)
   else {
     minmax = norm.set
   }
-  data = rbind(data, minmax)
   for (i in 1:ncol(data))
     data[,i] = (data[,i] - minmax["min", i]) / (minmax["max", i] - minmax["min", i])
-  return (list(data, minmax))
+  return (list(data=data, norm.set=minmax))
 }
 
-# NORMALIZACAO Z-SCORE
-normalize.zscore <- function(data, norm.set=NULL)
+
+# z-score normalization
+
+normalize.zscore <- function(data, norm.set=NULL, nmean=0, nsd=1)
 {
   data = data.frame(data)
+  nums = unlist(lapply(data, is.numeric))
+  data = data[ , nums]
+
   if(is.null(norm.set))
   {
-    zscore = data.frame(t(sapply(data, mean, na.rm=TRUE)))
-    zscore = rbind(zscore, t(sapply(data, sd, na.rm=TRUE)))
+    zscore <- matrix(nrow = 4, ncol=ncol(data))
+    zscore[1,] = t(sapply(data, mean, na.rm=TRUE))
+    zscore[2,] = t(sapply(data, sd, na.rm=TRUE))
+    zscore[3,] = t(rep(nmean, ncol(data)))
+    zscore[4,] = t(rep(nsd, ncol(data)))
+    zscore = data.frame(zscore)
+    colnames(zscore) = colnames(data)    
+    rownames(zscore) = c("mean", "sd","nmean", "nsd")
   }
-  data = rbind(data, zscore)
-  normalize_zscore <- function(x)
-  {
-    zmean = x[length(x)-1]
-    zsd = x[length(x)]
-    return ((x-zmean)/zsd)
-  }
-  data = data.frame(sapply(data, normalize_zscore))
-  data = data[1:(nrow(data)-2),]
+  for (i in 1:ncol(data))
+    data[,i] = ((data[,i] - zscore["mean", i]) / zscore["sd", i]) * zscore["nsd", i] + zscore["nmean", i]
+  return (list(data=data, norm.set=zscore))
   return (list(data, zscore))
 }
 
