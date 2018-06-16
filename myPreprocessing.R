@@ -84,3 +84,48 @@ outliers.boxplot <- function(data, alpha = 1.5)
   }
   return (out)
 }
+
+# NORMALIZACAO MIN-MAX
+normalize.minmax <- function(data, norm.set=NULL)
+{
+  data = data.frame(data)
+  nums = unlist(lapply(data, is.numeric))
+  data = data[ , nums]
+  
+  if(is.null(norm.set))
+  {
+    minmax = data.frame(t(sapply(data, max, na.rm=TRUE)))
+    minmax = rbind(minmax, t(sapply(data, min, na.rm=TRUE)))
+    colnames(minmax) = colnames(data)    
+    rownames(minmax) = c("max", "min")
+  }
+  else {
+    minmax = norm.set
+  }
+  data = rbind(data, minmax)
+  for (i in 1:ncol(data))
+    data[,i] = (data[,i] - minmax["min", i]) / (minmax["max", i] - minmax["min", i])
+  return (list(data, minmax))
+}
+
+# NORMALIZACAO Z-SCORE
+normalize.zscore <- function(data, norm.set=NULL)
+{
+  data = data.frame(data)
+  if(is.null(norm.set))
+  {
+    zscore = data.frame(t(sapply(data, mean, na.rm=TRUE)))
+    zscore = rbind(zscore, t(sapply(data, sd, na.rm=TRUE)))
+  }
+  data = rbind(data, zscore)
+  normalize_zscore <- function(x)
+  {
+    zmean = x[length(x)-1]
+    zsd = x[length(x)]
+    return ((x-zmean)/zsd)
+  }
+  data = data.frame(sapply(data, normalize_zscore))
+  data = data[1:(nrow(data)-2),]
+  return (list(data, zscore))
+}
+
