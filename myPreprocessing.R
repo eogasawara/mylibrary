@@ -248,4 +248,23 @@ fs.ig <- function(data, class)
   return (list(data=data, features=vec))
 }
 
+# Relief
+
+fs.relief <- function(data, class)
+{
+  class_formula = formula(paste(class, "  ~ ."))
+  weights = relief(class_formula, data)
+  
+  tab=data.frame(weights)
+  tab=orderBy(~-attr_importance, data=tab)
+  tab$i=row(tab)
+  tab$import_acum=cumsum(tab$attr_importance)
+  res = curvature.min(tab$i, tab$import_acum)
+  tab = tab[tab$import_acum <= res$y,]
+  vec = rownames(tab)
+  data = data[,c(vec, class)]
+  return (list(data=data, features=vec))
+}
+
+
 
