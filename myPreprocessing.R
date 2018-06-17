@@ -13,6 +13,7 @@ loadlibrary("glmnet")
 loadlibrary("leaps")
 loadlibrary("FSelector")
 loadlibrary("doBy")
+loadlibrary("DMwR")
 
 # samples
 
@@ -364,3 +365,77 @@ binning.opt <- function(v, binning=NULL, n=20) {
   res <- curvature.max(z$num, z$mean)
   return(interval[[res$x]])
 }
+
+
+
+transformCategoricData <- function(df, categoricData){
+  
+  categorics <- array(categoricData, dim = c(1, length(categoricData))) 
+  
+  for (att in 1:ncol(categorics)){
+    
+    x <- model.matrix(as.formula(paste("~", paste(categorics[att], "-1"))), data=df)
+    
+    df <- cbind(df, x)
+    
+    df[[categorics[att]]] <- NULL
+    
+  }
+  
+  return(df)
+  
+}
+
+nominalToNumeric <- function(df, attsToTransform){
+  
+  for (att in 1:ncol(attsToTransform)){
+    
+    x <- as.factor(df[[attsToTransform[att]]])
+    levels(x) <- 1:length(levels(x))
+    x <- as.numeric(x)
+    df[attsToTransform[att]] <- x
+    
+  }
+  
+  return(df)
+  
+}
+
+balance.oversampling <- function(data, class) {
+  x <- sort((table(data[,class]))) 
+  class_formula = formula(paste(class, "  ~ ."))
+  mainclass = names(x)[length(x)]
+  newdata = NULL
+  for (i in 1:(length(x)-1)) {
+    minorclass = names(x)[i]
+    curdata = data[data[,class]==mainclass | data[,class]==minorclass,]
+    curdata$Species <- factor(curdata$Species) 
+    print(table(curdata$Species))
+    ratio <- as.integer(ceiling(x[length(x)]/x[i])*100)
+    print(ratio)
+    curdata <- SMOTE(class_formula, curdata, perc.over = ratio, perc.under=100)
+    print(table(curdata$Species))
+    curdata = curdata[curdata[,class]==minorclass, ]
+    idx = sample(1:nrow(curdata),x[length(x)])
+    curdata = curdata[idx,]
+    newdata = rbind(newdata, curdata)
+  }
+  curdata = data[data[,class]==mainclass,]
+  newdata = rbind(newdata, curdata)
+  return(newdata)
+}
+
+balance.subsampling <- function(data, class) {
+  x <- sort((table(data[,class]))) 
+  qminor = as.integer(x[1])
+  newdata = NULL
+  for (i in 1:length(x)) {
+    cclass = names(x)[i]
+    curdata = data[data[,class]==cclass,]
+    idx = sample(1:nrow(curdata),qminor)
+    curdata = curdata[idx,]
+    newdata = rbind(newdata, curdata)
+  }
+  return(newdata)
+}
+
