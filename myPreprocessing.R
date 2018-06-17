@@ -269,6 +269,8 @@ fs.relief <- function(data, class)
 
 # Data Transformation
 
+# PCA
+
 dt.pca <- function(data, class, transf = NULL)
 {
   data = data.frame(data)
@@ -294,20 +296,61 @@ dt.pca <- function(data, class, transf = NULL)
 
 # Binning
 
-binning <- function(v, n, q=NULL) {
-  if (is.null(q)) {
-    p <- seq(from = 0, to = 1, by = 1/n)
-    q <- quantile(v, p)
-  }
-  vp <- cut(v, unique(q), FALSE, include.lowest=TRUE)
+binning <- function(v, interval) {
+  interval[1] <- min(v)
+  interval[length(interval)] <- max(v)
+  interval.adj <- interval
+  interval.adj[1] <- .Machine$double.xmin
+  interval.adj[length(interval)] <- .Machine$double.xmax
+  
+  vp <- cut(v, unique(interval.adj), FALSE, include.lowest=TRUE)
   m <- tapply(v, vp, mean)
   vm <- m[vp]
   mse <- mean((v - vm)^2, na.rm = TRUE)
   
-  return (list(binning=m, bins_factor=vp, bins=vm, mse=mse, interval=q))
+  return (list(binning=m, bins_factor=vp, bins=vm, mse=mse, interval=interval, interval.adj=interval.adj))
 }
 
-binning.opt <- function(v, n=20) {
+# binning by interval
+
+binning.interval <- function(v, n = NULL, interval=NULL, range=1.5) {
+  if (is.null(interval)) {
+    bp <- boxplot(v, range=range, plot = FALSE)
+    interval <- seq(from = bp$stats[1], to = bp$stats[5], by = (bp$stats[5]-bp$stats[1])/n)
+  }
+  return(binning(v,interval))
+}
+
+# binning by freq
+
+binning.freq <- function(v, n = NULL, interval=NULL) {
+  if (is.null(interval)) {
+    p <- seq(from = 0, to = 1, by = 1/n)
+    interval <- quantile(v, p)
+  }
+  return(binning(v,interval))
+}
+
+# binning by cluster
+
+binning.cluster <- function(v, n = NULL, interval=NULL) {
+  if (is.null(interval)) {
+    if (n > 1) {
+      km <- kmeans(x = v, centers = n)
+      s <- sort(km$centers)
+      s <- filter(s,rep(1/2,2), sides=2)[1:(n-1)]
+      interval <- c(min(v), s, max(v))
+    }
+    else {
+      interval <- c(min(v), max(v))
+    }
+  }
+  return(binning(v,interval))
+}
+
+# optimizing binning
+
+binning.opt <- function(v, binning=NULL, n=20) {
   z <- data.frame()
   interval <- list()
   for (i in 1:n)
@@ -321,4 +364,3 @@ binning.opt <- function(v, n=20) {
   res <- curvature.max(z$num, z$mean)
   return(interval[[res$x]])
 }
-
