@@ -410,11 +410,8 @@ balance.oversampling <- function(data, class) {
     minorclass = names(x)[i]
     curdata = data[data[,class]==mainclass | data[,class]==minorclass,]
     curdata$Species <- factor(curdata$Species) 
-    print(table(curdata$Species))
     ratio <- as.integer(ceiling(x[length(x)]/x[i])*100)
-    print(ratio)
     curdata <- SMOTE(class_formula, curdata, perc.over = ratio, perc.under=100)
-    print(table(curdata$Species))
     curdata = curdata[curdata[,class]==minorclass, ]
     idx = sample(1:nrow(curdata),x[length(x)])
     curdata = curdata[idx,]
