@@ -267,4 +267,58 @@ fs.relief <- function(data, class)
 }
 
 
+# Data Transformation
+
+dt.pca <- function(data, class, transf = NULL)
+{
+  data = data.frame(data)
+  if (!is.numeric(data[,class]))
+    data[,class] =  as.numeric(data[,class])
+  nums = unlist(lapply(data, is.numeric))
+  data = data[ , nums]
+  
+  predictors_name  = setdiff(colnames(data), class)
+  predictors = as.matrix(data[,predictors_name])
+  if (is.null(transf)) {
+    predictand = data[,class]
+    pca_res = prcomp(predictors, center=TRUE, scale.=TRUE)
+    cumvar = cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
+    res = curvature.min(c(1:(length(cumvar))), cumvar)
+    transf = as.matrix(pca_res$rotation[, 1:res$x])
+  }
+  
+  dataset = predictors %*% transf
+  dataset = data.frame(dataset)
+  return (list(pca=dataset, pca.transf=transf))
+}
+
+# Binning
+
+binning <- function(v, n, q=NULL) {
+  if (is.null(q)) {
+    p <- seq(from = 0, to = 1, by = 1/n)
+    q <- quantile(v, p)
+  }
+  vp <- cut(v, unique(q), FALSE, include.lowest=TRUE)
+  m <- tapply(v, vp, mean)
+  vm <- m[vp]
+  mse <- mean((v - vm)^2, na.rm = TRUE)
+  
+  return (list(binning=m, bins_factor=vp, bins=vm, mse=mse, interval=q))
+}
+
+binning.opt <- function(v, n=20) {
+  z <- data.frame()
+  interval <- list()
+  for (i in 1:n)
+  {
+    t <- binning(v, i)
+    interval = append(interval, list(t))
+    newrow <- c(t$mse , i)
+    z <- rbind(z,newrow)
+  }
+  colnames(z)<-c("mean","num") 
+  res <- curvature.max(z$num, z$mean)
+  return(interval[[res$x]])
+}
 
