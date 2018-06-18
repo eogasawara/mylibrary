@@ -3,8 +3,8 @@ loadlibrary <- function(x)
   if (!require(x,character.only = TRUE))
   {
     install.packages(x, repos='http://cran.fiocruz.br', dep=TRUE)
+    loadlibrary(x)
   }
-  require(x,character.only = TRUE)
 }
 
 loadlibrary("caret")
@@ -367,39 +367,7 @@ binning.opt <- function(v, binning=NULL, n=20) {
 }
 
 
-
-transformCategoricData <- function(df, categoricData){
-  
-  categorics <- array(categoricData, dim = c(1, length(categoricData))) 
-  
-  for (att in 1:ncol(categorics)){
-    
-    x <- model.matrix(as.formula(paste("~", paste(categorics[att], "-1"))), data=df)
-    
-    df <- cbind(df, x)
-    
-    df[[categorics[att]]] <- NULL
-    
-  }
-  
-  return(df)
-  
-}
-
-nominalToNumeric <- function(df, attsToTransform){
-  
-  for (att in 1:ncol(attsToTransform)){
-    
-    x <- as.factor(df[[attsToTransform[att]]])
-    levels(x) <- 1:length(levels(x))
-    x <- as.numeric(x)
-    df[attsToTransform[att]] <- x
-    
-  }
-  
-  return(df)
-  
-}
+# DATA BALANCING
 
 balance.oversampling <- function(data, class) {
   x <- sort((table(data[,class]))) 

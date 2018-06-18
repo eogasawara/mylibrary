@@ -3,7 +3,7 @@ loadlibrary <- function(x)
   if (!require(x,character.only = TRUE))
   {
     install.packages(x, repos='http://cran.fiocruz.br', dep=TRUE)
-    if(!require(x,character.only = TRUE)) stop("Package not found")
+    loadlibrary(x)
   }
 }
 
