@@ -322,10 +322,12 @@ binning <- function(v, interval) {
 
 # binning by interval
 
-binning.interval <- function(v, n = NULL, interval=NULL, range=1.5) {
+binning.interval <- function(v, n = NULL, 
+                             interval=NULL, range=1.5) {
   if (is.null(interval)) {
     bp <- boxplot(v, range=range, plot = FALSE)
-    interval <- seq(from = bp$stats[1], to = bp$stats[5], by = (bp$stats[5]-bp$stats[1])/n)
+    interval <- seq(from = bp$stats[1], to = bp$stats[5], 
+        by = (bp$stats[5]-bp$stats[1])/n)
   }
   return(binning(v,interval))
 }
@@ -384,10 +386,12 @@ balance.oversampling <- function(data, class) {
   newdata = NULL
   for (i in 1:(length(x)-1)) {
     minorclass = names(x)[i]
-    curdata = data[data[,class]==mainclass | data[,class]==minorclass,]
+    curdata = data[data[,class]==mainclass
+                   | data[,class]==minorclass,]
     curdata$Species <- factor(curdata$Species) 
     ratio <- as.integer(ceiling(x[length(x)]/x[i])*100)
-    curdata <- SMOTE(class_formula, curdata, perc.over = ratio, perc.under=100)
+    curdata <- SMOTE(class_formula, curdata, 
+                     perc.over = ratio, perc.under=100)
     curdata = curdata[curdata[,class]==minorclass, ]
     idx = sample(1:nrow(curdata),x[length(x)])
     curdata = curdata[idx,]
