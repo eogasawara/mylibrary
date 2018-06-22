@@ -9,6 +9,7 @@ loadlibrary <- function(x)
 
 loadlibrary("caret")
 loadlibrary("MASS")
+loadlibrary("DMwR")
 
 # samples
 
