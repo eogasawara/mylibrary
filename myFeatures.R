@@ -10,6 +10,8 @@ loadlibrary <- function(x)
 loadlibrary("glmnet")
 loadlibrary("leaps")
 loadlibrary("FSelector")
+loadlibrary("doBy")
+
 
 
 # FEATURE SELECTION
