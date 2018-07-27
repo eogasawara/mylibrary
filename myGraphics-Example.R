@@ -2,33 +2,12 @@
 
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphics.R")
 
-loadlibrary("bibtex")
-loadlibrary("network")
-loadlibrary("RColorBrewer")
-loadlibrary("igraph")
-loadlibrary("ggplot2")
-loadlibrary("gridExtra")
-loadlibrary("plyr")
-loadlibrary("readr")
-loadlibrary("dplyr")
-loadlibrary("reshape")
-loadlibrary("tm")
-loadlibrary("SnowballC")
-loadlibrary("wordcloud")
-loadlibrary("readxl")
-loadlibrary("scales")
-loadlibrary("GGally")
-loadlibrary("ggthemes")
-loadlibrary("repr")
-
-dataset_series <- function() {
+create_datasets <- function() {
   series <- data.frame(x= 1:10, sin=sin(1:10), cos=cos(1:10))
   series <- melt(series[,c('x','sin','cos')],id.vars = 1)
-  return(series)  
-}
-mydataseries <- dataset_series()
-
-dataset_bar <- function() {
+  mydataseries <- series
+  save(mydatabar, file="myGraphics-dataseries.RData") 
+  
   series <- matrix(nrow=5, ncol=2)
   series[1,] = c("janeiro", 10)
   series[2,] = c("fevereiro", 9)
@@ -36,23 +15,26 @@ dataset_bar <- function() {
   series[4,] = c("abril", 8)
   series[5,] = c("maio", 12)
   series <- data.frame(variable=as.factor(series[,1]), value=as.double(series[,2]))  
-  return(series)
+  
+  mydatabar <- series
+  save(mydatabar, file="myGraphics-mydatabar.RData") 
+
+  series <- read.table(text = "x Map Reduce 
+                          janeiro 10 5
+                       fevereiro 9 4
+                       março 11 5
+                       abril 8 4
+                       maio 12 6",header = TRUE,sep = "")  
+  series <- melt(series[,c('x','Map','Reduce')],id.vars = 1)
+  mydatastackedbar <- series
+  save(mydatastackedbar, file="mydatastackedbar.RData") 
+
 }
-mydatabar <- dataset_bar()
-save(mydatabar, file="mydatabar.RData") 
 
 
 dataset_stackedbar <- function() {
-  series <- read.table(text = "x Map Reduce 
-                          janeiro 10 5
-                          fevereiro 9 4
-                          março 11 5
-                          abril 8 4
-                          maio 12 6",header = TRUE,sep = "")  
-  series <- melt(series[,c('x','Map','Reduce')],id.vars = 1)
 }
 mydatastackedbar <- dataset_stackedbar()
-save(mydatastackedbar, file="mydatastackedbar.RData") 
 
 mynorm <- data.frame(value=rnorm(10000))
 

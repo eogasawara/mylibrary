@@ -1,7 +1,13 @@
 
-#setwd("C:/Users/Eduardo Ogasawara/Dropbox/temp/systematic-search")
-setwd("C:/Users/eduar/Dropbox/temp/systematic-search")
-source("myGraphics.R")
+loadlibrary <- function(x)
+{
+  if (!require(x,character.only = TRUE))
+  {
+    install.packages(x, repos='http://cran.fiocruz.br', dep=TRUE)
+    loadlibrary(x)
+  }
+}
+
 loadlibrary("bibtex")
 loadlibrary("network")
 loadlibrary("RColorBrewer")
