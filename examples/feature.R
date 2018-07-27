@@ -1,6 +1,5 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFeature.R")
-
 data(iris)
 
 # FEATURE SELECTION
