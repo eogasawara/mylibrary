@@ -90,7 +90,7 @@ grfb <- plot.boxplot(sin_cos, colors=mycolors[1:2])
 options(repr.plot.width=4, repr.plot.height=3)
 plot(grfb)
 
-pdf("myplot.pdf", width=7, height=3)
+pdf("plot.pdf", width=7, height=3)
 plot(grfa)
 dev.off()
 
