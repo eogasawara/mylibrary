@@ -1,5 +1,5 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFeatures.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFeature.R")
 
 data(iris)
 
