@@ -51,8 +51,10 @@ which(redundant)
 rules.pruned <- rules.sorted[!redundant]
 inspect(rules.pruned)
 
+options(repr.plot.width=4, repr.plot.height=4)
 plot(rules.pruned)
 
+options(repr.plot.width=4, repr.plot.height=4)
 plot(rules.pruned, method="paracoord", control=list(reorder=TRUE))
 
 
