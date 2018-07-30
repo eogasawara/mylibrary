@@ -14,6 +14,7 @@ loadlibrary("RSNNS")
 loadlibrary("e1071")
 loadlibrary("class")
 loadlibrary("randomForest")
+loadlibrary("Matrix")
 
 
 # CLASSIFICATION: MLP usando NNET
