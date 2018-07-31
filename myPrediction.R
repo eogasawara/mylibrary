@@ -15,8 +15,8 @@ loadlibrary("e1071")
 loadlibrary("class")
 loadlibrary("randomForest")
 loadlibrary("Matrix")
-loadlibrary("ROCR")
-loadlibrary("MLmetrics")
+#loadlibrary("ROCR")
+#loadlibrary("MLmetrics")
 
 # CLASSIFICATION: General Test Class
 class_test <- function(model, test, clabel, predtype=NULL) {
@@ -25,7 +25,7 @@ class_test <- function(model, test, clabel, predtype=NULL) {
   test_predictand_clabel = decodeClassLabels(test[,clabel])
   predictions = predict(model, test_predictors, type=predtype)
   classification = data.frame(predictions,test_predictand_clabel)
-  confTest = ModelMetrics::confusionMatrix(test_predictand_clabel,predictions)
+  confTest = RSNNS::confusionMatrix(test_predictand_clabel,predictions)
   return (list(model=model, predictions=classification, cmTest=confTest)) 
 }
 
@@ -45,7 +45,7 @@ class_mlp_nnet <- function(data, clabel, neurons=3, decay=0.01, iterations=5000)
   predictions = predict(model, data_predictors, type=predtype)  
 
   classification = data.frame(predictions,data_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions)
   return (list(model=model, predtype=predtype, predictions=classification, cmTrain=confTrain)) 
 }
 
@@ -65,7 +65,7 @@ class_svm_rbf <- function(data, clabel, C=10, sigma=0.1)
   predictions = predict(model, data_predictors, type=predtype)  
 
   classification = data.frame(predictions,data_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions)
   return (list(model=model, predtype=predtype, predictions=classification, cmTrain=confTrain)) 
 }
 
@@ -83,7 +83,7 @@ class_svm_poly <- function(data, clabel, C=10, degree = 1, scale = 1, offset = 1
   predictions = predict(model, data_predictors, type=predtype)  
   
   classification = data.frame(predictions,data_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions)
   return (list(model=model, predtype=predtype, predictions=classification, cmTrain=confTrain)) 
 } 
 
@@ -101,7 +101,7 @@ class_svm_sigmoid <- function(data, clabel, C=10, scale = 1, offset = 1)
   predictions = predict(model, data_predictors, type=predtype)  
   
   classification = data.frame(predictions,data_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions)
   return (list(model=model, predtype=predtype, predictions=classification, cmTrain=confTrain)) 
 } 
 
@@ -120,7 +120,7 @@ class_mlp_RSNNS <- function(data, clabel, neurons=3, iterations=5000)
   predictions = predict(model, data_predictors)  
   
   classification = data.frame(predictions,data_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions)
   return (list(model=model, predtype=predtype, predictions=classification, cmTrain=confTrain)) 
 }
 
@@ -141,7 +141,7 @@ class_rbf_RSNNS <- function(data, clabel, neurons=40, iterations=5000)
   predictions = predict(model, data_predictors)  
   
   classification = data.frame(predictions,data_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions)
   return (list(model=model, predtype=predtype, predictions=classification, cmTrain=confTrain)) 
 }
 
@@ -160,7 +160,7 @@ class_naiveBayes <- function(data, clabel)
   predictions = predict(model, data_predictors, type=predtype)  
   
   classification = data.frame(predictions,data_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions)
   return (list(model=model, predtype=predtype, predictions=classification, cmTrain=confTrain)) 
 }
 
@@ -179,7 +179,7 @@ class_randomForest <- function(data, clabel, ntree = 100)
   predictions = predict(model, data_predictors, type=predtype)  
   
   classification = data.frame(predictions,data_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions)
   return (list(model=model, predtype=predtype, predictions=classification, cmTrain=confTrain))   
 }
 
@@ -204,8 +204,8 @@ knn_predict <- function(data, test, clabel, k = 10)
   predictions = decodeClassLabels(predictions)
   
   classification = data.frame(predictions, test_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel, predictions_train)
-  confTest = ModelMetrics::confusionMatrix(test_predictand_clabel, predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel, predictions_train)
+  confTest = RSNNS::confusionMatrix(test_predictand_clabel, predictions)
   return (list(predictions=classification, cmTrain=confTrain, cmTest=confTest))  
 }
 
@@ -238,7 +238,7 @@ R0_predict <- function(data, test, clabel)
   predictions = r0_matrix(test_predictand_clabel, col)
   
   classification = data.frame(predictions,test_predictand_clabel)
-  confTrain = ModelMetrics::confusionMatrix(data_predictand_clabel,predictions_train)
-  confTest = ModelMetrics::confusionMatrix(test_predictand_clabel,predictions)
+  confTrain = RSNNS::confusionMatrix(data_predictand_clabel,predictions_train)
+  confTest = RSNNS::confusionMatrix(test_predictand_clabel,predictions)
   return (list(predictions=classification, cmTrain=confTrain, cmTest=confTest))  
 }

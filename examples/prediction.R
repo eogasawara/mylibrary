@@ -69,21 +69,25 @@ head(test$predictions)
 test$cmTest
 
 myknn = knn_predict(wine_train, wine_test, "X1", k=3)
+myknn$cmTest
 
 myr0 = R0_predict(wine_train, wine_test, "X1")
+myr0$cmTest
 
 my.pred <- mynnet$predictions$X1
 my.pred.class <- as.integer(mynnet$predictions$X1 > mynnet$predictions$X2 & mynnet$predictions$X1 > mynnet$predictions$X3)
 my.true <- mynnet$predictions$X1.1
 
+my.acc <- Accuracy(y_pred = my.pred.class, y_true = my.true)
+my.f1 <- F1_Score(y_pred = my.pred.class, y_true = my.true, positive = "1")
+my.sens <- Sensitivity(y_pred = my.pred.class, y_true = my.true, positive = "1")
+my.spec <- Specificity(y_pred = my.pred.class, y_true = my.true, positive = "1")
+my.prec <- Precision(y_pred = my.pred.class, y_true = my.true, positive = "1")
+my.rec <- Recall(y_pred = my.pred.class, y_true = my.true, positive = "1")
+
 my.roc.pred <- prediction(my.pred, my.true)
-my.roc.perf <- performance(pred, "tpr", "fpr")
+my.roc.perf <- performance(my.roc.pred, "tpr", "fpr")
+options(repr.plot.width=4, repr.plot.height=4)
 plot(my.roc.perf)
 my.auc <- performance(my.roc.pred, "auc")@y.values[[1]]
 
-my.acc <- Accuracy(y_pred = prob.class, y_true = label)
-my.f1 <- F1_Score(y_pred = prob.class, y_true = label, positive = "1")
-my.sens <- Sensitivity(y_pred = prob.class, y_true = label, positive = "1")
-my.spec <- Specificity(y_pred = prob.class, y_true = label, positive = "1")
-my.prec <- Precision(y_pred = prob.class, y_true = label, positive = "1")
-my.rec <- Recall(y_pred = prob.class, y_true = label, positive = "1")
