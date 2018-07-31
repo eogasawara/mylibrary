@@ -7,6 +7,8 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
   }
 }
 
+loadlibrary("ROCR")
+loadlibrary("MLmetrics")
 loadlibrary("nnet")
 loadlibrary("kernlab")
 loadlibrary("rattle")
@@ -14,9 +16,6 @@ loadlibrary("RSNNS")
 loadlibrary("e1071")
 loadlibrary("class")
 loadlibrary("randomForest")
-loadlibrary("Matrix")
-loadlibrary("ROCR")
-loadlibrary("MLmetrics")
 
 # CLASSIFICATION: General Test Class
 class_test <- function(model, test, clabel, predtype=NULL) {
