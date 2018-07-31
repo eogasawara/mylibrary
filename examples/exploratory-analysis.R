@@ -64,6 +64,5 @@ parcoord(log(ir)[, c(3, 4, 2, 1)], col = 1 + (0:149)%/%50)
 
 pairs(~.,data=ir, main="Scatterplot Matrix")
 
-
 ggpairs(iris[,], aes(colour = Species, alpha = 0.4))
 

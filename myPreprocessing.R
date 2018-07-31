@@ -10,6 +10,7 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
 loadlibrary("caret")
 loadlibrary("MASS")
 loadlibrary("DMwR")
+loadlibrary("dplyr")
 
 # samples
 
@@ -244,7 +245,7 @@ binning.cluster <- function(v, n = NULL, interval=NULL) {
     if (n > 1) {
       km <- kmeans(x = v, centers = n)
       s <- sort(km$centers)
-      s <- filter(s,rep(1/2,2), sides=2)[1:(n-1)]
+      s <- stats::filter(s,rep(1/2,2), sides=2)[1:(n-1)]
       interval <- c(min(v), s, max(v))
     }
     else {

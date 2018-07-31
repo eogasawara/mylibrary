@@ -1,6 +1,5 @@
-#setwd("C:/Users/eduar/OneDrive/Git/mylibrary/")
-
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphics.R")
+
 loadlibrary("reshape")
 loadlibrary("RColorBrewer")
 loadlibrary("gridExtra")
