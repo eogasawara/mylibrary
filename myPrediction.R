@@ -15,8 +15,8 @@ loadlibrary("e1071")
 loadlibrary("class")
 loadlibrary("randomForest")
 loadlibrary("Matrix")
-#loadlibrary("ROCR")
-#loadlibrary("MLmetrics")
+loadlibrary("ROCR")
+loadlibrary("MLmetrics")
 
 # CLASSIFICATION: General Test Class
 class_test <- function(model, test, clabel, predtype=NULL) {
