@@ -31,7 +31,7 @@ AdultUCI$"capital-loss" <- ordered(cut(AdultUCI$"capital-loss",
 AdultTrans <- as(AdultUCI, "transactions")
 
 #Neste caso as regras serão geradas com suporte de 0,5, confiança de 0,9, tamanho minimo = 2, ou seja, um atributo do lado esquerdo e um do lado direito, tamanho maximo=3, lado direito limitado ao valor do atributo capital-gain=None e lado esquerdo livre. Isso significa que estamos interessados em qualquer causa que provoque a consequência capital gain=None. 
-rules <- apriori(AdultTrans, parameter=list(supp = 0.5, conf = 0.9, minlen=2, maxlen= 3, target = "rules"), appearance=list(rhs = c("capital-gain=None"),default="lhs"),control=NULL)
+rules <- apriori(AdultTrans, parameter=list(supp = 0.5, conf = 0.9, minlen=2, maxlen= 10, target = "rules"), appearance=list(rhs = c("capital-gain=None"),default="lhs"),control=NULL)
 rules_a <- as(rules, "data.frame")
 head(rules_a)
 
@@ -49,17 +49,18 @@ redundant <- colSums(subset.matrix, na.rm=TRUE) >= 1
 which(redundant)
 
 rules.pruned <- rules.sorted[!redundant]
-inspect(rules.pruned)
+inspect(rules)
 
 options(repr.plot.width=4, repr.plot.height=4)
-plot(rules.pruned)
+plot(rules)
 
 options(repr.plot.width=4, repr.plot.height=4)
-plot(rules.pruned, method="paracoord", control=list(reorder=TRUE))
+plot(rules, method="paracoord", control=list(reorder=TRUE))
 
 
 x <- read_baskets(con = system.file("misc", "zaki.txt", package = "arulesSequences"), info = c("sequenceID","eventID","SIZE"))
 as(x, "data.frame")
 
+#this should be run at R console
 s1 <- cspade(x, parameter = list(support = 0.4), control = list(verbose = TRUE))
 as(s1, "data.frame")
