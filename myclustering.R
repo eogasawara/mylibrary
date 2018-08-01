@@ -28,7 +28,7 @@ clust_kmeans <- function(data, clabel, k)
 }
 
 clust_kmeans_best <- function(data, maxk=20) {
-  x = c(1:maxk)
+  x = c(1:maxk) 
   y = rep(0,maxk)
   k = 1
   for (k in 1:maxk) {
