@@ -1,6 +1,9 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myclustering.R")
 load(url("https://github.com/eogasawara/mylibrary/raw/master/data/iris.RData"))
 
+irisn <- iris
+irisn$Species <- NULL
+
 
 #outliers by boxplot
 out <- outliers.boxplot(iris)
@@ -11,6 +14,7 @@ print(boutliers)
 
 t <- sort(dbscan::kNNdist(irisn, k =  10))
 cm <- curvature.max(c(1:length(t)),t, do_plot=FALSE)
+options(repr.plot.width=5, repr.plot.height=4)
 dbscan::kNNdistplot(irisn, k =  10)
 abline(h = cm$y, lty = 2)
 dbs3n <- fpc::dbscan(irisn, eps = cm$y, MinPts = 10)
@@ -18,16 +22,12 @@ irisn$cluster <- dbs3n$cluster
 dbsoutliers = which(irisn$cluster == 0)
 print(dbsoutliers)
 
-
-irisn <- iris
-irisn$Species <- NULL
 outlier.scores <- lofactor(irisn, k=5)
 plot(density(outlier.scores))
 t <- sort(outlier.scores, decreasing=T)
 plot(t)
 looutliers <- order(outlier.scores, decreasing=T)[1:5]
 print(looutliers)
-
 
 n <- nrow(irisn)
 labels <- 1:n
@@ -38,6 +38,7 @@ pch <- rep(".", n)
 pch[looutliers] <- "+"
 col <- rep("black", n)
 col[looutliers] <- "red"
+options(repr.plot.width=7, repr.plot.height=7)
 pairs(irisn, pch=pch, col=col)
 
 
