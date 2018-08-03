@@ -1,6 +1,7 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFeature.R")
 loadlibrary("useful")
+loadlibrary("dbscan")
 loadlibrary("fpc")
 loadlibrary("cluster")
 loadlibrary("DescTools")
@@ -50,7 +51,7 @@ clust_dbscan <- function(data, clabel, eps, MinPts)
   data_predictors = data[,predictors_name] 
   data[,clabel] = as.factor(data[,clabel])
   
-  clu <- dbscan(data_predictors, eps = eps, MinPts = MinPts)
+  clu <- fpc::dbscan(data_predictors, eps = eps, MinPts = MinPts)
   data$cluster = clu$cluster
   
   l = split(data[,clabel], data$cluster)

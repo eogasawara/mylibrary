@@ -45,14 +45,6 @@ kmeans_b <- clust_kmeans_best(winenp)
 options(repr.plot.width=4, repr.plot.height=3)
 plot(kmeans_b$x,kmeans_b$y)
 
-kmeans4n <- clust_kmeans(winen, "X1", 4)
-head(kmeans4n$data)
-options(repr.plot.width=4, repr.plot.height=3)
-plot(kmeans4n$plot)
-print(kmeans4n$table)
-print(kmeans4n$entropy)
-
-
 pamk.result <- pamk(winenp)
 pamk.result$nc
 table(pamk.result$pamobject$clustering, winen$X1)
@@ -64,6 +56,18 @@ print(pam3n$entropy)
 
 
 dbs3n <- clust_dbscan(winen, "X1", eps = 0.425, MinPts = 10)
+head(dbs3n$data)
+print(dbs3n$table)
+print(dbs3n$entropy)
+options(repr.plot.width=5, repr.plot.height=4)
+plotcluster(winenp, dbs3n$clu$cluster)  
+
+t <- sort(dbscan::kNNdist(winen, k =  10))
+cm <- curvature.max(c(1:length(t)),t)
+dbscan::kNNdistplot(winen, k =  10)
+abline(h = cm$y, lty = 2)
+
+dbs3n <- clust_dbscan(winen, "X1", eps = cm$y, MinPts = 10)
 head(dbs3n$data)
 print(dbs3n$table)
 print(dbs3n$entropy)
