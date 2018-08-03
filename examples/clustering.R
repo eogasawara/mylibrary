@@ -63,7 +63,7 @@ options(repr.plot.width=5, repr.plot.height=4)
 plotcluster(winenp, dbs3n$clu$cluster)  
 
 t <- sort(dbscan::kNNdist(winen, k =  10))
-cm <- curvature.max(c(1:length(t)),t)
+cm <- curvature.max(c(1:length(t)),t, plot=FALSE)
 dbscan::kNNdistplot(winen, k =  10)
 abline(h = cm$y, lty = 2)
 

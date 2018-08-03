@@ -91,25 +91,29 @@ outliers.boxplot <- function(data, alpha = 1.5)
 
 # curvature analysis
 
-curvature.max <- function(x, y, df=3) {
+curvature.max <- function(x, y, df=3, do_plot=TRUE) {
   smodel = smooth.spline(x, y, df = df)
   curvature = predict(smodel, x = x, deriv = 2)
   yv = max(curvature$y)
   xv = match(yv,curvature$y)
-  plot(x, y)
-  points(x[xv], y[xv], pch=19)
+  if (do_plot) {
+    plot(x, y)
+    points(x[xv], y[xv], pch=19)
+  }
   res = data.frame(x[xv], y[xv], yv)
   colnames(res) = c("x", "y", "z")
   return (res)
 }
 
-curvature.min <- function(x, y, df=3) {
+curvature.min <- function(x, y, df=3, do_plot=TRUE) {
   smodel = smooth.spline(x, y, df = df)
   curvature = predict(smodel, x = x, deriv = 2)
   yv = min(curvature$y)
   xv = match(yv,curvature$y)
-  plot(x, y)
-  points(x[xv], y[xv], pch=19)
+  if (do_plot) {
+    plot(x, y)
+    points(x[xv], y[xv], pch=19)
+  }
   res = data.frame(x[xv], y[xv], yv)
   colnames(res) = c("x", "y", "z")
   return (res)
