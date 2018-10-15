@@ -78,11 +78,11 @@ outliers.boxplot <- function(data, alpha = 1.5)
   {
     if (nums[i])
     {
-      q = quantile(data[,i])
+      q = quantile(data[,i], na.rm = TRUE)
       IQR = q[4] - q[2]
       lq1 = q[2] - alpha*IQR
       hq3 = q[4] + alpha*IQR
-      out = out | data[,i] < lq1 | data[,i] > hq3
+      out = out | (!is.na(data[,i]) & (data[,i] < lq1 | data[,i] > hq3))
     }
   }
   return (out)

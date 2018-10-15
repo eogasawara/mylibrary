@@ -1,3 +1,4 @@
+#setwd("C:/Users/eduar/Downloads")
 loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
 {
   if (!require(x,character.only = TRUE))
