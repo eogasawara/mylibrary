@@ -41,15 +41,12 @@ SearchSTMotifs <- function (D,DS,w,a,sb,tb,si=3,ka=3){
     block = as.vector(as.matrix(block))
     saxblock = as.vector(as.matrix(saxblock))
     motifs[[i]] <- identifyMotifsInBlock(ts = block, tss = saxblock, tb = tb ,w = w, a = a)
-    message(i, "/", size," - ", i/size*100,"%")
   }
-
 
   stmotifs <- list()
-  for (i in 1:length(motifs)){
+  for (i in 1:length(motifs)) {
     stmotifs <- STSIdentifySTMotif(stmotifs, motifs[[i]], nrows, ncols, rectangles[[i]], ka = ka, si = si)
   }
-
 
   sttightmotifs <- list()
 
@@ -64,18 +61,16 @@ SearchSTMotifs <- function (D,DS,w,a,sb,tb,si=3,ka=3){
       stmotifs[[i]] = stmotif
     }
 
-    sttightmotifsTemp  <- list()
     for(stmotif in (stmotifs)) {
-      sttightmotifsTemp <- STSIdentifyTightSTMotif(stmotif, rectangles)
-      for (item in (sttightmotifsTemp)) {
+      sttightmotifsSplit <- STSIdentifyTightSTMotif(stmotif, rectangles)
+      for (item in (sttightmotifsSplit)) {
         pos = length(sttightmotifs)+1
         sttightmotifs[[pos]] <- item
         names(sttightmotifs)[pos] = item$isaxcod
       }
     }
-
   }
-    return (sttightmotifs)
+  return (sttightmotifs)
 }
 
 
@@ -418,13 +413,12 @@ rank <- function(dataRank,stmotifs)
 
   #order
   o <- order(dataRankOrg$proj, decreasing=TRUE)
-  stmotifsRank <- NULL
+  stmotifsRank <- list()
   for (i in 1:length(stmotifs)) {
-    indice<-o[i]
+    indice <- o[i]
     stmotifs[[indice]][["rank"]] <- c(dataRankOrg[indice,]['dist'], dataRankOrg[indice,]['word'], dataRankOrg[indice,]['qtd'], dataRankOrg[indice,]['proj'])
-    stmotifsRank[[stmotifs[[indice]]$isaxcod]]<- stmotifs[[indice]]
+    stmotifsRank[[i]] <- stmotifs[[indice]]
   }
-
   return (stmotifsRank)
 }
 
