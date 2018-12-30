@@ -91,34 +91,40 @@ outliers.boxplot <- function(data, alpha = 1.5)
 
 # curvature analysis
 
-curvature.max <- function(x, y, df=3, do_plot=TRUE) {
-  smodel = smooth.spline(x, y, df = df)
-  curvature = predict(smodel, x = x, deriv = 2)
-  yv = max(curvature$y)
-  xv = match(yv,curvature$y)
-  if (do_plot) {
-    plot(x, y)
-    points(x[xv], y[xv], pch=19)
-  }
-  res = data.frame(x[xv], y[xv], yv)
-  colnames(res) = c("x", "y", "z")
-  return (res)
-}
-
 curvature.min <- function(x, y, df=3, do_plot=TRUE) {
   smodel = smooth.spline(x, y, df = df)
   curvature = predict(smodel, x = x, deriv = 2)
   yv = min(curvature$y)
   xv = match(yv,curvature$y)
   if (do_plot) {
-    plot(x, y)
-    points(x[xv], y[xv], pch=19)
+    variable = rep("values", length(x))
+    variable[x==xv] <- "selected"
+    res = data.frame(x=x, variable=variable, value=y)
+    grfs <- plot.scatter(res,colors=c("red", "black"))   
+    plot(grfs)
   }
   res = data.frame(x[xv], y[xv], yv)
   colnames(res) = c("x", "y", "z")
   return (res)
 }
 
+
+curvature.max <- function(x, y, df=3, do_plot=TRUE) {
+  smodel = smooth.spline(x, y, df = df)
+  curvature = predict(smodel, x = x, deriv = 2)
+  yv = max(curvature$y)
+  xv = match(yv,curvature$y)
+  if (do_plot) {
+    variable = rep("values", length(x))
+    variable[x==xv] <- "selected"
+    res = data.frame(x=x, variable=variable, value=y)
+    grfs <- plot.scatter(res,colors=c("red", "black"))   
+    plot(grfs)
+  }
+  res = data.frame(x[xv], y[xv], yv)
+  colnames(res) = c("x", "y", "z")
+  return (res)
+}
 
 # min-max normalization
 
