@@ -49,6 +49,10 @@ grfs <- plot.series(sin_cos,colors=mycolors)
 options(repr.plot.width=4, repr.plot.height=3)
 plot(grfs)
 
+grfs <- plot.scatter(sin_cos,colors=mycolors)
+options(repr.plot.width=4, repr.plot.height=3)
+plot(grfs)
+
 grf <- plot.bar(montly, colors=mycolors)
 options(repr.plot.width=4, repr.plot.height=3)
 plot(grf)

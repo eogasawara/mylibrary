@@ -11,9 +11,24 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
 loadlibrary("ggplot2")
 loadlibrary("scales")
 
+plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
+  grf <- ggplot(data=series, aes(x = x, y = value, colour=variable))
+  grf <- grf + geom_point(data=series, aes(x = x, y = value, colour=variable), size=1)
+  if (!is.null(colors)) {
+    grf <- grf + scale_color_manual(values=colors)
+  }
+  grf <- grf + labs(color=label_series)
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)
+  grf <- grf + theme_bw(base_size = 10)
+  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
+  grf <- grf + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
+  return(grf)
+}
+
 plot.series <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
   grf <- ggplot(data=series, aes(x = x, y = value, colour=variable))
-  grf <- grf + geom_line() + geom_point(data=series, aes(x = x, y = value, colour=variable), size=0.5)
+  grf <- grf + geom_line(size=1) + geom_point(data=series, aes(x = x, y = value, colour=variable), size=1.5)
   if (!is.null(colors)) {
     grf <- grf + scale_color_manual(values=colors)
   }
