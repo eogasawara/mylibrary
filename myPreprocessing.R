@@ -221,12 +221,16 @@ binning <- function(v, interval) {
 
 # binning by interval
 
-binning.interval <- function(v, n = NULL, 
-                             interval=NULL, range=1.5) {
+binning.interval <- function(v, n = NULL, interval=NULL, range=1.5) {
   if (is.null(interval)) {
     bp <- boxplot(v, range=range, plot = FALSE)
-    interval <- seq(from = bp$stats[1], to = bp$stats[5], 
-        by = (bp$stats[5]-bp$stats[1])/n)
+    bimax <- bp$stats[5]
+    bimin <- bp$stats[1]
+    if (bimin == bimax) {
+      bimax = max(v)
+      bimin = min(v)
+    }
+    interval <- seq(from = bimin, to = bimax, by = (bimax-bimin)/n)
   }
   return(binning(v,interval))
 }
