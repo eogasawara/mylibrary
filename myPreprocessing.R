@@ -208,7 +208,7 @@ binning <- function(v, interval) {
   interval[1] <- min(v)
   interval[length(interval)] <- max(v)
   interval.adj <- interval
-  interval.adj[1] <- .Machine$double.xmin
+  interval.adj[1] <- -.Machine$double.xmax
   interval.adj[length(interval)] <- .Machine$double.xmax
   
   vp <- cut(v, unique(interval.adj), FALSE, include.lowest=TRUE)
