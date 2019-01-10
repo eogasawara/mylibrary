@@ -27,6 +27,7 @@ fs.lasso <- function(data, class)
     data[,class] =  as.numeric(data[,class])
   nums = unlist(lapply(data, is.numeric))
   data = data[ , nums]
+
   predictors_name  = setdiff(colnames(data), class)
   predictors = as.matrix(data[,predictors_name])
   predictand = data[,class]
@@ -71,9 +72,16 @@ fs.fss <- function(data, class)
 
 fs.cfs <- function(data, class)
 {
+  data = data.frame(data)
+  dataorg <- data
+  if (!is.numeric(data[,class]))
+    data[,class] =  as.numeric(data[,class])
+  nums = unlist(lapply(data, is.numeric))
+  data = data[ , nums]
+  
   class_formula = formula(paste(class, "  ~ ."))
   vec = cfs(class_formula, data)
-  data = data[,c(vec, class)]
+  data = dataorg[,c(vec, class)]
   return (list(data=data, features=vec))
 }
 
@@ -99,6 +107,13 @@ fs.ig <- function(data, class)
 
 fs.relief <- function(data, class)
 {
+  data = data.frame(data)
+  dataorg <- data
+  if (!is.numeric(data[,class]))
+    data[,class] =  as.numeric(data[,class])
+  nums = unlist(lapply(data, is.numeric))
+  data = data[ , nums]
+
   class_formula = formula(paste(class, "  ~ ."))
   weights = relief(class_formula, data)
   
@@ -109,7 +124,7 @@ fs.relief <- function(data, class)
   res = curvature.min(tab$i, tab$import_acum)
   tab = tab[tab$import_acum <= res$y,]
   vec = rownames(tab)
-  data = data[,c(vec, class)]
+  data = dataorg[,c(vec, class)]
   return (list(data=data, features=vec))
 }
 
