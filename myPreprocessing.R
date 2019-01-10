@@ -172,7 +172,7 @@ normalize.zscore <- function(data, norm.set=NULL, nmean=0, nsd=1){
   else {
     zscore = norm.set
   }
-  for (j in colnames(minmax)[minmax["numeric",]==1]) {
+  for (j in colnames(zscore)[zscore["numeric",]==1]) {
     if ((zscore["sd", j]) > 0) {
       data[,j] = ((data[,j] - zscore["mean", j]) / zscore["sd", j]) * zscore["nsd", j] + zscore["nmean", j]
     }
