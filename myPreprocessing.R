@@ -189,25 +189,43 @@ normalize.zscore <- function(data, norm.set=NULL, nmean=0, nsd=1){
 
 dt.pca <- function(data, class, transf = NULL)
 {
-  data = data.frame(data)
-  if (!is.numeric(data[,class]))
-    data[,class] =  as.numeric(data[,class])
-  nums = unlist(lapply(data, is.numeric))
-  data = data[ , nums]
+  if (!is.null(transf)){
+    pca.transf <- transf$pca.transf
+    nums <- transf$nums
+  } 
+  else {
+    data = data.frame(data)
+    nums = unlist(lapply(data, is.numeric))
+    nums[class] <-  FALSE
+
+    remove <- NULL
+    for(j in names(nums[nums])) {
+      if(min(data[,j])==max(data[,j]))
+        remove <- cbind(remove, j)
+    }
+    nums[remove] <- FALSE
   
+    if (!is.numeric(data[,class]))
+      data[,class] =  as.numeric(data[,class])
+    nums[class] <- TRUE
+  }
+  
+  data = data[ , nums]
   predictors_name  = setdiff(colnames(data), class)
   predictors = as.matrix(data[,predictors_name])
-  if (is.null(transf)) {
+
+  if (is.null(transf)){
     predictand = data[,class]
     pca_res = prcomp(predictors, center=TRUE, scale.=TRUE)
     cumvar = cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
     res = curvature.min(c(1:(length(cumvar))), cumvar)
-    transf = as.matrix(pca_res$rotation[, 1:res$x])
+    pca.transf = as.matrix(pca_res$rotation[, 1:res$x])
   }
-  
-  dataset = predictors %*% transf
+
+  dataset = predictors %*% pca.transf
   dataset = data.frame(dataset)
-  return (list(pca=dataset, pca.transf=transf))
+  transf=list(pca.transf=pca.transf, nums=nums)
+  return (list(pca=dataset, transf=transf))
 }
 
 dt.categ_mapping <- function(data, attribute){
