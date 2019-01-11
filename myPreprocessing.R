@@ -186,46 +186,45 @@ normalize.zscore <- function(data, norm.set=NULL, nmean=0, nsd=1){
 # Data Transformation
 
 # PCA
-
 dt.pca <- function(data, class, transf = NULL)
 {
-  if (!is.null(transf)){
+  data = data.frame(data)
+  if (class %in% colnames(data)) {
+    predictand <- data[,class]
+    data[,class] <- NULL
+  } else {
+    predictand <- NULL
+  }
+  
+  if (!is.null(transf)) {
     pca.transf <- transf$pca.transf
     nums <- transf$nums
-  } 
-  else {
-    data = data.frame(data)
+  } else {
     nums = unlist(lapply(data, is.numeric))
-    nums[class] <-  FALSE
-
     remove <- NULL
     for(j in names(nums[nums])) {
       if(min(data[,j])==max(data[,j]))
         remove <- cbind(remove, j)
     }
     nums[remove] <- FALSE
-  
-    if (!is.numeric(data[,class]))
-      data[,class] =  as.numeric(data[,class])
-    nums[class] <- TRUE
   }
   
-  data = data[ , nums]
-  predictors_name  = setdiff(colnames(data), class)
-  predictors = as.matrix(data[,predictors_name])
+  data = as.matrix(data[ , nums])
 
-  if (is.null(transf)){
-    predictand = data[,class]
-    pca_res = prcomp(predictors, center=TRUE, scale.=TRUE)
+  if (is.null(transf)) {
+    pca_res = prcomp(data, center=TRUE, scale.=TRUE)
     cumvar = cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
     res = curvature.min(c(1:(length(cumvar))), cumvar)
     pca.transf = as.matrix(pca_res$rotation[, 1:res$x])
   }
 
-  dataset = predictors %*% pca.transf
-  dataset = data.frame(dataset)
+  data = data %*% pca.transf
+  data = data.frame(data)
+  if (!is.null(predictand)){
+    data[,class] <- predictand
+  }
   transf=list(pca.transf=pca.transf, nums=nums)
-  return (list(pca=dataset, transf=transf))
+  return (list(pca=data, transf=transf))
 }
 
 dt.categ_mapping <- function(data, attribute){
@@ -319,13 +318,13 @@ binning.opt <- function(v, binning=NULL, n=20) {
 balance.oversampling <- function(data, class) {
   x <- sort((table(data[,class]))) 
   class_formula = formula(paste(class, "  ~ ."))
+  data[,class] <- as.factor(data[,class])
   mainclass = names(x)[length(x)]
   newdata = NULL
   for (i in 1:(length(x)-1)) {
     minorclass = names(x)[i]
     curdata = data[data[,class]==mainclass
                    | data[,class]==minorclass,]
-    curdata$Species <- factor(curdata$Species) 
     ratio <- as.integer(ceiling(x[length(x)]/x[i])*100)
     curdata <- SMOTE(class_formula, curdata, 
                      perc.over = ratio, perc.under=100)
