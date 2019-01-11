@@ -231,7 +231,6 @@ dt.categ_mapping <- function(data, attribute){
   mdlattribute = formula(paste("~", paste(attribute, "-1")))
   x <- model.matrix(mdlattribute, data=data)
   data <- cbind(data, x)
-  data[,attribute] <- NULL
   return(data)
 }
 
