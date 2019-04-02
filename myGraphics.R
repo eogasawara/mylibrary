@@ -138,17 +138,17 @@ plot.density <-  function(series, label_series = "", label_x = "", label_y = "",
   if("variable" %in% colnames(series)) {
     grf <- ggplot(series, aes(x=value,fill=variable))
     if (is.null(bin)) 
-      grf <- grf + geom_density()
+      grf <- grf + geom_density(alpha = 0.25)
     else 
-      grf <- grf + geom_density(binwidth = bin)
+      grf <- grf + geom_density(binwidth = bin, alpha = 0.25)
   }  
   else {
     grf <- ggplot(series, aes(x=value))
     if (is.null(bin)) {
       if (!is.null(colors)) 
-        grf <- grf + geom_density(fill=colors)
+        grf <- grf + geom_density(fill=colors, alpha = 0.25)
       else
-        grf <- grf + geom_density()
+        grf <- grf + geom_density(alpha = 0.25)
     }
     else {
       if (!is.null(colors)) 
