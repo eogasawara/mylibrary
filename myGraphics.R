@@ -185,17 +185,10 @@ plot.boxplot <- function(series, label_series = "", label_x = "", label_y = "", 
   return(grf)
 }
 
-plot_lollipop <- function(data, color, xlabel = "", ylabel = "", size_text=3, size_ball=8, alpha_ball=0.2, min_value=0, max_value=NULL) {
-  if(is.null(min_value)) {
-    min_value <- min(data$value)
-  }
-  if(is.null(max_value)) {
-    max_value <- max(data$value)-1
-  }
-  
+plot_lollipop <- function(data, color, xlabel = "", ylabel = "", size_text=3, size_ball=8, alpha_ball=0.2, min_value=0, max_value_gap=1) {
   data$value <- round(data$value)
   grf <- ggplot(data=data, aes(x=variable, y=value, label=value)) +
-    geom_segment(aes(x=variable, xend=variable, y=min_value, yend=(max_value)), color=color, size=1) +
+    geom_segment(aes(x=variable, xend=variable, y=min_value, yend=(value-max_value_gap)), color=color, size=1) +
     geom_text(color="black", size=size_text) +
     geom_point(color=color, size=size_ball, alpha=alpha_ball) +
     theme_light() +
