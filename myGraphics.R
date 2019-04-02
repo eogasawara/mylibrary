@@ -1,4 +1,3 @@
-#setwd("C:/Users/eduar/Downloads")
 loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
 {
   if (!require(x,character.only = TRUE))
@@ -10,6 +9,8 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
 
 loadlibrary("ggplot2")
 loadlibrary("scales")
+loadlibrary("RColorBrewer")
+loadlibrary("gridExtra")
 
 plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
   grf <- ggplot(data=series) + geom_point(aes(x = x, y = value, colour=variable), size=1)
