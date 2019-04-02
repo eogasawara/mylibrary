@@ -102,27 +102,27 @@ plot.pieplot <- function(series, label_series = "", label_x = "", label_y = "", 
   return(grf)
 }
 
-plot.hist <-  function(series, label_series = "", label_x = "", label_y = "", colors = NULL, bin = NULL) {
+plot.hist <-  function(series, label_series = "", label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.25) {
   if("variable" %in% colnames(series)) {
     grf <- ggplot(series, aes(x=value,fill=variable))
     if (is.null(bin)) 
-      grf <- grf + geom_histogram()
+      grf <- grf + geom_histogram(alpha = alpha)
     else 
-      grf <- grf + geom_histogram(binwidth = bin)
+      grf <- grf + geom_histogram(binwidth = bin, alpha = alpha)
   }  
   else {
     grf <- ggplot(series, aes(x=value))
     if (is.null(bin)) {
       if (!is.null(colors)) 
-        grf <- grf + geom_histogram(fill=colors)
+        grf <- grf + geom_histogram(fill=colors, alpha = alpha)
       else
-        grf <- grf + geom_histogram()
+        grf <- grf + geom_histogram(alpha = alpha)
     }
     else {
       if (!is.null(colors)) 
-        grf <- grf + geom_histogram(binwidth = bin,fill=colors)
+        grf <- grf + geom_histogram(binwidth = bin,fill=colors, alpha = alpha)
       else
-        grf <- grf + geom_histogram(binwidth = bin)
+        grf <- grf + geom_histogram(binwidth = bin, alpha = alpha)
     }
   }
   grf <- grf + xlab(label_x)
@@ -134,27 +134,27 @@ plot.hist <-  function(series, label_series = "", label_x = "", label_y = "", co
   return(grf)
 }
 
-plot.density <-  function(series, label_series = "", label_x = "", label_y = "", colors = NULL, bin = NULL) {
+plot.density <-  function(series, label_series = "", label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.25) {
   if("variable" %in% colnames(series)) {
     grf <- ggplot(series, aes(x=value,fill=variable))
     if (is.null(bin)) 
-      grf <- grf + geom_density(alpha = 0.25)
+      grf <- grf + geom_density(alpha = alpha)
     else 
-      grf <- grf + geom_density(binwidth = bin, alpha = 0.25)
+      grf <- grf + geom_density(binwidth = bin, alpha = alpha)
   }  
   else {
     grf <- ggplot(series, aes(x=value))
     if (is.null(bin)) {
       if (!is.null(colors)) 
-        grf <- grf + geom_density(fill=colors, alpha = 0.25)
+        grf <- grf + geom_density(fill=colors, alpha = alpha)
       else
-        grf <- grf + geom_density(alpha = 0.25)
+        grf <- grf + geom_density(alpha = alpha)
     }
     else {
       if (!is.null(colors)) 
-        grf <- grf + geom_histogram(binwidth = bin,fill=colors)
+        grf <- grf + geom_histogram(binwidth = bin,fill=colors, alpha = alpha)
       else
-        grf <- grf + geom_histogram(binwidth = bin)
+        grf <- grf + geom_histogram(binwidth = bin, alpha = alpha)
     }
   }
   grf <- grf + theme_bw(base_size = 10)
