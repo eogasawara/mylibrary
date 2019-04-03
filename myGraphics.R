@@ -63,6 +63,15 @@ plot.bar <- function(series, label_series = "", label_x = "", label_y = "", colo
   return(grf)
 }
 
+plot.radar <- function(series, label_series = "", label_x = "", label_y = "", color = NULL)  {
+  grf <- ggplot(data=series, aes(x=x, y=value, group=1))
+  grf <- grf + geom_point(size=2, color=color)
+  grf <- grf + geom_polygon(size = 1, alpha= 0.1, color=color)
+  grf <- grf + theme_light()
+  grf <- grf + coord_polar()
+  return(grf)
+}
+
 
 plot.stackedbar <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
   grf <- ggplot(series, aes(x=x, y=value, fill=variable)) + geom_bar(stat="identity", colour="white")
