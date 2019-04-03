@@ -229,7 +229,7 @@ plot_dotchar <- function(series, color, colorline = "lightgray", xlabel = "", yl
 
 plot_ballon <- function(series, color) {
   grf <- ggballoonplot(series, x = 'x', y = 'variable', size = 'radius', fill = 'value')
-  grf <- grf + gradient_fill(col_4)
+  grf <- grf + gradient_fill(color)
   grf <- grf + guides(size = FALSE)                         
   return(grf)
 } 
