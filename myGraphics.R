@@ -9,8 +9,6 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
 
 loadlibrary("ggplot2")
 loadlibrary("scales")
-loadlibrary("RColorBrewer")
-loadlibrary("gridExtra")
 
 plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
   grf <- ggplot(data=series) + geom_point(aes(x = x, y = value, colour=variable), size=1)
@@ -58,11 +56,13 @@ plot.bar <- function(series, label_series = "", label_x = "", label_y = "", colo
   }
   grf <- grf + theme_bw(base_size = 10)
   grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
-  grf <- grf + scale_x_discrete(limits = unique(series$x))
+  if("x" %in% colnames(series))
+    grf <- grf + scale_x_discrete(limits = unique(series$x))
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   return(grf)
 }
+
 
 plot.stackedbar <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
   grf <- ggplot(series, aes(x=x, y=value, fill=variable)) + geom_bar(stat="identity", colour="white")
