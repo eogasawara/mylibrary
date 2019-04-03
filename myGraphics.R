@@ -1,9 +1,9 @@
 loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
 {
-  if (!require(x,character.only = TRUE))
+  if (!require(x,character.only = TRUE, quietly=FALSE))
   {
-    install.packages(x, repos=repos, dep=TRUE)
-    require(x)
+    install.packages(x, repos=repos, dep=TRUE, verbose=FALSE)
+    require(x,character.only = TRUE, quietly=FALSE)
   }
 }
 
