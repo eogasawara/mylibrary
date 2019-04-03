@@ -213,10 +213,11 @@ plot_lollipop <- function(series, color, xlabel = "", ylabel = "", size_text=3, 
   return(grf)
 }
 
-plot_dotchar <- function (series, color, colorline = "lightgray", xlabel = "", ylabel = "", legend.title = "") {
+plot_dotchar <- function (series, color, colorline = "lightgray", xlabel = "", ylabel = "", legend.title = "", sorting="ascending") {
   grf <- ggdotchart(series, x = "x", y = "value",
                   color = "variable", size = 3,
                   add = "segment",
+                  sorting = sorting,
                   add.params = list(color = colorline, size = 1.5),
                   position = position_dodge(0.3),
                   palette = color,
