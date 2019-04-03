@@ -1,9 +1,9 @@
 loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
 {
-  if (!require(x,character.only = TRUE, quietly=FALSE))
+  if (!require(x,character.only = TRUE))
   {
-    install.packages(x, repos=repos, dep=TRUE, verbose=FALSE)
-    require(x,character.only = TRUE, quietly=FALSE)
+    install.packages(x, repos=repos, dep=TRUE)
+    require(x)
   }
 }
 
@@ -213,7 +213,7 @@ plot_lollipop <- function(series, color, xlabel = "", ylabel = "", size_text=3, 
   return(grf)
 }
 
-plot_dotchar <- function (series, color, colorline = "lightgray", xlabel = "", ylabel = "", legend.title = "", sorting="ascending") {
+plot_dotchar <- function(series, color, colorline = "lightgray", xlabel = "", ylabel = "", legend.title = "", sorting="ascending") {
   grf <- ggdotchart(series, x = "x", y = "value",
                   color = "variable", size = 3,
                   add = "segment",
@@ -225,3 +225,11 @@ plot_dotchar <- function (series, color, colorline = "lightgray", xlabel = "", y
   grf <- ggpar(grf,legend.title = legend.title)
   return(grf)
 }
+
+
+plot_ballon <- function(series, color) {
+  grf <- ggballoonplot(series, x = 'x', y = 'variable', size = 'value', fill = 'value')
+  grf <- grf + gradient_fill(col_4)
+  grf <- grf + guides(size = FALSE)                         
+  return(grf)
+} 
