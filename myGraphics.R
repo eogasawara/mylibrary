@@ -38,9 +38,9 @@ plot.series <- function(series, label_series = "", label_x = "", label_y = "", c
   return(grf)
 }
 
-plot.bar <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL, group=FALSE) {
+plot.bar <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL, group=FALSE, alpha=1) {
   if (group) {
-    grf <- ggplot(series, aes(x, value, fill=variable)) + geom_bar(stat = "identity",position = "dodge")
+    grf <- ggplot(series, aes(x, value, fill=variable)) + geom_bar(stat = "identity",position = "dodge", alpha=alpha)
     if (!is.null(colors)) {
       grf <- grf + scale_fill_manual(label_series, values = colors)
     }
@@ -48,10 +48,10 @@ plot.bar <- function(series, label_series = "", label_x = "", label_y = "", colo
   else {  
     grf <- ggplot(series, aes(variable, value))
     if (!is.null(colors)) {
-      grf <- grf + geom_bar(stat = "identity",fill=colors)
+      grf <- grf + geom_bar(stat = "identity",fill=colors, alpha=alpha)
     }
     else {  
-      grf <- grf + geom_bar(stat = "identity")
+      grf <- grf + geom_bar(stat = "identity", alpha=alpha)
     }    
   }
   grf <- grf + theme_bw(base_size = 10)
