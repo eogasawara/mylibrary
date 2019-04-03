@@ -224,5 +224,3 @@ plot_dotchar <- function (series, color, colorline = "lightgray", xlabel = "", y
   grf <- ggpar(grf,legend.title = legend.title)
   return(grf)
 }
-
-plot(y)
