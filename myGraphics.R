@@ -153,7 +153,7 @@ plot_ballon <- function(series, color) {
 
 
 plot.hist <-  function(series, label_series = "", label_x = "", label_y = "", color = 'white', alpha=0.25) {
-  tmp <- hist(series$value)
+  tmp <- hist(series$value, plot = FALSE)
   grf <- ggplot(series, aes(x=value))
   grf <- grf + geom_histogram(breaks=tmp$breaks,fill=color, alpha = alpha, colour="black")
   grf <- grf + xlab(label_x)
