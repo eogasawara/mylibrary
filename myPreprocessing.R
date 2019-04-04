@@ -237,6 +237,7 @@ dt.categ_mapping <- function(data, attribute){
 # Binning
 
 binning <- function(v, interval) {
+  names(interval) <- NULL
   interval[1] <- min(v)
   interval[length(interval)] <- max(v)
   interval.adj <- interval
