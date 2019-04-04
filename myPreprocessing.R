@@ -315,26 +315,27 @@ binning.opt <- function(v, binning=NULL, n=20, do_plot=FALSE) {
 
 # DATA BALANCING
 
-balance.oversampling <- function(data, class) {
-  x <- sort((table(data[,class]))) 
+balance.oversampling <- function(dataset, class) {
+  x <- sort((table(dataset[,class]))) 
   class_formula = formula(paste(class, "  ~ ."))
-  data[,class] <- as.factor(data[,class])
+  dataset[,class] <- as.character(dataset[,class])
   mainclass = names(x)[length(x)]
   newdata = NULL
   for (i in 1:(length(x)-1)) {
     minorclass = names(x)[i]
-    curdata = data[data[,class]==mainclass
-                   | data[,class]==minorclass,]
+    curdata = dataset[dataset[,class]==mainclass | dataset[,class]==minorclass,]
     ratio <- as.integer(ceiling(x[length(x)]/x[i])*100)
-    curdata <- SMOTE(class_formula, curdata, 
-                     perc.over = ratio, perc.under=100)
+    curdata[,class] <- as.factor(curdata[,class])
+    curdata <- SMOTE(class_formula, curdata, perc.over = ratio, perc.under=100)
+    curdata[,class] <- as.character(curdata[,class])
     curdata = curdata[curdata[,class]==minorclass, ]
     idx = sample(1:nrow(curdata),x[length(x)])
     curdata = curdata[idx,]
     newdata = rbind(newdata, curdata)
   }
-  curdata = data[data[,class]==mainclass,]
+  curdata = dataset[dataset[,class]==mainclass,]
   newdata = rbind(newdata, curdata)
+  newdata[,class] <- as.factor(newdata[,class])
   return(newdata)
 }
 
