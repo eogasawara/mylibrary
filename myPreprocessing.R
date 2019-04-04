@@ -186,7 +186,7 @@ normalize.zscore <- function(data, norm.set=NULL, nmean=0, nsd=1){
 # Data Transformation
 
 # PCA
-dt.pca <- function(data, class, transf = NULL)
+dt.pca <- function(data, class, transf = NULL, do_plot=FALSE)
 {
   data = data.frame(data)
   if (class %in% colnames(data)) {
@@ -214,7 +214,7 @@ dt.pca <- function(data, class, transf = NULL)
   if (is.null(transf)) {
     pca_res = prcomp(data, center=TRUE, scale.=TRUE)
     cumvar = cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
-    res = curvature.min(c(1:(length(cumvar))), cumvar)
+    res = curvature.min(c(1:(length(cumvar))), cumvar, do_plot=do_plot)
     pca.transf = as.matrix(pca_res$rotation[, 1:res$x])
   }
 
@@ -296,7 +296,7 @@ binning.cluster <- function(v, n = NULL, interval=NULL) {
 
 # optimizing binning
 
-binning.opt <- function(v, binning=NULL, n=20) {
+binning.opt <- function(v, binning=NULL, n=20, do_plot=FALSE) {
   z <- data.frame()
   interval <- list()
   for (i in 1:n)
@@ -307,7 +307,7 @@ binning.opt <- function(v, binning=NULL, n=20) {
     z <- rbind(z,newrow)
   }
   colnames(z)<-c("mean","num") 
-  res <- curvature.max(z$num, z$mean)
+  res <- curvature.max(z$num, z$mean, do_plot = do_plot)
   return(interval[[res$x]])
 }
 
