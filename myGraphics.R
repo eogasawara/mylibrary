@@ -113,34 +113,53 @@ plot.pieplot <- function(series, label_series = "", label_x = "", label_y = "", 
   return(grf)
 }
 
-plot.hist <-  function(series, label_series = "", label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.25) {
-  if("variable" %in% colnames(series)) {
-    grf <- ggplot(series, aes(x=value,fill=variable))
-    if (is.null(bin)) 
-      grf <- grf + geom_histogram(alpha = alpha)
-    else 
-      grf <- grf + geom_histogram(binwidth = bin, alpha = alpha)
-  }  
-  else {
-    grf <- ggplot(series, aes(x=value))
-    if (is.null(bin)) {
-      if (!is.null(colors)) 
-        grf <- grf + geom_histogram(fill=colors, alpha = alpha)
-      else
-        grf <- grf + geom_histogram(alpha = alpha)
-    }
-    else {
-      if (!is.null(colors)) 
-        grf <- grf + geom_histogram(binwidth = bin,fill=colors, alpha = alpha)
-      else
-        grf <- grf + geom_histogram(binwidth = bin, alpha = alpha)
-    }
-  }
+plot_lollipop <- function(series, color, xlabel = "", ylabel = "", size_text=3, size_ball=8, alpha_ball=0.2, min_value=0, max_value_gap=1) {
+  series$value <- round(series$value)
+  grf <- ggplot(data=series, aes(x=variable, y=value, label=value)) +
+    geom_segment(aes(x=variable, xend=variable, y=min_value, yend=(value-max_value_gap)), color=color, size=1) +
+    geom_text(color="black", size=size_text) +
+    geom_point(color=color, size=size_ball, alpha=alpha_ball) +
+    theme_light() +
+    coord_flip() +
+    theme(
+      panel.grid.major.y = element_blank(),
+      panel.border = element_blank(),
+      axis.ticks.y = element_blank()
+    ) +
+    ylab(xlabel) + xlab(xlabel)   
+  return(grf)
+}
+
+plot_dotchar <- function(series, color, colorline = "lightgray", xlabel = "", ylabel = "", legend.title = "", sorting="ascending") {
+  grf <- ggdotchart(series, x = "x", y = "value",
+                    color = "variable", size = 3,
+                    add = "segment",
+                    sorting = sorting,
+                    add.params = list(color = colorline, size = 1.5),
+                    position = position_dodge(0.3),
+                    palette = color,
+                    ggtheme = theme_pubclean(), xlab = xlabel, ylab=ylabel)
+  grf <- ggpar(grf,legend.title = legend.title)
+  return(grf)
+}
+
+
+plot_ballon <- function(series, color) {
+  grf <- ggballoonplot(series, x = 'x', y = 'variable', size = 'radius', fill = 'value')
+  grf <- grf + gradient_fill(color)
+  grf <- grf + guides(size = FALSE)                         
+  return(grf)
+} 
+
+
+plot.hist <-  function(series, label_series = "", label_x = "", label_y = "", color = 'white', alpha=0.25) {
+  tmp <- hist(series$value)
+  grf <- ggplot(series, aes(x=value))
+  grf <- grf + geom_histogram(breaks=tmp$breaks,fill=color, alpha = alpha, colour="black")
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   grf <- grf + theme_bw(base_size = 10)
-  if (!is.null(colors)) 
-    grf <- grf + scale_fill_manual(name = label_series, values = colors)
+  grf <- grf + scale_fill_manual(name = label_series, values = color)
   grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
   return(grf)
 }
@@ -163,9 +182,9 @@ plot.density <-  function(series, label_series = "", label_x = "", label_y = "",
     }
     else {
       if (!is.null(colors)) 
-        grf <- grf + geom_histogram(binwidth = bin,fill=colors, alpha = alpha)
+        grf <- grf + geom_density(binwidth = bin,fill=colors, alpha = alpha)
       else
-        grf <- grf + geom_histogram(binwidth = bin, alpha = alpha)
+        grf <- grf + geom_density(binwidth = bin, alpha = alpha)
     }
   }
   grf <- grf + theme_bw(base_size = 10)
@@ -196,40 +215,3 @@ plot.boxplot <- function(series, label_series = "", label_x = "", label_y = "", 
   return(grf)
 }
 
-plot_lollipop <- function(series, color, xlabel = "", ylabel = "", size_text=3, size_ball=8, alpha_ball=0.2, min_value=0, max_value_gap=1) {
-  series$value <- round(series$value)
-  grf <- ggplot(data=series, aes(x=variable, y=value, label=value)) +
-    geom_segment(aes(x=variable, xend=variable, y=min_value, yend=(value-max_value_gap)), color=color, size=1) +
-    geom_text(color="black", size=size_text) +
-    geom_point(color=color, size=size_ball, alpha=alpha_ball) +
-    theme_light() +
-    coord_flip() +
-    theme(
-      panel.grid.major.y = element_blank(),
-      panel.border = element_blank(),
-      axis.ticks.y = element_blank()
-    ) +
-    ylab(xlabel) + xlab(xlabel)   
-  return(grf)
-}
-
-plot_dotchar <- function(series, color, colorline = "lightgray", xlabel = "", ylabel = "", legend.title = "", sorting="ascending") {
-  grf <- ggdotchart(series, x = "x", y = "value",
-                  color = "variable", size = 3,
-                  add = "segment",
-                  sorting = sorting,
-                  add.params = list(color = colorline, size = 1.5),
-                  position = position_dodge(0.3),
-                  palette = color,
-                  ggtheme = theme_pubclean(), xlab = xlabel, ylab=ylabel)
-  grf <- ggpar(grf,legend.title = legend.title)
-  return(grf)
-}
-
-
-plot_ballon <- function(series, color) {
-  grf <- ggballoonplot(series, x = 'x', y = 'variable', size = 'radius', fill = 'value')
-  grf <- grf + gradient_fill(color)
-  grf <- grf + guides(size = FALSE)                         
-  return(grf)
-} 
