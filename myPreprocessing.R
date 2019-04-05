@@ -312,6 +312,14 @@ binning.opt <- function(v, binning=NULL, n=20, do_plot=FALSE) {
   return(interval[[res$x]])
 }
 
+entropy_group <- function(cluster, class) {
+  tbl <- data.frame(x = cluster, y = class) %>% group_by(x, y) %>% summarise(qtd=n()) 
+  tbs <- data.frame(x = cluster, y = class) %>% group_by(x) %>% summarise(t=n()) 
+  tbl <- merge(x=tbl, y=tbs, by.x="x", by.y="x")
+  tbl$qtd <- -tbl$qtd*log(tbl$qtd/tbl$t,2)
+  tbl <- sum(tbl$qtd)
+  return (tbl)
+}
 
 # DATA BALANCING
 
