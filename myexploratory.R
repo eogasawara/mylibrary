@@ -1,4 +1,5 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphics.R")
+loadlibrary("reshape")
 
 exp_table <- function (data, cnames = NULL, proj=NULL, n=6) {
   data <- data.frame(data)
@@ -11,4 +12,13 @@ exp_table <- function (data, cnames = NULL, proj=NULL, n=6) {
   }
   return(data)
 }
+
+exp_norm_dist <- function(value, color)  {
+  data <- data.frame(value=value)
+  grf <- ggplot(data, aes(sample = value)) +
+    stat_qq(color=color) + theme_bw(base_size = 10) +
+    stat_qq_line(color=color)
+  return (grf)
+}
+
 
