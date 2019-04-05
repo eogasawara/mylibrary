@@ -23,3 +23,14 @@ exp_norm_dist <- function(value, label_x = "", label_y = "",  color)  {
 }
 
 
+exp_correlation <- function(data, color) {
+  cor_mat <- cor(data)
+  cor_mat <- melt(cor_mat)
+  colnames(cor_mat) <- c("x", "variable", "value")
+  cor_mat$variable <- factor(cor_mat$variable, levels=sort(colnames(data)))
+  cor_mat$x <- factor(cor_mat$x, levels=sort(colnames(data),decreasing=TRUE))
+  cor_mat$radius <- abs(cor_mat$value)
+  
+  grf <- plot_ballon(cor_mat, color = color)   
+  return(grf)
+}
