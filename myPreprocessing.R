@@ -316,8 +316,10 @@ entropy_group <- function(cluster, class) {
   tbl <- data.frame(x = cluster, y = class) %>% group_by(x, y) %>% summarise(qtd=n()) 
   tbs <- data.frame(x = cluster, y = class) %>% group_by(x) %>% summarise(t=n()) 
   tbl <- merge(x=tbl, y=tbs, by.x="x", by.y="x")
-  tbl$qtd <- -tbl$qtd*log(tbl$qtd/tbl$t,2)
-  tbl <- sum(tbl$qtd)
+  tbl$e <- -(tbl$qtd/tbl$t)*log(tbl$qtd/tbl$t,2)
+  tbl <- tbl %>% group_by(x) %>% summarise(ce=sum(e), qtd=sum(qtd)) 
+  tbl$ceg <- tbl$ce*tbl$qtd/length(cluster)
+  tbl <- sum(tbl$ceg)
   return (tbl)
 }
 
