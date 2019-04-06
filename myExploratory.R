@@ -34,3 +34,12 @@ exp_correlation <- function(data, color) {
   grf <- plot_ballon(cor_mat, color = color)   
   return(grf)
 }
+
+
+exp_pair_plot <- function(data, cnames, title='', clable= NULL, colors) {
+  grf <- PairPlot(iris, cnames, title, group_var = clable, palette=NULL) + theme_bw(base_size = 10)
+  if (is.null(clable)) 
+    grf <- grf + geom_point(color=colors)
+  else
+    grf <- grf + scale_color_manual(values=colors) 
+}

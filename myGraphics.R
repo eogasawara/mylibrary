@@ -220,4 +220,6 @@ plot.boxplot <- function(series, label_series = "", label_x = "", label_y = "", 
   return(grf)
 }
 
-
+plot_size <-function(width, height) {
+  options(repr.plot.width=width, repr.plot.height=height)    
+}
