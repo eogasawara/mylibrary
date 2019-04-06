@@ -220,3 +220,22 @@ plot.boxplot <- function(series, label_series = "", label_x = "", label_y = "", 
   return(grf)
 }
 
+myplots_defaults <- function(x = 4, y = 3) {
+  my_x <<- x
+  my_y <<- y
+  options(repr.plot.width=x, repr.plot.height=y)
+}
+
+myplot <- function(..., ncol = 1, nrow = 1, x = 0, y = 0) {
+  if ((x != 0) && (y != 0))
+    options(repr.plot.width=x, repr.plot.height=y)
+  arguments <- list(...)
+  n <- length(arguments)
+  if (n > 1)
+    grid.arrange(..., ncol=ncol, nrow=nrow)
+  else  
+    plot(...)
+  if ((x != 0) && (y != 0))
+    options(repr.plot.width=my_x, repr.plot.height=my_y)
+}
+
