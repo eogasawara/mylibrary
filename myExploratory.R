@@ -36,10 +36,38 @@ exp_correlation <- function(data, color) {
 }
 
 
-exp_pair_plot <- function(data, cnames, title='', clable= NULL, colors) {
-  grf <- PairPlot(iris, cnames, title, group_var = clable, palette=NULL) + theme_bw(base_size = 10)
-  if (is.null(clable)) 
+exp_pair_plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
+  grf <- PairPlot(data, cnames, title, group_var = clabel, palette=NULL) + theme_bw(base_size = 10)
+  if (is.null(clabel)) 
     grf <- grf + geom_point(color=colors)
   else
     grf <- grf + scale_color_manual(values=colors) 
+  return (grf)
 }
+
+exp_advpair_plot <- function(data, cnames, title = NULL, clabel= NULL, colors) {
+  if (!is.null(clabel)) {
+    data$clabel <- data[,clabel]
+    cnames <- c(cnames, 'clabel')
+  }
+  
+  icol <- match(cnames, colnames(data))
+  icol <- icol[!is.na(icol)]
+
+  if (!is.null(clabel)) {
+    grf <- ggpairs(data, columns = icol, aes(colour = clabel, alpha = 0.4)) + theme_bw(base_size = 10) 
+    
+    for(i in 1:grf$nrow) {
+      for(j in 1:grf$ncol){
+        grf[i,j] <- grf[i,j] + 
+          scale_fill_manual(values=colors) +
+          scale_color_manual(values=colors)  
+      }
+    }
+  }
+  else {
+    grf <- ggpairs(data, columns = icol, aes(colour = colors))  + theme_bw(base_size = 10)
+  }
+  return(grf)
+}
+
