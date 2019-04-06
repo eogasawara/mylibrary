@@ -223,3 +223,9 @@ plot.boxplot <- function(series, label_series = "", label_x = "", label_y = "", 
 plot_size <-function(width, height) {
   options(repr.plot.width=width, repr.plot.height=height)    
 }
+
+show_row <- function(x) {
+  x <- data.frame(t(x))
+  colnames(x) <- NULL
+  return(head(x))
+}
