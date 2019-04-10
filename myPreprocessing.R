@@ -247,7 +247,7 @@ binning <- function(v, interval) {
   vp <- cut(v, unique(interval.adj), FALSE, include.lowest=TRUE)
   m <- tapply(v, vp, mean)
   vm <- m[vp]
-  mse <- mean((v - vm)^2, na.rm = TRUE)
+  mse <- mean((v - vm)^2, na.rm = TRUE) 
   
   return (list(binning=m, bins_factor=vp, bins=vm, mse=mse, interval=interval, interval.adj=interval.adj))
 }
