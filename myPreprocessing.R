@@ -234,9 +234,9 @@ dt.categ_mapping <- function(data, attribute){
   return(data)
 }
 
-# Binning
+# smoothing
 
-binning <- function(v, interval) {
+smoothing <- function(v, interval) {
   names(interval) <- NULL
   interval[1] <- min(v)
   interval[length(interval)] <- max(v)
@@ -249,12 +249,12 @@ binning <- function(v, interval) {
   vm <- m[vp]
   mse <- mean((v - vm)^2, na.rm = TRUE) 
   
-  return (list(binning=m, bins_factor=vp, bins=vm, mse=mse, interval=interval, interval.adj=interval.adj))
+  return (list(smoothing=m, bins_factor=vp, bins=vm, mse=mse, interval=interval, interval.adj=interval.adj))
 }
 
-# binning by interval
+# smoothing by interval
 
-binning.interval <- function(v, n = NULL, interval=NULL, range=1.5) {
+smoothing.interval <- function(v, n = NULL, interval=NULL, range=1.5) {
   if (is.null(interval)) {
     bp <- boxplot(v, range=range, plot = FALSE)
     bimax <- bp$stats[5]
@@ -265,22 +265,22 @@ binning.interval <- function(v, n = NULL, interval=NULL, range=1.5) {
     }
     interval <- seq(from = bimin, to = bimax, by = (bimax-bimin)/n)
   }
-  return(binning(v,interval))
+  return(smoothing(v,interval))
 }
 
-# binning by freq
+# smoothing by freq
 
-binning.freq <- function(v, n = NULL, interval=NULL) {
+smoothing.freq <- function(v, n = NULL, interval=NULL) {
   if (is.null(interval)) {
     p <- seq(from = 0, to = 1, by = 1/n)
     interval <- quantile(v, p)
   }
-  return(binning(v,interval))
+  return(smoothing(v,interval))
 }
 
-# binning by cluster
+# smoothing by cluster
 
-binning.cluster <- function(v, n = NULL, interval=NULL) {
+smoothing.cluster <- function(v, n = NULL, interval=NULL) {
   if (is.null(interval)) {
     if (n > 1) {
       km <- kmeans(x = v, centers = n)
@@ -292,17 +292,17 @@ binning.cluster <- function(v, n = NULL, interval=NULL) {
       interval <- c(min(v), max(v))
     }
   }
-  return(binning(v,interval))
+  return(smoothing(v,interval))
 }
 
-# optimizing binning
+# optimizing smoothing
 
-binning.opt <- function(v, binning=NULL, n=20, do_plot=FALSE) {
+smoothing.opt <- function(v, smoothing=NULL, n=20, do_plot=FALSE) {
   z <- data.frame()
   interval <- list()
   for (i in 1:n)
   {
-    t <- binning(v, i)
+    t <- smoothing(v, i)
     interval = append(interval, list(t))
     newrow <- c(t$mse , i)
     z <- rbind(z,newrow)
