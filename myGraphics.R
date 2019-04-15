@@ -1,17 +1,12 @@
 loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
 {
-  suppressWarnings(suppressMessages(internal_loadlibrary(x, repos)))
-}
-
-internal_loadlibrary <- function(x, repos=repos) 
-{
   if (!require(x,character.only = TRUE))
   {
     install.packages(x, repos=repos, dep=TRUE)
     require(x)
   }
 }
-  
+
 loadlibrary("ggplot2")
 loadlibrary("scales")
 loadlibrary("ggpubr")
