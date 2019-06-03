@@ -61,7 +61,7 @@ class_test <- function(model, test, clabel) {
   specificity <- Specificity(y_pred = predictions_i, y_true = values, positive = 1)
   precision <- Precision(y_pred = predictions_i, y_true = values, positive = 1)
   recall <- Recall(y_pred = predictions_i, y_true = values, positive = 1)
-  metrics <- data.frame(accuracy, f1, sensitivity, specificity, specificity, recall)
+  metrics <- data.frame(accuracy, f1, sensitivity, specificity, precision, recall)
   
   return (list(model = model, predictions = predictions, values = values, conf_mat = conf_mat, 
                metrics = metrics)) 
