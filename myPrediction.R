@@ -62,12 +62,17 @@ class_test <- function(model, test, clabel) {
   precision <- Precision(y_pred = predictions_i, y_true = values, positive = 1)
   recall <- Recall(y_pred = predictions_i, y_true = values, positive = 1)
 
-  rocr <- performance(prediction(predictions, values), "tpr", "fpr")  
   
   return (list(model = model, predictions = predictions, values = values, conf_mat = conf_mat, 
                accuracy = accuracy, f1 = f1, 
                sensitivity = sensitivity, specificity = specificity, 
-               precision = precision, recall = recall, rocr = rocr)) 
+               precision = precision, recall = recall)) 
+}
+
+compute_rocr <- function(predictions, values) {
+  pred <- prediction(predictions, values)
+  rocr <- performance(pred, "tpr", "fpr")  
+  return (rocr)
 }
 
 # CLASSIFICATION: R0
