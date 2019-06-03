@@ -12,7 +12,7 @@ sample.random <- function(data, perc=0.8)
   idx = sample(1:nrow(data),as.integer(perc*nrow(data)))
   sample = data[idx,]
   residual = data[-idx,]
-  return (list(sample=sample, residual=residual))
+  return (list(sample=sample, residual=residual, idx=idx))
 }
 
 sample.stratified <- function(data, clabel, perc=0.8)
@@ -25,7 +25,7 @@ sample.stratified <- function(data, clabel, perc=0.8)
   idx = createDataPartition(predictand, p=perc, list=FALSE)  
   sample = data[idx,]
   residual = data[-idx,]
-  return (list(sample=sample, residual=residual))
+  return (list(sample=sample, residual=residual, idx=idx))
 }
 
 sample.random_kfold <- function(data, k=10)
