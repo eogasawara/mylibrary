@@ -73,9 +73,9 @@ compute_rocr <- function(predictions, values) {
   return (rocr)
 }
 
-# CLASSIFICATION: R0
+# CLASSIFICATION: Zero Rule
 
-class_R0 <- function(data, clabel) {
+class_ZeroRule <- function(data, clabel) {
   data[,clabel] = as.factor(data[,clabel])
   prep <- class_prepare_train(data, clabel)
 
@@ -83,13 +83,13 @@ class_R0 <- function(data, clabel) {
   col = match(max(cols),cols)
   model = list(cols=cols, col=col)
 
-  model <- list(model=model, class_prediction=R0_predict, class_predtype="class")
+  model <- list(model=model, class_prediction=ZeroRule_predict, class_predtype="class")
   model$train <- class_test(model, data, clabel)
   
   return (model)   
 }
 
-R0_predict <- function(model, test, type)
+ZeroRule_predict <- function(model, test, type)
 {
   rows = nrow(test)
   cols = length(model$cols)
