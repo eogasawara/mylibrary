@@ -12,7 +12,7 @@ loadlibrary("scales")
 loadlibrary("ggpubr")
 loadlibrary("reshape")
 
-plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
+plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL, legend=TRUE) {
   grf <- ggplot(data=series, aes(x = x, y = value, colour=variable, group=variable)) + geom_point(size=1)
   if (!is.null(colors)) {
     grf <- grf + scale_color_manual(values=colors)
@@ -22,7 +22,8 @@ plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", 
   grf <- grf + ylab(label_y)
   grf <- grf + theme_bw(base_size = 10)
   grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
-  grf <- grf + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
+  if (legend)
+    grf <- grf + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
   return(grf)
 }
 
