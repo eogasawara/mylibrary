@@ -13,7 +13,7 @@ loadlibrary("ggpubr")
 loadlibrary("reshape")
 
 plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
-  grf <- ggplot(data=series) + geom_point(aes(x = x, y = value, colour=variable), size=1)
+  grf <- ggplot(data=series, aes(x = x, y = value, colour=variable, group=variable)) + geom_point(size=1)
   if (!is.null(colors)) {
     grf <- grf + scale_color_manual(values=colors)
   }
@@ -27,7 +27,7 @@ plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", 
 }
 
 plot.series <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
-  grf <- ggplot(data=series) + geom_point(aes(x = x, y = value, colour=variable), size=1.5) + geom_line(aes(x = x, y = value, colour=variable, group=variable), size=1)
+  grf <- ggplot(data=series, aes(x = x, y = value, colour=variable, group=variable)) + geom_point(size=1.5) + geom_line(size=1)
   if (!is.null(colors)) {
     grf <- grf + scale_color_manual(values=colors)
   }
