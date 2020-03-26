@@ -114,20 +114,22 @@ plot.pieplot <- function(series, label_series = "", label_x = "", label_y = "", 
   return(grf)
 }
 
-plot_lollipop <- function(series, color, xlabel = "", ylabel = "", size_text=3, size_ball=8, alpha_ball=0.2, min_value=0, max_value_gap=1) {
+plot_lollipop <- function(series, color, xlabel = "", ylabel = "", size_text=3, size_ball=8, alpha_ball=0.2, min_value=0, max_value_gap=1, flip = TRUE) {
   series$value <- round(series$value)
   grf <- ggplot(data=series, aes(x=variable, y=value, label=value)) +
     geom_segment(aes(x=variable, xend=variable, y=min_value, yend=(value-max_value_gap)), color=color, size=1) +
     geom_text(color="black", size=size_text) +
     geom_point(color=color, size=size_ball, alpha=alpha_ball) +
     theme_light() +
-    coord_flip() +
     theme(
       panel.grid.major.y = element_blank(),
       panel.border = element_blank(),
       axis.ticks.y = element_blank()
     ) +
     ylab(xlabel) + xlab(xlabel)   
+  if (flip)
+    grf <- grf + coord_flip()
+	
   return(grf)
 }
 
