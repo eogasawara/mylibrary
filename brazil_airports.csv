@@ -1,0 +1,133 @@
+airport,icao,city,state,country,runwaylength,runwaywidth,height,lat,long
+Aeroporto regional de maringa,SBMH,,,Brazil,2100 m,44 m,544 m,-23.48,-52.01
+Afonso pena,SBCT,,,Brazil,1799 m,45 m,910 m,-25.53,-49.18
+Alta floresta,SBAT,,,Brazil,2513 m,30 m,288 m,-9.87,-56.11
+Altamira,SBHT,,,Brazil,2003 m,38 m,112 m,-3.25,-52.25
+Amapa,SBAM,,,Brazil,1524 m,45 m,13 m,2.08,-50.86
+Anapolis ab,SBAN,,,Brazil,3300 m,45 m,1136 m,-16.23,-48.96
+Aracatuba,SBAU,,,Brazil,2119 m,35 m,414 m,-21.14,-50.42
+Araraquara,SBAQ,,,Brazil,1799 m,29 m,711 m,-21.81,-48.13
+Araxa,SBAX,,,Brazil,1900 m,29 m,998 m,-19.56,-46.96
+Assis,SBAS,,,Brazil,1685 m,29 m,563 m,-22.64,-50.46
+Augusto severo,SBNT,,,Brazil,2600 m,45 m,51 m,-5.91,-35.25
+Bacacheri,SBBI,,,Brazil,1389 m,29 m,931 m,-25.41,-49.23
+Barra do garcas,SBBW,,,Brazil,1598 m,29 m,349 m,-15.86,-52.39
+Bartolomeu lisandro,SBCP,,,Brazil,1544 m,45 m,17 m,-21.7,-41.3
+Bauru,SBBU,,,Brazil,1499 m,35 m,615 m,-22.35,-49.05
+Boa vista,SBBV,,,Brazil,2699 m,45 m,84 m,2.85,-60.69
+Bom jesus da lapa,SBLP,,,Brazil,1210 m,29 m,443 m,-13.26,-43.41
+Cabo frio,SBCB,,,Brazil,1699 m,29 m,4 m,-22.92,-42.07
+Cachimbo,SBCC,,,Brazil,2602 m,45 m,537 m,-9.33,-54.97
+Campo delio jardim de mattos,SBAF,,,Brazil,2001 m,52 m,33 m,-22.88,-43.38
+Campo dos bugres,SBCX,,,Brazil,1939 m,30 m,753 m,-29.2,-51.19
+Campo fontenelle,SBYS,,,Brazil,2108 m,45 m,599 m,-21.99,-47.34
+Campo grande,SBCG,,,Brazil,2603 m,42 m,558 m,-20.47,-54.67
+Canoas,SBCO,,,Brazil,2642 m,41 m,7 m,-29.95,-51.14
+Carajas,SBCJ,,,Brazil,2000 m,45 m,621 m,-6.12,-50
+Caravelas,SBCV,,,Brazil,1150 m,49 m,10 m,-17.65,-39.25
+Cariri,SBJU,,,Brazil,1799 m,45 m,409 m,-7.22,-39.27
+Carlos prates,SBPR,,,Brazil,925 m,17 m,928 m,-19.91,-43.99
+Carolina,SBCI,,,Brazil,1799 m,45 m,172 m,-7.32,-47.46
+Cascavel,SBCA,,,Brazil,1615 m,29 m,753 m,-25,-53.5
+Cataratas intl,SBFI,,,Brazil,2194 m,45 m,239 m,-25.6,-54.49
+Chafei amsei,SBBT,,,Brazil,1799 m,29 m,578 m,-20.58,-48.59
+Chapeco,SBCH,,,Brazil,2475 m,44 m,654 m,-27.13,-52.66
+Comandante gustavo kraemer,SBBG,,,Brazil,1499 m,29 m,182 m,-31.39,-54.11
+Conceicao do araguaia,SBAA,,,Brazil,1799 m,29 m,199 m,-8.35,-49.3
+Congonhas,SBSP,,,Brazil,1940 m,49 m,801 m,-23.63,-46.66
+Corumba intl,SBCR,,,Brazil,2001 m,45 m,140 m,-19.01,-57.67
+Cruzeiro do sul,SBCZ,,,Brazil,2400 m,45 m,194 m,-7.6,-72.77
+Deputado luis eduardo magalhaes,SBSV,,,Brazil,3005 m,45 m,19 m,-12.91,-38.33
+Dix sept rosado,SBMS,,,Brazil,2000 m,29 m,23 m,-5.2,-37.36
+Eduardo gomes intl,SBEG,,,Brazil,2699 m,45 m,80 m,-3.04,-60.05
+Fernando de noronha,SBFN,,,Brazil,1844 m,45 m,54 m,-3.85,-32.42
+Forquilhinha,SBCM,,,Brazil,1491 m,29 m,28 m,-28.73,-49.42
+Franca,SBFC,,,Brazil,2000 m,29 m,1003 m,-20.59,-47.38
+Francisco de assis,SBJF,,,Brazil,1534 m,29 m,911 m,-21.79,-43.39
+Fronteira,SBFT,,,Brazil,1720 m,29 m,487 m,-20.28,-49.19
+Furnas,SBFU,,,Brazil,1599 m,29 m,735 m,-20.7,-46.34
+Galeao antonio carlos jobim,SBGL,,,Brazil,3999 m,45 m,8 m,-22.81,-43.24
+Goiabeiras,SBVT,,,Brazil,1749 m,45 m,3 m,-20.26,-40.29
+Governador jorge teixeira de oliveira,SBPV,,,Brazil,2400 m,45 m,88 m,-8.71,-63.9
+Guajara mirim,SBGM,,,Brazil,1794 m,45 m,145 m,-10.79,-65.28
+Guararapes,SBRF,,,Brazil,3314 m,45 m,10 m,-8.13,-34.92
+Guaratingueta,SBGW,,,Brazil,1552 m,29 m,536 m,-22.79,-45.2
+Guarulhos,SBGR,,,Brazil,3000 m,45 m,749 m,-23.43,-46.47
+Hercilio luz,SBFL,,,Brazil,1501 m,45 m,5 m,-27.67,-48.55
+Hotel transamerica,SBTC,,,Brazil,1900 m,29 m,6 m,-15.36,-39
+Ilheus,SBIL,,,Brazil,1577 m,45 m,4 m,-14.82,-39.03
+Imperatriz,SBIZ,,,Brazil,1799 m,45 m,131 m,-5.53,-47.46
+Itacoatiara,SBIC,,,Brazil,1514 m,29 m,43 m,-3.13,-58.48
+Itaituba,SBIH,,,Brazil,1605 m,29 m,33 m,-4.24,-56
+Jacareacanga,SBEK,,,Brazil,1599 m,29 m,98 m,-6.23,-57.78
+Joao suassuna,SBKG,,,Brazil,1599 m,42 m,501 m,-7.27,-35.9
+Joinville,SBJV,,,Brazil,1640 m,45 m,4 m,-26.22,-48.8
+Julio cesar,SBJC,,,Brazil,1499 m,29 m,15 m,-1.41,-48.46
+Lages,SBLJ,,,Brazil,1530 m,29 m,934 m,-27.78,-50.28
+Lagoa santa,SBLS,,,Brazil,1840 m,29 m,851 m,-19.66,-43.9
+Lauro kurtz,SBPF,,,Brazil,1699 m,22 m,724 m,-28.24,-52.33
+Leite lopes,SBRP,,,Brazil,2100 m,35 m,549 m,-21.13,-47.77
+Lins,SBLN,,,Brazil,1720 m,33 m,475 m,-21.66,-49.73
+Londrina,SBLO,,,Brazil,2100 m,45 m,569 m,-23.33,-51.13
+Macae,SBME,,,Brazil,1200 m,29 m,2 m,-22.34,-41.77
+Major brigadeiro doorgal borges,SBBQ,,,Brazil,1759 m,29 m,1114 m,-21.27,-43.76
+Major brigadeiro trompowsky,SBVG,,,Brazil,1499 m,30 m,922 m,-21.59,-45.47
+Maraba,SBMA,,,Brazil,2000 m,45 m,108 m,-5.37,-49.14
+Marechal cunha machado,SBSL,,,Brazil,2386 m,45 m,54 m,-2.59,-44.24
+Marechal rondon,SBCY,,,Brazil,2300 m,45 m,187 m,-15.65,-56.12
+Marilia,SBML,,,Brazil,1685 m,35 m,646 m,-22.2,-49.93
+Marte,SBMT,,,Brazil,1600 m,45 m,721 m,-23.51,-46.64
+Minacu,SBMC,,,Brazil,1337 m,29 m,440 m,-13.55,-48.2
+Montes claros,SBMK,,,Brazil,2100 m,45 m,667 m,-16.71,-43.82
+Navegantes itajai,SBNF,,,Brazil,1699 m,45 m,5 m,-26.88,-48.65
+Oiapoque,SBOI,,,Brazil,1200 m,29 m,19 m,3.86,-51.8
+Parnaiba,SBPB,,,Brazil,2100 m,45 m,4 m,-2.89,-41.73
+Paulo afonso,SBUF,,,Brazil,1800 m,45 m,269 m,-9.4,-38.25
+Pelotas,SBPK,,,Brazil,1982 m,42 m,17 m,-31.72,-52.33
+Petrolina,SBPL,,,Brazil,2999 m,45 m,384 m,-9.36,-40.56
+Pinto martins intl,SBFZ,,,Brazil,2545 m,45 m,24 m,-3.78,-38.53
+Pocos de caldas,SBPC,,,Brazil,1250 m,29 m,1260 m,-21.84,-46.57
+Ponta pelada,SBMN,,,Brazil,2318 m,45 m,81 m,-3.15,-59.99
+Ponta pora,SBPP,,,Brazil,2000 m,45 m,657 m,-22.55,-55.7
+Porto nacional,SBPN,,,Brazil,1699 m,29 m,265 m,-10.72,-48.4
+Porto seguro,SBPS,,,Brazil,2000 m,45 m,51 m,-16.44,-39.08
+Presidente castro pinto,SBJP,,,Brazil,2514 m,45 m,65 m,-7.15,-34.95
+Presidente juscelino kubitschek,SBBR,,,Brazil,3200 m,45 m,1060 m,-15.86,-47.91
+Presidente medici,SBRB,,,Brazil,2158 m,45 m,193 m,-9.87,-67.89
+Presidente prudente,SBDN,,,Brazil,2110 m,35 m,450 m,-22.18,-51.42
+Rio grande,SBRG,,,Brazil,1277 m,18 m,8 m,-32.08,-52.17
+Rubem berta,SBUG,,,Brazil,830 m,61 m,78 m,-29.78,-57.04
+Salgado filho,SBPA,,,Brazil,2280 m,42 m,3 m,-29.99,-51.17
+Santa cruz,SBSC,,,Brazil,2738 m,45 m,3 m,-22.93,-43.72
+Santa genoveva,SBGO,,,Brazil,2200 m,45 m,746 m,-16.63,-49.22
+Santa maria,SBAR,,,Brazil,2200 m,45 m,7 m,-10.98,-37.07
+Santa maria,SBSM,,,Brazil,1763 m,30 m,87 m,-29.71,-53.69
+Santarem,SBSN,,,Brazil,2400 m,45 m,60 m,-2.42,-54.79
+Santo angelo,SBNM,,,Brazil,1625 m,29 m,321 m,-28.28,-54.17
+Santos air base,SBST,,,Brazil,1391 m,42 m,3 m,-23.93,-46.29
+Santos dumont,SBRJ,,,Brazil,1323 m,42 m,3 m,-22.91,-43.16
+Sao jose do rio preto,SBSR,,,Brazil,1636 m,35 m,543 m,-20.82,-49.41
+Sao jose dos campos,SBSJ,,,Brazil,3000 m,45 m,646 m,-23.23,-45.86
+Sao pedro da aldeia,SBES,,,Brazil,2400 m,28 m,18 m,-22.81,-42.09
+Senador petronio portella,SBTE,,,Brazil,2200 m,45 m,66 m,-5.06,-42.82
+Tabatinga,SBTT,,,Brazil,2150 m,32 m,85 m,-4.26,-69.94
+Tancredo thomas de faria,SBGU,,,Brazil,1499 m,29 m,1064 m,-25.39,-51.52
+Tarauaca,SBTK,,,Brazil,1225 m,15 m,196 m,-8.16,-70.78
+Taubate aviation base,SBTA,,,Brazil,1491 m,29 m,586 m,-23.04,-45.52
+Tefe,SBTF,,,Brazil,2200 m,45 m,56 m,-3.38,-64.72
+Telemaco borba,SBTL,,,Brazil,1800 m,29 m,795 m,-24.32,-50.65
+Tirios,SBTS,,,Brazil,1599 m,29 m,343 m,2.22,-55.95
+Tocantins,SBPM,,,Brazil,2500 m,45 m,235 m,-10.29,-48.36
+Toledo,SBTD,,,Brazil,1670 m,28 m,565 m,-24.69,-53.7
+Trombetas,SBTB,,,Brazil,1599 m,29 m,87 m,-1.49,-56.4
+Tucurui,SBTU,,,Brazil,2000 m,45 m,252 m,-3.79,-49.72
+Uberaba,SBUR,,,Brazil,1759 m,45 m,809 m,-19.77,-47.96
+Uberlandia,SBUL,,,Brazil,1950 m,45 m,943 m,-18.88,-48.23
+Urubupunga,SBUP,,,Brazil,1684 m,35 m,356 m,-20.78,-51.56
+Usiminas,SBIP,,,Brazil,2000 m,45 m,238 m,-19.47,-42.49
+Usina porto primavera,SBAV,,,Brazil,1499 m,29 m,325 m,-22.53,-52.97
+Val de caes,SBBE,,,Brazil,1830 m,45 m,16 m,-1.38,-48.48
+Vilhena,SBVH,,,Brazil,2599 m,29 m,615 m,-12.69,-60.1
+Viracopos,SBKP,,,Brazil,3240 m,45 m,661 m,-23.01,-47.13
+Vitoria da conquista,SBQV,,,Brazil,1774 m,29 m,913 m,-14.86,-40.86
+Zumbi dos palmares,SBMO,,,Brazil,2200 m,45 m,117 m,-9.51,-35.79
