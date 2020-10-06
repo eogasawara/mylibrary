@@ -575,10 +575,10 @@ ts_invoke_train.ts_arima <- function(obj, X, Y = NULL, arguments = NULL) {
 
 #class ts_emlp_dir
 
-ts_emlp_dir <- function(input_size, difforder=0) {
+ts_emlp_dir <- function(input_size) {
   obj <- ts_dir()
   obj$input_size <- input_size
-  obj$difforder <- difforder
+  obj$difforder <- NA
   class(obj) <- append("ts_emlp_dir", class(obj))  
   return(obj)
 }
@@ -608,10 +608,10 @@ ts_invoke_train.ts_emlp_dir <- function(obj, X, Y = NULL, arguments = NULL) {
 
 #class ts_eelm_dir
 
-ts_eelm_dir <- function(input_size, difforder=0) {
+ts_eelm_dir <- function(input_size) {
   obj <- ts_dir()
   obj$input_size <- input_size
-  obj$difforder <- difforder
+  obj$difforder <- NA
   class(obj) <- append("ts_eelm_dir", class(obj))  
   return(obj)
 }
@@ -962,7 +962,7 @@ ts_invoke_predict.ts_tensor_lstm <- function(obj, X) {
 # utility functions
 
 
-plot_grf <- function(y, yadj, ypre, modelname) {
+ts_plot_series <- function(y, yadj, ypre, modelname) {
   ntrain <- length(yadj)
   smape_train <- TSPred::sMAPE(y[1:ntrain], yadj)*100
   smape_test <- TSPred::sMAPE(y[(ntrain+1):(ntrain+length(ypre))], ypre)*100

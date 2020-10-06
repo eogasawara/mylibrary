@@ -17,6 +17,8 @@ train_test <- function(x, model, train, test, steps_ahead) {
   
   print(sprintf("%s %.2f%%", class(model)[1], 100*model$test_smape))
   
+  ts_plot_series(c(model$train_value, model$test_value), model$train_pred, model$test_pred, class(model)[1])
+  
   return(model)
 }
 
@@ -25,6 +27,8 @@ if (TRUE) {
   
   ttx <- ts_train_test(x, test_size=5, sw_size=0)
   train_test(x, model=ts_arima(), ttx$train, ttx$test, steps_ahead = 5)
+  train_test(x, model=ts_eelm_dir(4), ttx$train, ttx$test, steps_ahead = 5)
+  train_test(x, model=ts_emlp_dir(4), ttx$train, ttx$test, steps_ahead = 5)
   
   preprocess <- ts_gminmax()
   ttx <- ts_train_test(x, test_size=5, sw_size=10)
