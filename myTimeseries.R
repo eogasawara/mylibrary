@@ -7,1033 +7,968 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
   }
 }
 
+loadlibrary("TSPred")
 loadlibrary("nnet")
-loadlibrary("smooth")
-loadlibrary("Mcomp")
-loadlibrary("ModelMetrics")
-loadlibrary("randomForest")
-loadlibrary("RSNNS")
-loadlibrary("kernlab")
-loadlibrary("elmNNRcpp")
 loadlibrary("e1071")
 loadlibrary("nnfor")
-loadlibrary("TSPred")
+loadlibrary("randomForest")
+loadlibrary("elmNNRcpp")
+loadlibrary("RSNNS")
+loadlibrary("fpc")
+loadlibrary("dplyr")
+loadlibrary("tfdatasets")
+loadlibrary("tensorflow")
+loadlibrary("keras")
 
-timeseries_debug <- FALSE
 
-ts.sw <- function(x,k)
-{
-  ts.lagPad <- function(x, k) 
+# basic functions
+
+ts_sw <- function(x, sw_size) {
+  ts_lag <- function(x, k) 
   {
     c(rep(NA, k), x)[1 : length(x)] 
   }
-  
-  n <- length(x)-k+1
+  n <- length(x)-sw_size+1
   sw <- NULL
-  for(c in (k-1):0){
-    t  <- ts.lagPad(x,c)
+  for(c in (sw_size-1):0){
+    t  <- ts_lag(x,c)
+    t <- t[sw_size:length(t)]
     sw <- cbind(sw,t,deparse.level = 0)
   }
-  col <- paste("t",c((k-1):0), sep="")
-  rownames(sw) <- NULL
+  col <- paste("t",c((sw_size-1):0), sep="")
+  #rownames(sw) <- NULL
   colnames(sw) <- col
-  return (sw)
+  return(sw)  
 }
 
-ts.as.matrix <- function(sw, size) {
+ts_as_matrix <- function(sw, size) {
   sw <- data.frame(sw)
   sw <- sw[, (ncol(sw)-size+1):ncol(sw)]
   sw <- as.matrix(sw)
   return(sw)
 }
 
-ts.swProject <- function(sw) 
+outliers.boxplot <- function(x, alpha = 1.5)
 {
-  input <- sw[,1:ncol(sw)-1]
-  output <- sw[,ncol(sw)]
-  return (list(input=input, output=output))
-} 
-
-ts.emean <- function(x) {
-  n <- length(x)
-  y <- rep(0,n)
-  alfa = 1 - 2.0 / (n + 1);
-  for (i in 0:(n-1)) {
-    y[n-i] <- alfa^i
-  }
-  m <- sum(y * x)/sum(y)
-  return(m)
-}
-
-ts.mse <- function(x, y) {
-  delta <- (x - y)^2
-  return(mean(delta))
-}
-
-ts.an.outliers.boxplot <- function(x, k, alpha=1.5) {
-  ts.sw <- function(x,k)
-  {
-    ts.lagPad <- function(x, k) 
-    {
-      c(rep(NA, k), x)[1 : length(x)] 
-    }
-    
-    n <- length(x)-k+1
-    sw <- NULL
-    for(c in (k-1):0){
-      t  <- ts.lagPad(x,c)
-      sw <- cbind(sw,t,deparse.level = 0)
-    }
-    col <- paste("t",c((k-1):0), sep="")
-    rownames(sw) <- NULL
-    colnames(sw) <- col
-    return (sw)
-  }
-  
-  outliers.boxplot <- function(data, alpha)
-  {
-    org = nrow(data)
-    cond <- rep(FALSE, org)
+  ismatrix <- is.matrix(x)
+  if(ismatrix || is.data.frame(x)) {
+    x <- data.frame(x)
+    x <- na.omit(x)
+    org <- nrow(x)
     if (org >= 30) {
-      i = ncol(data)
-      q = quantile(data[,i], na.rm=TRUE)
-      IQR = q[4] - q[2]
-      lq1 = q[2] - alpha*IQR
-      hq3 = q[4] + alpha*IQR
-      cond = data[,i] < lq1 | data[,i] > hq3
+      q <- as.data.frame(lapply(x, quantile, na.rm=TRUE))
+      n <- ncol(x)
+      for (i in 1:n)
+      {
+        IQR <- q[4,i] - q[2,i]
+        lq1 <- q[2,i] - alpha*IQR
+        hq3 <- q[4,i] + alpha*IQR
+        cond <- x[,i] >= lq1 & x[,i] <= hq3
+        x <- x[cond,]
+      }
     }
-    return (cond)
+    if (ismatrix)
+      x <- as.matrix(x)
   }
-  
-  sx <- ts.sw(x,k)
-  ma <- apply(sx, 1, mean)
-  sxd <- sx - ma
-  iF <- outliers.boxplot(sxd,alpha)
-  
-  
-  sx <- ts.sw(rev(x),k)
-  ma <- apply(sx, 1, mean)
-  sxd <- sx - ma
-  iB <- outliers.boxplot(sxd,alpha)
-  iB <- rev(iB)
-  
-  i <- iF & iB
-  i[1:k] <- iB[1:k]
-  i[(length(x)-k+1):length(x)] <- iF[(length(x)-k+1):length(x)]
-  
-  return(i)
-}
-
-ts.outliers.boxplot <- function(x, alpha = 1.5)
-{
-  if (length(x) >= 30) {
-    q = quantile(x)
-    IQR = q[4] - q[2]
-    lq1 = q[2] - alpha*IQR
-    hq3 = q[4] + alpha*IQR
-    cond = x >= lq1 & x <= hq3
-    x = x[cond]
+  else if (length(x) >= 30) {
+    q <- quantile(x)
+    IQR <- q[4] - q[2]
+    lq1 <- q[2] - alpha*IQR
+    hq3 <- q[4] + alpha*IQR
+    cond <- x >= lq1 & x <= hq3
+    x <- x[cond]
   }
   return (x)
 }
 
-ts.sw.outliers.boxplot <- function(data, alpha = 1.5)
-{
-  org = nrow(data)
-  if (org >= 30) {
-    q = as.data.frame(lapply(data, quantile))
-    n = ncol(data)
-    for (i in 1:n)
-    {
-      IQR = q[4,i] - q[2,i]
-      lq1 = q[2,i] - alpha*IQR
-      hq3 = q[4,i] + alpha*IQR
-      cond = data[,i] >= lq1 & data[,i] <= hq3
-      data = data[cond,]
-    }
+ts_train_test <- function(x, test_size, sw_size = 0, offset=0) {
+  if (offset == 0) {
+    offset <- length(x)-test_size
   }
-  return (data)
+  if (sw_size == 0) {
+    train <- x[1:offset]
+    test <- x[(offset+1):(offset+test_size)]
+  }
+  else {
+    train <- x[1:offset]
+    test <- x[(offset-(sw_size-1)+1):(offset+test_size)]
+    train <- ts_sw(train, sw_size)
+    test <- ts_sw(test, sw_size)
+  }
+  return(list(train=train, test=test))
 }
 
-ts.gmm.norm.minmax <- function(serie, scale=1, offset=0, rescale=TRUE) 
+ts_sw_project <- function(sw) 
 {
-  ts.minmax_n <- function(data, par)
-  {
-    return (par$scale*(data-par$gmin)/(par$gmax-par$gmin) + par$offset)
+  if (is.vector(sw)) {
+    input <- sw
+    output <- sw
   }
-  
-  ts.minmax_d <- function(data, par)
-  {
-    return ((data - par$offset) * (par$gmax-par$gmin) / par$scale + par$gmin)
+  else {
+    input <- sw[,1:ncol(sw)-1]
+    output <- sw[,ncol(sw)]
   }
+  return (list(input=input, output=output))
+} 
+
+# time series preprocessing
+
+# classe ts_preprocess
+
+ts_preprocess <- function() {
+  value <- list(sw_size = NA, scale = 1, offset = 0, rescale = FALSE)
+  attr(value, "class") <- "ts_preprocess"
+  return(value)
+}
+
+
+ts_setup <- function(obj, x) {
+  #x contains both input and output
+  UseMethod("ts_setup")
+}
+
+ts_setup.default <- function(obj, x) {
+  if (is.vector(x)) 
+    obj$sw_size <- 0
+  else
+    obj$sw_size <- ncol(x)
+  return(obj)
+}
+
+ts_normalize <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  UseMethod("ts_normalize")
+}
+
+ts_normalize.default <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  return(list(x=x,arguments=NULL))
+}
+
+ts_denormalize <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  UseMethod("ts_denormalize")
+}
+
+ts_denormalize.default <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  return(list(x=x,arguments=NULL))
+}
+
+# classe ts_gminmax
+
+ts_gminmax <- function() {
+  value <- ts_preprocess()
+  value$gmin <- NaN
+  value$gmax <- NaN
+  value$rescale <- TRUE
+  class(value) <- append("ts_gminmax", class(value))  
+  return(value)
+}
+
+ts_setup.ts_gminmax <- function(obj, x) {
+  obj <- ts_setup.default(obj, x)
   
-  io <- ts.swProject(serie)
+  x <- outliers.boxplot(x)
   
-  par <- list(gmin = min(serie), gmax = max(serie))
+  io <- ts_sw_project(x)
   
-  if (rescale) {
+  obj$gmin <- min(x)
+  obj$gmax <- max(x)
+  
+  if (obj$rescale) {
     swi_min <- apply(io$input, 1, min)
     swi_max <- apply(io$input, 1, max)
     
-    swio_min <- apply(serie, 1, min)
-    swio_max <- apply(serie, 1, max)
+    swio_min <- apply(x, 1, min)
+    swio_max <- apply(x, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    ratio <- ts.outliers.boxplot(ratio)
+    ratio <- outliers.boxplot(ratio)
     ratio <- mean(ratio)
     
-    w <- (par$gmax - par$gmin)/(2*ratio)
-    c <- (par$gmax + par$gmin)/2
-    par$gmax <- c + w
-    par$gmin <- c - w
+    w <- (obj$gmax - obj$gmin)/(2*ratio)
+    c <- (obj$gmax + obj$gmin)/2
+    obj$gmax <- c + w
+    obj$gmin <- c - w
   }
   
-  par$scale = scale
-  par$offset = offset
-  par$rescale <- rescale
-  
-  return(list(par = par, norm = ts.minmax_n, dnorm = ts.minmax_d))
+  return(obj)
 }
 
+ts_normalize.ts_gminmax <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  return (list(x = obj$scale*(x-obj$gmin)/(obj$gmax-obj$gmin) + obj$offset, arguments = NULL))
+}
 
-ts.diff.norm.minmax <- function(serie, scale=1, offset=0, rescale=TRUE) 
-{
-  ts.minmax_n <- function(data, par)
-  {
-    return (par$scale*(data-par$gmin)/(par$gmax-par$gmin) + par$offset)
+ts_denormalize.ts_gminmax <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  return (list(x=((x - obj$offset) * (obj$gmax-obj$gmin) + obj$gmin), arguments=NULL))
+}
+
+# classe ts_diff
+
+ts_gminmax_diff <- function() {
+  value <- ts_preprocess()
+  value$gmin <- NaN
+  value$gmax <- NaN
+  value$rescale <- TRUE
+  class(value) <- append("ts_gminmax_diff", class(value))  
+  return(value)
+}
+
+ts_diff <- function(x) {
+  isvector <- !(is.matrix(x) || is.data.frame(x))
+  if(isvector) {
+    x <- ts_sw(x,2)
   }
+  x <- x[,2:ncol(x)] - x[,1:(ncol(x)-1)]
+  return(x)
+}
+
+ts_setup.ts_gminmax_diff <- function(obj, x) {
+  obj <- ts_setup.default(obj, x)
   
-  ts.minmax_d <- function(data, par)
-  {
-    return ((data - par$offset) * (par$gmax-par$gmin) / par$scale + par$gmin)
-  }
+  x <- ts_diff(x)
   
-  io <- ts.swProject(serie)
+  x <- outliers.boxplot(x)
   
-  if (rescale) {
+  io <- ts_sw_project(x)
+  
+  obj$gmin <- min(x)
+  obj$gmax <- max(x)
+  
+  if (obj$rescale) {
     swi_min <- apply(io$input, 1, min)
     swi_max <- apply(io$input, 1, max)
     
-    swio_min <- apply(serie, 1, min)
-    swio_max <- apply(serie, 1, max)
+    swio_min <- apply(x, 1, min)
+    swio_max <- apply(x, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    ratio <- ts.outliers.boxplot(ratio)
+    ratio <- outliers.boxplot(ratio)
     ratio <- mean(ratio)
     
-    offset <- offset + (1 - ratio) * scale / 2
-    scale <- scale * ratio
+    obj$offset <- obj$offset + (1 - ratio) * obj$scale / 2
+    obj$scale <- obj$scale * ratio
   }
   
-  par <- list(gmin = min(io$output), gmax = max(io$output))
-  par$scale <- scale
-  par$offset <- offset
-  par$rescale <- rescale
-  
-  return(list(par = par, norm = ts.minmax_n, dnorm = ts.minmax_d))
+  return(obj)
 }
 
+ts_normalize.ts_gminmax_diff <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  if (is.vector(x)) {
+    ref <- arguments$ref
+    x <- x - ref
+  }
+  else {
+    ref <- x[,ncol(x)]
+    x <- ts_diff(x)
+  }
+  x <- obj$scale*(x-obj$gmin)/(obj$gmax-obj$gmin) + obj$offset
+  return (list(x=x, arguments=list(ref=ref)))
+}
 
-ts.sw.norm.minmax <- function(serie, scale=1, offset=0, rescale=TRUE) 
-{
-  ts.minmax <- function(data, par) 
-  {
-    par$swi_min <- apply(data, 1, min)
-    par$swi_max <- apply(data, 1, max)
-    return(par)
-  } 
-  
-  ts.minmax_n <- function(data, par)
-  {
-    return (par$scale*(data-par$swi_min)/(par$swi_max-par$swi_min) + par$offset)
+ts_denormalize.ts_gminmax_diff <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  x <- (x - obj$offset) * (obj$gmax-obj$gmin) / obj$scale + obj$gmin
+  if (is.vector(x)) {
+    ref <- arguments$ref
+    x <- x + ref
+  }
+  else {
+    ref <- arguments$ref
+    x <- cbind(x, arguments$ref)
+    for (i in (ncol(x)-1):1) {
+      x[,i] <- x[,i+1]-x[,i]
+    }
+  }
+  return (list(x=x, arguments=list(ref=ref)))
+}
+
+# classe ts_swminmax
+
+ts_swminmax <- function() {
+  value <- ts_preprocess()
+  value$rescale <- TRUE
+  class(value) <- append("ts_swminmax", class(value))  
+  return(value)
+}
+
+ts_setup.ts_swminmax <- function(obj, x) {
+  valid_range <- function(x, alpha=1.5) {
+    q <- quantile(x)
+    IQR <- q[4] - q[2]
+    return(q[2] - alpha*IQR)
   }
   
-  ts.minmax_d <- function(data, par)
-  {
-    return ((data - par$offset) * (par$swi_max-par$swi_min) / (par$scale) + par$swi_min)
-  }
+  obj <- ts_setup.default(obj, x)
   
-  io <- ts.swProject(serie)
+  x <- outliers.boxplot(x)
   
-  if (rescale) {
+  io <- ts_sw_project(x)
+  
+  if (obj$rescale) {
     swi_min <- apply(io$input, 1, min)
     swi_max <- apply(io$input, 1, max)
     
-    swio_min <- apply(serie, 1, min)
-    swio_max <- apply(serie, 1, max)
+    swio_min <- apply(x, 1, min)
+    swio_max <- apply(x, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    ratio <- ts.outliers.boxplot(ratio)
-    ratio <- mean(ratio)
-    
-    offset <- offset + (1 - ratio) * scale / 2
-    scale <- scale * ratio
+    ratio <- outliers.boxplot(ratio)
+    ratio <- valid_range(ratio)
+    obj$offset <- obj$offset + (1 - ratio) * obj$scale / 2
+    obj$scale <- obj$scale * ratio
   }
   
-  par <- list()
-  par$scale <- scale
-  par$offset <- offset
-  par$rescale <- rescale
-  
-  
-  return(list(par = par, norm = ts.minmax_n, dnorm = ts.minmax_d, minmax = ts.minmax))
+  return(obj)
 }
 
-ts.an.norm.minmax <- function(serie, scale=1, offset=0, rescale=TRUE) 
-{
-  ts.minmax_n <- function(data, par)
-  {
-    return (par$scale*(data-par$swi_min)/(par$swi_max-par$swi_min) + par$offset)
-  }
-  
-  ts.minmax_d <- function(data, par)
-  {
-    return ((data - par$offset) * (par$swi_max-par$swi_min) / (par$scale) + par$swi_min)
-  }
-  
-  io <- ts.swProject(serie)
-  
-  par <- list(swi_min = min(io$input), swi_max = max(io$input))
-  if (rescale) {
-    ratio <- (par$swi_max-par$swi_min)/(max(serie)-min(serie))
-    
-    offset <- offset + (1 - ratio) * scale / 2
-    scale <- scale * ratio
-  }
-  
-  par$scale <- scale
-  par$offset <- offset
-  par$rescale <- rescale
-  
-  return(list(par = par, norm = ts.minmax_n, dnorm = ts.minmax_d))
-}
-
-ts.ml <- function(method, ...) {
-  return(list(mlm=method, arguments = list(...)))
-}
-
-svm_ext <- function(X, Y, ...) {
-  arguments = list(...)
-  
-  svm(x = X, y = Y, kernel="radial", type="eps-regression", scale=FALSE, epsilon=arguments$epsilon, cost=arguments$cost)
-  return(mdl$best.model)
-}
-
-ts.arima_train <- function(data) {
-  set.seed(1)
-  
-  mlmodel <- auto.arima(data, D=1, approximation = FALSE, allowdrift = TRUE, allowmean = TRUE) 
-  pred <- mlmodel$residuals + data
-  
-  mse <- ts.mse(pred, data)
-  smape <-  TSPred::sMAPE(data,pred)
-  
-  if (timeseries_debug) {
-    plot(1:length(data), data, main = class(mlmodel)[1], xlab = "time", ylab="value")
-    lines(1:length(pred), pred, col="green")  
-  }
-  
-  return (list(mlmodel=mlmodel, fnorm=NA, train.mse=mse, train.smape=smape))
-}
-
-ts.arima_test <- function(model, value, predict_custom = predict) {
-  pred <- forecast(model$mlmodel, h = length(value))
-  
-  mse <- -1
-  smape <- -1
-  
-  value<-value[!is.na(value)]
-  
-  if (length(value) > 0) {
-    mse <- ts.mse(pred$mean, value)
-    smape <-  TSPred::sMAPE(value, pred$mean)
-    
-    if (timeseries_debug) {
-      plot(1:length(value), value, main = class(model$mlmodel)[1], xlab = "time", ylab="value")
-      lines(1:length(pred$mean), pred$mean, col="green")  
-    }
-  }
-  return(list(prediction=pred$mean, value=value, mse=mse, smape=smape))
-}
-
-ts.dir_train <- function(data, mlearning) {
-  set.seed(1)
-  
-  mlmodel <- do.call(function(...) mlearning$mlm(data, ...), mlearning$arguments)
-  
-  start <- length(data)-length(mlmodel$fitted)+1
-  x <- data[start:length(data)]
-  
-  mse <- ts.mse(mlmodel$fitted, x)
-  smape <-  TSPred::sMAPE(x,mlmodel$fitted)
-  
-  if (timeseries_debug) {
-    plot(1:length(x), x, main = sprintf("%s-%d-%s", class(mlmodel)[1], max(mlmodel$lags),"dir"), xlab = "time", ylab="value")
-    lines(1:length(mlmodel$fitted), mlmodel$fitted, col="green")  
-  }
-  
-  return (list(mlmodel=mlmodel, fnorm=NA, train.mse=mse, train.smape=smape))
-}
-
-ts.dir_test <- function(model, value, predict_custom = predict) {
-  pred <- forecast(model$mlmodel, h = length(value))
-  
-  mse <- -1
-  smape <- -1
-  
-  value<-value[!is.na(value)]
-  
-  if (length(value) > 0) {
-    mse <- ts.mse(pred$mean, value)
-    smape <-  TSPred::sMAPE(value,pred$mean)
-    if (timeseries_debug) {
-      plot(1:length(value), value, main = sprintf("%s-%d-%s", class(model$mlmodel)[1], max(model$mlmodel$lags), "dir"), xlab = "time", ylab="value")
-      lines(1:length(pred$mean), pred$mean, col="green")  
-    }
-  }
-  return(list(prediction=pred$mean, value=value, mse=mse, smape=smape))
-}
-
-ts.diff_train <- function(data, size, mlearning, predict_custom = predict, mmscale, mmoffset, rescale) {
-  t1 <- data[,ncol(data)-1]
-  data <- data[,2:ncol(data)] - data[,1:(ncol(data)-1)]
-  
-  dataorg <- data
-  data <- ts.sw.outliers.boxplot(data)
-  
-  fnorm <- ts.diff.norm.minmax(data, mmscale, mmoffset, rescale)
-  
-  data <- fnorm$norm(data, fnorm$par)
-  
-  io = ts.swProject(data)
-  
-  set.seed(1)
-  
-  mlmodel <- do.call(function(...) mlearning$mlm(ts.as.matrix(io$input, size), as.matrix(io$output), ...), mlearning$arguments)
-  
-  data <- fnorm$norm(dataorg, fnorm$par)
-  io = ts.swProject(data)
-  
-  prediction <- predict_custom(mlmodel, ts.as.matrix(io$input, size))
-  
-  prediction <- as.vector(prediction)
-  prediction <- fnorm$dnorm(prediction, fnorm$par)+t1
-  output <- fnorm$dnorm(io$output, fnorm$par)+t1 
-  
-  train.mse = mse(prediction, output)
-  train.smape = TSPred::sMAPE(output, prediction)
-  
-  if (timeseries_debug) {
-    plot(1:length(output), output, main = sprintf("%s-%d-%s", class(mlmodel)[1], size, "diff"), xlab = "time", ylab="value")
-    lines(1:length(prediction), prediction, col="green")  
-  }
-  
-  return (list(mlmodel=mlmodel, fnorm=fnorm, train.mse=train.mse, train.smape=train.smape))
-}
-
-ts.diff_test <- function(model, fnorm, size, test, value, predict_custom = predict) {
-  t1 <- test[,ncol(test)-1]
-  test <- test[,2:ncol(test)] - test[,1:(ncol(test)-1)]
-  
-  test <- fnorm$norm(test, fnorm$par)
-  test <- as.matrix(test)
-  
-  if ((nrow(test) == 1) && (nrow(test) != length(value))) {
-    prediction <- NULL
-    for (i in 1:length(value)) {
-      pred <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test, size)))
-      test[1,] <- c(test[1,2:ncol(test)], pred)
-      prediction <- c(prediction, pred)
-    }
-    prediction <- fnorm$dnorm(prediction, fnorm$par)
-    for (i in 1:length(prediction)) {
-      prediction[i] <- prediction[i] + t1
-      t1 <- prediction[i]
-    }
+ts_normalize.ts_swminmax <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  if (is.vector(x)) {
+    i_min <- arguments$i_min 
+    i_max <- arguments$i_max
   }
   else {
-    prediction <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test, size)))
-    prediction <- fnorm$dnorm(prediction, fnorm$par)
-    prediction <- prediction + t1
+    i_min <- apply(x, 1, min)
+    i_max <- apply(x, 1, max)
   }
+  return (list(x=obj$scale*(x-i_min)/(i_max-i_min) + obj$offset, arguments=list(i_min=i_min, i_max=i_max)))
+}
+
+ts_denormalize.ts_swminmax <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  x <- (x - obj$offset) * (arguments$i_max - arguments$i_min) / obj$scale + arguments$i_min
+  return (list(x=x, arguments=arguments))
+}
+
+# classe ts_anminmax
+
+ts_anminmax <- function() {
+  value <- ts_preprocess()
+  value$gmin <- NA
+  value$gmax <- NA
+  value$rescale <- TRUE
+  class(value) <- append("ts_anminmax", class(value))  
+  return(value)  
+}
+
+ts_inertia <- function(obj, x) {
+  UseMethod("ts_inertia")
+}
+
+ts_inertia.default <- function(obj, x) {
+  an <- apply(x, 1, mean)
+  return(an)
+}
+
+ts_remove_inertia <- function(obj, x, an) {
+  UseMethod("ts_remove_inertia")
+}
+
+ts_remove_inertia.default <- function(obj, x, an) {
+  return(x / an)
+}
+
+ts_add_inertia <- function(obj, x, an) {
+  UseMethod("ts_add_inertia")
+}
+
+ts_add_inertia.default <- function(obj, x, an) {
+  return(x * an)
+}
+
+ts_setup.ts_anminmax <- function(obj, x) {
+  obj <- ts_setup.default(obj, x)
   
-  mse <- -1
-  smape <- -1
+  an <- ts_inertia(obj, ts_sw_project(x)$input)
+  x <- ts_remove_inertia(obj, x, an)
+  x <- cbind(x, an)
+  x <- outliers.boxplot(x)
+  x <- x[,1:(ncol(x)-1)]
   
-  value<-value[!is.na(value)]
+  io <- ts_sw_project(x)
   
-  if (length(value) > 0) {
-    mse <- ts.mse(prediction, value)
-    smape <-  TSPred::sMAPE(value,prediction)
+  obj$gmin <- min(io$input)
+  obj$gmax <- max(io$input)
+  
+  if (obj$rescale) {
+    ratio <- (obj$gmax-obj$gmin)/(max(x)-min(x))
     
-    if (timeseries_debug) {
-      plot(1:length(value), value, main = sprintf("%s-%d-%s", class(model$mlmodel)[1], size, "diff"), xlab = "time", ylab="value")
-      lines(1:length(prediction), prediction, col="green")  
-    }
+    obj$offset <- obj$offset + (1 - ratio) * obj$scale / 2
+    obj$scale <- obj$scale * ratio
   }
-  
-  return(list(prediction=prediction, value=value, mse=mse, smape=smape))
+  return(obj)
 }
 
-
-ts.gmm_train <- function(data, size, mlearning, predict_custom = predict, mmscale, mmoffset, rescale) {
-  dataorg <- data
-  
-  data <- ts.sw.outliers.boxplot(data)
-  
-  fnorm <- ts.gmm.norm.minmax(data, mmscale, mmoffset, rescale)
-  
-  data <- fnorm$norm(data, fnorm$par)
-  
-  io = ts.swProject(data)
-  
-  set.seed(1)
-  
-  mlmodel <- do.call(function(...) mlearning$mlm(ts.as.matrix(io$input, size), as.matrix(io$output), ...), mlearning$arguments)
-  
-  data <- fnorm$norm(dataorg, fnorm$par)
-  
-  io = ts.swProject(data)
-  
-  prediction <- predict_custom(mlmodel, ts.as.matrix(io$input, size))
-  
-  prediction <- as.vector(prediction)
-  prediction <- fnorm$dnorm(prediction, fnorm$par)
-  output <- fnorm$dnorm(io$output, fnorm$par)
-  
-  train.mse = mse(prediction, output)
-  train.smape = TSPred::sMAPE(output, prediction)
-  
-  if (timeseries_debug) {
-    plot(1:length(output), output, main = sprintf("%s-%d-%s", class(mlmodel)[1], size, "gmm"), xlab = "time", ylab="value")
-    lines(1:length(prediction), prediction, col="green")  
-  }
-  
-  return (list(mlmodel=mlmodel, fnorm=fnorm, train.mse=train.mse, train.smape=train.smape))
-}
-
-ts.gmm_test <- function(model, fnorm, size, test, value, predict_custom = predict) {
-  test <- fnorm$norm(test, fnorm$par)
-  test <- as.matrix(test)
-  
-  if ((nrow(test) == 1) && (nrow(test) != length(value))) {
-    prediction <- NULL
-    for (i in 1:length(value)) {
-      pred <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test, size)))
-      test[1,] <- c(test[1,2:ncol(test)], pred)
-      prediction <- c(prediction, pred)
-    }
-  }
-  else 
-    prediction <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test, size)))
-  prediction <- fnorm$dnorm(prediction, fnorm$par)
-  
-  mse <- -1
-  smape <- -1
-  
-  value<-value[!is.na(value)]
-  
-  if (length(value) > 0) {
-    mse <- ts.mse(prediction, value)
-    smape <-  TSPred::sMAPE(value,prediction)
-    if (timeseries_debug) {
-      plot(1:length(value), value, main = sprintf("%s-%d-%s", class(model$mlmodel)[1], size, "gmm"), xlab = "time", ylab="value")
-      lines(1:length(prediction), prediction, col="green")  
-    }
-  }
-  
-  return(list(prediction=prediction, value=value, mse=mse, smape=smape))
-}
-
-ts.swmm_train <- function(data, size, mlearning, predict_custom = predict, mmscale, mmoffset, rescale) {
-  fnorm <- ts.sw.norm.minmax(data, mmscale, mmoffset, rescale)
-  
-  fnorm$par <- fnorm$minmax(ts.swProject(data)$input, fnorm$par)
-  data <- fnorm$norm(data, fnorm$par)  
-  
-  io <- ts.swProject(data)
-  
-  set.seed(1)
-  
-  mlmodel <- do.call(function(...) mlearning$mlm(ts.as.matrix(io$input, size), as.matrix(io$output), ...), mlearning$arguments)
-  
-  prediction <- predict_custom(mlmodel, ts.as.matrix(io$input, size))
-  
-  prediction <- as.vector(prediction)
-  
-  prediction <- fnorm$dnorm(prediction, fnorm$par)
-  output <- fnorm$dnorm(io$output, fnorm$par)
-  
-  train.mse = mse(prediction, output)
-  train.smape = TSPred::sMAPE(output, prediction)
-  
-  if (timeseries_debug) {
-    plot(1:length(output), output, main = sprintf("%s-%d-%s", class(mlmodel)[1], size,"swmm"), xlab = "time", ylab="value")
-    lines(1:length(prediction), prediction, col="green")  
-  }
-  
-  return (list(mlmodel=mlmodel, fnorm=fnorm, train.mse=train.mse, train.smape=train.smape))
-}
-
-ts.swmm_test <- function(model, fnorm, size, test, value, predict_custom = predict) {
-  test <- as.matrix(test)
-  if ((nrow(test) == 1) && (nrow(test) != length(value))) {
-    prediction <- NULL
-    for (i in 1:length(value)) {
-      fnorm$par <- fnorm$minmax(test, fnorm$par)
-      swtest <- fnorm$norm(test, fnorm$par)  
-      
-      pred <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(swtest, size)))
-      
-      pred <- fnorm$dnorm(pred, fnorm$par)
-      
-      test[1,] <- c(test[1,2:ncol(test)], pred)
-      prediction <- c(prediction, pred)
-    }
+ts_normalize.ts_anminmax <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  if (is.vector(x)) {
+    an <- arguments$an
+    x <- ts_remove_inertia(obj, x, an)
   }
   else {
-    fnorm$par <- fnorm$minmax(test, fnorm$par)
-    test <- fnorm$norm(test, fnorm$par)  
-    
-    prediction <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test, size)))
-    
-    prediction <- fnorm$dnorm(prediction, fnorm$par)
+    an <- ts_inertia(obj, x)
+    x <- ts_remove_inertia(obj, x, an)
   }
-  
-  
-  mse <- -1
-  smape <- -1
-  
-  value<-value[!is.na(value)]
-  
-  if (length(value) > 0) {
-    mse <- ts.mse(prediction, value)
-    smape <-  TSPred::sMAPE(value,prediction)
-    
-    if (timeseries_debug) {
-      plot(1:length(value), value, main = sprintf("%s-%d-%s", class(model$mlmodel)[1], size, "swmm"), xlab = "time", ylab="value")
-      lines(1:length(prediction), prediction, col="green")  
-    }
-  }
-  
-  return(list(prediction=prediction, value=value, mse=mse, smape=smape))
+  return (list(x=obj$scale*(x - obj$gmin)/(obj$gmax - obj$gmin) + obj$offset, arguments=list(an=an)))
 }
 
-ts.an_train <- function(data, size, mlearning, predict_custom = predict, mmscale, mmoffset, rescale) {
-  dataorg <- data
+ts_denormalize.ts_anminmax <- function(obj, x, arguments=NULL) {
+  # x can be either input matrix or output vector
+  x <- (x - obj$offset) * (obj$gmax - obj$gmin) / (obj$scale) + obj$gmin
+  x <- ts_add_inertia(obj, x, arguments$an)
+  return (list(x=x, arguments=arguments))
+}
+
+# classe ts_animinmax
+
+ts_animinmax <- function() {
+  value <- ts_anminmax()
+  value$gmin <- NA
+  value$gmax <- NA
+  value$rescale <- TRUE
+  class(value) <- append("ts_animinmax", class(value))  
+  return(value)  
+}
+
+ts_remove_inertia.ts_animinmax <- function(obj, x, an) {
+  return(x - an)
+}
+
+ts_add_inertia.ts_animinmax <- function(obj, x, an) {
+  return(x + an)
+}
+
+ts_aneminmax <- function() {
+  value <- ts_anminmax()
+  value$gmin <- NA
+  value$gmax <- NA
+  value$rescale <- TRUE
+  class(value) <- append("ts_aneminmax", class(value))  
+  return(value)  
+}
+
+ts_inertia.ts_aneminmax <- function(obj, x) {
+  exp_mean <- function(x) {
+    n <- length(x)
+    y <- rep(0,n)
+    alfa <- 1 - 2.0 / (n + 1);
+    for (i in 0:(n-1)) {
+      y[n-i] <- alfa^i
+    }
+    m <- sum(y * x)/sum(y)
+    return(m)
+  }
   
-  an <- apply(ts.swProject(data)$input, 1, mean)
-  data <- data/an
-  data$an <- an
-  data <- ts.sw.outliers.boxplot(data)
-  an <- data$an
-  data$an <- NULL
-  
-  fnorm <- ts.an.norm.minmax(data, mmscale, mmoffset, rescale)  
-  
-  data <- fnorm$norm(data, fnorm$par)
-  io = ts.swProject(data)
-  
+  an <- apply(x, 1, exp_mean)
+  return(an)
+}
+
+
+# time series models
+
+ts_model <- function() {
+  obj <- list(mdl=NULL)
+  attr(obj, "class") <- "ts_model"
+  return(obj)
+}
+
+ts_invoke_train <- function(obj, X, Y = NULL, arguments = NULL) {
+  UseMethod("ts_invoke_train")
+}
+
+ts_invoke_train.default <- function(obj, X, Y = NULL, arguments = NULL) {
+  obj$mdl <- NULL
+  return(obj)
+}
+
+ts_train <- function(obj, x, arguments = NULL) {
+  UseMethod("ts_train")
+}
+
+ts_train.default <- function(obj, x) {
+  return(obj)  
+}
+
+ts_invoke_predict <- function(obj, X) {
+  UseMethod("ts_invoke_predict")
+}
+
+ts_invoke_predict.default <- function(obj, X) {
+  prediction <- predict(obj$mdl, X)
+  return(prediction)
+}
+
+ts_predict <- function(obj, X, steps_ahead=1) {
+  UseMethod("ts_predict")
+}
+
+ts_predict.default <- function(obj, X, steps_ahead=1) {
+  return(NULL)
+}
+
+ts_test <- function(obj, test, steps_ahead=1) {
+  UseMethod("ts_test")
+}
+
+ts_test.default <- function(obj, test, steps_ahead=1) {
+  return(obj)
+}
+
+#class ts_dir
+
+ts_dir <- function() {
+  obj <- ts_model()
+  class(obj) <- append("ts_dir", class(obj))  
+  return(obj)
+}
+
+ts_train.ts_dir <- function(obj, x) {
   set.seed(1)
   
-  mlmodel <- do.call(function(...) mlearning$mlm(ts.as.matrix(io$input, size), as.matrix(io$output), ...), mlearning$arguments)
+  obj <- ts_invoke_train(obj, x)
   
-  data <- dataorg
-  an <- apply(ts.swProject(data)$input, 1, mean)
-  data <- data/an
-  
-  data <- fnorm$norm(data, fnorm$par)
-  io = ts.swProject(data)
-  
-  prediction <- predict_custom(mlmodel, ts.as.matrix(io$input, size))
-  
-  prediction <- as.vector(prediction)
-  prediction <- fnorm$dnorm(prediction, fnorm$par)*an
-  output <- fnorm$dnorm(io$output, fnorm$par)*an
-  
-  train.mse = mse(prediction, output)
-  train.smape = TSPred::sMAPE(output, prediction)
-  
-  if (timeseries_debug) {
-    plot(1:length(output), output, main = sprintf("%s-%d-%s", class(mlmodel)[1], size, "an"), xlab = "time", ylab="value")
-    lines(1:length(prediction), prediction, col="green")  
-  }
-  
-  return (list(mlmodel=mlmodel, fnorm = fnorm, train.mse=train.mse, train.smape=train.smape))
-}
-
-ts.an_test <- function(model, fnorm, size, test, value, predict_custom = predict) {
-  test <- as.matrix(test)
-  if ((nrow(test) == 1) && (nrow(test) != length(value))) {
-    prediction <- NULL
-    for (i in 1:length(value)) {
-      an <- mean(test[1,])
-      test_an <- test/an
-      test_an <- fnorm$norm(test_an, fnorm$par)
-      
-      pred <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test_an, size)))
-      pred <- fnorm$dnorm(pred, fnorm$par)*an
-      
-      test[1,] <- c(test[1,2:ncol(test)], pred)
-      prediction <- c(prediction, pred)
-    }
-  }
-  else {
-    an <- apply(test, 1, mean)
-    test <- test/an
-    test <- fnorm$norm(test, fnorm$par)
-    prediction <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test, size)))
-    prediction <- fnorm$dnorm(prediction, fnorm$par)*an
-  }
-  
-  mse <- -1
-  smape <- -1
-  
-  value<-value[!is.na(value)]
-  
-  if (length(value) > 0) {
-    mse <- ts.mse(prediction, value)
-    smape <-  TSPred::sMAPE(value,prediction)
-    
-    if (timeseries_debug) {
-      plot(1:length(value), value, main = sprintf("%s-%d-%s", class(model$mlmodel)[1], size, "an"), xlab = "time", ylab="value")
-      lines(1:length(prediction), prediction, col="green")  
-    }
-  }
-  
-  return(list(prediction=prediction, value=value, mse=mse, smape=smape))
+  obj$train_smape <- TSPred::sMAPE(obj$train_value, obj$train_pred)  
+  obj$train_mse <- TSPred::MSE(obj$train_value, obj$train_pred)  
+  return(obj)
 }
 
 
-ts.ane_train <- function(data, size, mlearning, predict_custom = predict, mmscale, mmoffset, rescale) {
-  dataorg <- data
+ts_predict.ts_dir <- function(obj, X=NULL, steps_ahead=1) {
+  if (is.vector(X))
+    steps_ahead <- length(X)
+  pred <- forecast(obj$mdl, h = steps_ahead)
+  return(pred$mean)
+}
+
+ts_test.ts_dir <- function(obj, test, steps_ahead=1) {
+  prediction <- ts_predict(obj, steps_ahead=steps_ahead)
   
-  an <- apply(ts.swProject(data)$input, 1, ts.emean)
-  data <- data/an
-  data$an <- an
-  data <- ts.sw.outliers.boxplot(data)
-  an <- data$an
-  data$an <- NULL
+  obj$test_pred <- prediction
+  obj$test_value <- test
   
-  fnorm <- ts.an.norm.minmax(data, mmscale, mmoffset, rescale)  
+  obj$test_smape <- TSPred::sMAPE(obj$test_value, obj$test_pred)  
+  obj$test_mse <- TSPred::MSE(obj$test_value, obj$test_pred)  
   
-  data <- fnorm$norm(data, fnorm$par)
+  return(obj)
+}
+
+
+#class ts_arima
+
+ts_arima <- function() {
+  obj <- ts_dir()
+  class(obj) <- append("ts_arima", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_arima <- function(obj, X, Y = NULL, arguments = NULL) {
+  obj$mdl <- auto.arima(X, approximation = FALSE, allowdrift = TRUE, allowmean = TRUE) 
+  obj$train_pred <- obj$mdl$residuals + X
+  obj$train_value <- X
+  return(obj)
+}
+
+#class ts_emlp_dir
+
+ts_emlp_dir <- function(input_size, difforder=0) {
+  obj <- ts_dir()
+  obj$input_size <- input_size
+  obj$difforder <- difforder
+  class(obj) <- append("ts_emlp_dir", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_emlp_dir <- function(obj, X, Y = NULL, arguments = NULL) {
+  obj$mdl <- NULL
+  X <- ts(X)
+  max_smape <- -1
+  for (j in 0:1) {
+    for (i in 2:30) {
+      mlmodel <- nnfor::mlp(X, hd = i, lags=1:obj$input_size, sel.lag=rep(FALSE, obj$input_size), difforder=j)
+      smape <- mlmodel$MSE   
+      if ((smape < max_smape) || is.null(obj$mdl)) {
+        obj$mdl <- mlmodel
+        obj$difforder <- j
+        obj$hd <- i
+        max_smape <- smape
+      }
+    }
+  }
+  start <- length(X)-length(obj$mdl$fitted)+1
+  obj$train_pred <- obj$mdl$fitted
+  obj$train_value <- X[start:length(X)]
   
-  io = ts.swProject(data)
+  return(obj)
+}
+
+#class ts_eelm_dir
+
+ts_eelm_dir <- function(input_size, difforder=0) {
+  obj <- ts_dir()
+  obj$input_size <- input_size
+  obj$difforder <- difforder
+  class(obj) <- append("ts_eelm_dir", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_eelm_dir <- function(obj, X, Y = NULL, arguments = NULL) {
+  obj$mdl <- NULL
+  X <- ts(X)
+  max_smape <- -1
+  for (j in 0:1) {
+    for (i in 2:30) {
+      mlmodel <- nnfor::elm(X, hd = i, lags=1:obj$input_size, sel.lag=rep(FALSE, obj$input_size), difforder=j)
+      smape <- mlmodel$MSE   
+      if ((smape < max_smape) || is.null(obj$mdl)) {
+        obj$mdl <- mlmodel
+        obj$difforder <- j
+        obj$hd <- i
+        max_smape <- smape
+      }
+    }
+  }
+  start <- length(X)-length(obj$mdl$fitted)+1
+  obj$train_pred <- obj$mdl$fitted
+  obj$train_value <- X[start:length(X)]
   
+  return(obj)
+}
+
+#class ts_swmodel
+
+ts_swmodel <- function(preprocess, input_size) {
+  obj <- ts_model()
+  obj$preprocess <- preprocess
+  obj$input_size <- input_size
+  class(obj) <- append("ts_swmodel", class(obj))  
+  return(obj)
+}
+
+ts_train.ts_swmodel <- function(obj, x) {
   set.seed(1)
   
-  mlmodel <- do.call(function(...) mlearning$mlm(ts.as.matrix(io$input, size), as.matrix(io$output), ...), mlearning$arguments)
+  obj$preprocess <- ts_setup(obj$preprocess, x)
   
-  data <- dataorg
-  an <- apply(ts.swProject(data)$input, 1, ts.emean)
-  data <- data/an
+  io <- ts_sw_project(x)
   
-  data <- fnorm$norm(data, fnorm$par)
-  io = ts.swProject(data)
+  input <- ts_normalize(obj$preprocess, io$input)
   
-  prediction <- predict_custom(mlmodel, ts.as.matrix(io$input, size))
+  ouput <- ts_normalize(obj$preprocess, io$output, input$arguments)
   
-  prediction <- as.vector(prediction)
-  prediction <- fnorm$dnorm(prediction, fnorm$par)*an
-  output <- fnorm$dnorm(io$output, fnorm$par)*an
+  obj <- ts_invoke_train(obj, ts_as_matrix(input$x, obj$input_size), as.matrix(ouput$x), arguments)
   
-  train.mse = mse(prediction, output)
-  train.smape = TSPred::sMAPE(output, prediction)
+  prediction <- ts_invoke_predict(obj, ts_as_matrix(input$x, obj$input_size))
+  prediction <- ts_denormalize(obj$preprocess, prediction, input$arguments)
   
-  if (timeseries_debug) {
-    plot(1:length(output), output, main = sprintf("%s-%d-%s", class(mlmodel)[1], size, "ane"), xlab = "time", ylab="value")
-    lines(1:length(prediction), prediction, col="green")  
-  }
+  obj$train_pred <- prediction$x
+  obj$train_value <- io$output
   
-  return (list(mlmodel=mlmodel, fnorm = fnorm, train.mse=train.mse, train.smape=train.smape))
+  obj$train_smape <- TSPred::sMAPE(obj$train_value, obj$train_pred)  
+  obj$train_mse <- TSPred::MSE(obj$train_value, obj$train_pred)  
+  return(obj)
 }
 
-ts.ane_test <- function(model, fnorm, size, test, value, predict_custom = predict) {
-  test <- as.matrix(test)
-  if ((nrow(test) == 1) && (nrow(test) != length(value))) {
-    prediction <- NULL
-    for (i in 1:length(value)) {
-      an <- ts.emean(test[1,])
-      test_an <- test/an
-      test_an <- fnorm$norm(test_an, fnorm$par)
-      
-      pred <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test_an, size)))
-      pred <- fnorm$dnorm(pred, fnorm$par)*an
-      
-      test[1,] <- c(test[1,2:ncol(test)], pred)
-      prediction <- c(prediction, pred)
-    }
+ts_predict.ts_swmodel <- function(obj, X, steps_ahead=1) {
+  prediction <- NULL
+  if (steps_ahead == 1) {
+    input <- ts_normalize(obj$preprocess, X)
+    pred <- ts_invoke_predict(obj, ts_as_matrix(input$x, obj$input_size))
+    pred <- as.vector(pred)
+    pred <- ts_denormalize(obj$preprocess, pred, input$arguments)
+    prediction <- pred$x
   }
   else {
-    an <- apply(test, 1, ts.emean)
-    test <- test/an
-    test <- fnorm$norm(test, fnorm$par)
-    prediction <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test, size)))
-    prediction <- fnorm$dnorm(prediction, fnorm$par)*an
-  }
-  
-  mse <- -1
-  smape <- -1
-  
-  value<-value[!is.na(value)]
-  
-  if (length(value) > 0) {
-    mse <- ts.mse(prediction, value)
-    smape <-  TSPred::sMAPE(value,prediction)
-    
-    if (timeseries_debug) {
-      plot(1:length(value), value, main = sprintf("%s-%d-%s", class(model$mlmodel)[1], size, "ane"), xlab = "time", ylab="value")
-      lines(1:length(prediction), prediction, col="green")  
+    X <- data.frame(X)[1,]
+    for (i in 1:steps_ahead) {
+      input <- ts_normalize(obj$preprocess, X)
+      pred <- ts_invoke_predict(obj, ts_as_matrix(input$x, obj$input_size))
+      pred <- as.vector(pred)
+      pred <- ts_denormalize(obj$preprocess, pred, input$arguments)
+      X[1,] <- c(X[1,2:ncol(X)], pred$x)
+      prediction <- c(prediction, pred$x)
     }
   }
-  
-  return(list(prediction=prediction, value=value, mse=mse, smape=smape))
+  return(prediction)
 }
 
-ts.ani_train <- function(data, size, mlearning, predict_custom = predict, mmscale, mmoffset, rescale) {
-  dataorg <- data
+ts_test.ts_swmodel <- function(obj, test, steps_ahead=1) {
+  io <- ts_sw_project(test)
   
-  an <- apply(ts.swProject(data)$input, 1, mean)
-  data <- data-an
-  data$an <- an
-  data <- ts.sw.outliers.boxplot(data)
-  an <- data$an
-  data$an <- NULL
+  prediction <- ts_predict(obj, io$input, steps_ahead)
   
-  fnorm <- ts.an.norm.minmax(data, mmscale, mmoffset, rescale)  
+  obj$test_pred <- prediction
+  obj$test_value <- io$output
   
-  data <- fnorm$norm(data, fnorm$par)
+  obj$test_smape <- TSPred::sMAPE(obj$test_value, obj$test_pred)  
+  obj$test_mse <- TSPred::MSE(obj$test_value, obj$test_pred)  
   
-  io = ts.swProject(data)
+  return(obj)
+}
+
+#class ts_nnet
+
+ts_nnet <- function(preprocess, input_size) {
+  obj <- ts_swmodel(preprocess, input_size)
+  obj$maxit <- 50000
+  class(obj) <- append("ts_nnet", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_nnet <- function(obj, X, Y, arguments = NULL) {
+  tuned <- tune(nnet, X, Y, maxit=obj$maxit, trace=FALSE, ranges=list(decay=seq(0, 1, 0.01), size=(1:ncol(X))))
+  obj$mdl <- tuned$best.model
+  return(obj)
+}
+
+#class ts_svm
+
+ts_svm <- function(preprocess, input_size) {
+  obj <- ts_swmodel(preprocess, input_size)
+  class(obj) <- append("ts_svm", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_svm <- function(obj, X, Y, arguments = NULL) {
+  tuned <- tune(svm, X, Y, ranges=list(epsilon=seq(0,1,0.1), cost=1:100))
+  obj$mdl <- tuned$best.model
+  return(obj)
+}
+
+
+#class ts_rf
+
+ts_rf <- function(preprocess, input_size) {
+  obj <- ts_swmodel(preprocess, input_size)
+  obj$ntree <- 500
+  class(obj) <- append("ts_rf", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_rf <- function(obj, X, Y, arguments = NULL) {
+  tuned <- tune(randomForest, X, Y, importance=TRUE, ranges=list(ntree=seq(10, obj$ntree, 10)))
+  obj$mdl <- tuned$best.model
+  return(obj)
+}
+
+
+
+#class ts_mlp
+
+ts_mlp <- function(preprocess, input_size) {
+  obj <- ts_swmodel(preprocess, input_size)
+  obj$maxit <- 50000
+  class(obj) <- append("ts_mlp", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_mlp <- function(obj, X, Y, arguments = NULL) {
+  obj$mdl <- NULL
+  max_smape <- -1
+  for (i in 1:ncol(X)) {
+    mlmodel <- RSNNS::mlp(X, Y, size=i, maxit=obj$maxit, learnFuncParams=c(0.1))
+    smape <- TSPred::sMAPE(Y, mlmodel$fitted.values)    
+    if ((smape < max_smape) || is.null(obj$mdl)) {
+      max_smape <- smape
+      obj$mdl <- mlmodel
+      obj$size <- i
+    }
+  }
+  for (j in seq(0.02, 0.2, 0.02)) {
+    mlmodel <- RSNNS::mlp(X, Y, size=obj$size, maxit=obj$maxit, learnFuncParams=c(j))
+    smape <- TSPred::sMAPE(Y, mlmodel$fitted.values)    
+    if ((smape < max_smape) || is.null(obj$mdl)) {
+      max_smape <- smape
+      obj$mdl <- mlmodel
+      obj$learn <- j
+    }
+  }
+  return(obj)
+}
+
+
+#class ts_elm
+
+ts_elm <- function(preprocess, input_size) {
+  obj <- ts_swmodel(preprocess, input_size)
+  class(obj) <- append("ts_elm", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_elm <- function(obj, X, Y, arguments = NULL) {
+  obj$mdl <- NULL
+  max_smape <- -1
+  for (i in 1:ncol(X)) {
+    mlmodel <- elm_train(X, Y, nhid = i, actfun = 'purelin', init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
+    smape <- TSPred::sMAPE(Y, mlmodel$predictions)    
+    if ((smape < max_smape) || is.null(obj$mdl)) {
+      max_smape <- smape
+      obj$mdl <- mlmodel
+    }
+  }
+  return(obj)
+}
+
+ts_invoke_predict.ts_elm <- function(obj, X) {
+  prediction <- elm_predict(obj$mdl, X)
+  return(prediction)
+}
+
+
+
+#class ts_tensor_cnn
+
+ts_tensor_cnn <- function(preprocess, input_size) {
+  obj <- ts_swmodel(preprocess, input_size)
+  obj$cnn_epochs <- 2000
+  class(obj) <- append("ts_tensor_cnn", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_tensor_cnn <- function(obj, X, Y, arguments = NULL) {
+  build_model <- function(train_df) {
+    set.seed(1)
+    
+    spec <- feature_spec(train_df, t0 ~ . ) %>% 
+      step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
+      fit()
+    
+    input <- layer_input_from_dataset(train_df %>% select(-t0))
+    
+    output <- input %>% 
+      layer_dense_features(dense_features(spec)) %>% 
+      layer_dense(units = 64, activation = "relu") %>%
+      layer_dense(units = 64, activation = "relu") %>%
+      layer_dense(units = 1) 
+    
+    model <- keras_model(input, output)
+    
+    model %>% 
+      compile(
+        loss = "mse",
+        optimizer = optimizer_rmsprop(),
+        metrics = list("mean_absolute_error")
+      )
+    
+    return(model)
+  }
+  
+  obj$mdl <- NULL
+  
+  XY <- data.frame(X)
+  XY$t0 <- Y
+  
+  model <- build_model(XY)
+  
+  print_dot_callback <- callback_lambda(
+    on_epoch_end = function(epoch, logs) {
+      if (epoch %% 800 == 0) cat("\n")
+      if (epoch %% 10 == 0) cat(".")
+    }
+  )    
+  
+  history <- model %>% fit(
+    x = XY %>% select(-t0),
+    y = XY$t0,
+    epochs = obj$cnn_epochs,
+    validation_split = 0.2,
+    verbose = 0,
+    callbacks = list(print_dot_callback)
+  )  
+  cat("\n")
+  
+  obj$mdl <- model
+  
+  return(obj)
+}
+
+ts_invoke_predict.ts_tensor_cnn <- function(obj, X) {
+  X <- data.frame(X)
+  prediction <- (obj$mdl %>% predict(X))  
+  return(prediction)
+}
+
+
+#class ts_tensor_lstm
+
+ts_tensor_lstm <- function(preprocess, input_size) {
+  obj <- ts_swmodel(preprocess, input_size)
+  obj$lstm_epochs <- 2000
+  class(obj) <- append("ts_tensor_lstm", class(obj))  
+  return(obj)
+}
+
+ts_invoke_train.ts_tensor_lstm <- function(obj, X, Y, arguments = NULL) {
+  obj$mdl <- NULL
+  
+  print_dot_callback <- callback_lambda(
+    on_epoch_end = function(epoch, logs) {
+      if (epoch %% 800 == 0) cat("\n")
+      if (epoch %% 10 == 0) cat(".")
+    }
+  )    
   
   set.seed(1)
+  batch.size <- 1
+  size <- ncol(X)
   
-  mlmodel <- do.call(function(...) mlearning$mlm(ts.as.matrix(io$input, size), as.matrix(io$output), ...), mlearning$arguments)
+  X <- array(as.vector(X), dim=(c(dim(X),1)))
   
-  data <- dataorg
-  an <- apply(ts.swProject(data)$input, 1, mean)
-  data <- data - an
+  model <- keras_model_sequential()
+  model %>%
+    layer_lstm(units = 100,
+               input_shape = c(size, 1),
+               batch_size = batch.size,
+               return_sequences = TRUE,
+               stateful = TRUE) %>%
+    layer_dropout(rate = 0.5) %>%
+    layer_lstm(units = 50,
+               return_sequences = FALSE,
+               stateful = TRUE) %>%
+    layer_dropout(rate = 0.5) %>%
+    layer_dense(units = 1)
+  model %>%
+    compile(loss = 'mae', optimizer = 'adam')
   
-  data <- fnorm$norm(data, fnorm$par)
-  io = ts.swProject(data)
   
-  prediction <- predict_custom(mlmodel, ts.as.matrix(io$input, size))
+  model %>% fit(x = X,
+                y = Y,
+                batch_size = batch.size,
+                epochs = obj$lstm_epochs,
+                verbose = 0,
+                shuffle = FALSE,
+                callbacks = list(print_dot_callback)
+  )
+  model %>% reset_states()
+  cat("\n")
   
-  prediction <- as.vector(prediction)
-  prediction <- fnorm$dnorm(prediction, fnorm$par) + an
-  output <- fnorm$dnorm(io$output, fnorm$par) + an
+  obj$mdl <- model
   
-  train.mse = mse(prediction, output)
-  train.smape = TSPred::sMAPE(output, prediction)
-  
-  if (timeseries_debug) {
-    plot(1:length(output), output, main = sprintf("%s-%d-%s", class(mlmodel)[1], size, "ani"), xlab = "time", ylab="value")
-    lines(1:length(prediction), prediction, col="green")  
-  }
-  
-  return (list(mlmodel=mlmodel, fnorm = fnorm, train.mse=train.mse, train.smape=train.smape))
+  return(obj)
 }
 
-ts.ani_test <- function(model, fnorm, size, test, value, predict_custom = predict) {
-  test <- as.matrix(test)
-  if ((nrow(test) == 1) && (nrow(test) != length(value))) {
-    prediction <- NULL
-    for (i in 1:length(value)) {
-      an <- mean(test[1,])
-      test_an <- test - an
-      test_an <- fnorm$norm(test_an, fnorm$par)
-      
-      pred <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test_an, size)))
-      pred <- fnorm$dnorm(pred, fnorm$par) + an
-      
-      test[1,] <- c(test[1,2:ncol(test)], pred)
-      prediction <- c(prediction, pred)
-    }
-  }
-  else {
-    an <- apply(test, 1, mean)
-    test <- test - an
-    test <- fnorm$norm(test, fnorm$par)
-    prediction <- as.vector(predict_custom(model$mlmodel, ts.as.matrix(test, size)))
-    prediction <- fnorm$dnorm(prediction, fnorm$par) + an
-  }
-  
-  
-  mse <- -1
-  smape <- -1
-  
-  value<-value[!is.na(value)]
-  
-  if (length(value) > 0) {
-    mse <- ts.mse(prediction, value)
-    smape <-  TSPred::sMAPE(value,prediction)
-    
-    if (timeseries_debug) {
-      plot(1:length(value), value, main = sprintf("%s-%d-%s", class(model$mlmodel)[1], size, "ani"), xlab = "time", ylab="value")
-      lines(1:length(prediction), prediction, col="green")  
-    }
-  }
-  
-  return(list(prediction=prediction, value=value, mse=mse, smape=smape))
-}
-
-plot_series <- function(x, sw_size) {
-  sm <- na.omit(ma(x,order=sw_size,centre=FALSE))
-  plot(x)
-  lines(sm,col="red")
-}
-
-train_test <- function(name, x, sw_size, offset, steps_ahead, input_size, neurons, mlearning, preprocessing) {
-  mse_train <- -1
-  smape_train <- -1
-  mse_test <- -1
-  smape_test <- -1
-  train_length <- -1
-  prediction <- NA
-  test <- NA
-  x <- x[1:(length(x)-offset+steps_ahead)]
-  
-  method <- NA
-  model <- NA
-  pred <- NA
-  
-  mlearning <- as.character(mlearning)
-  preprocessing <- as.character(preprocessing)
-  
-  predict_custom = predict
-  if ((mlearning == "arima") || (mlearning == "emlp") || (mlearning == "eelm")){ 
-    train <- ts(x[1:(length(x)-steps_ahead)], start = 1, end=length(x)-steps_ahead, freq = 1)
-    train_length <- length(train)
-    test.value <- x[(length(x)-steps_ahead+1):length(x)]
-    
-    if (train_length > input_size + 2) {
-      if (mlearning == "arima") {
-        sw_size <- 0
-        input_size <- 0
-        neurons <- 0
-        model <- ts.arima_train(data = train)
-        pred <- ts.arima_test(model, test.value, predict_custom=forecast)
-      }
-      else {
-        d <- 0
-        if (preprocessing == "diff")
-          d <- 1
-        if(mlearning == "emlp") {
-          method <- ts.ml(nnfor::mlp, lags=1:input_size, sel.lag=rep(FALSE, input_size), hd = neurons, difforder=d)
-          predict_custom <- forecast
-        }
-        else if(mlearning == "eelm") {
-          method <- ts.ml(nnfor::elm, lags=1:input_size, sel.lag=rep(FALSE, input_size), hd = neurons, difforder=d)
-          predict_custom <- forecast
-        }
-        sw_size <- 0
-        model <- ts.dir_train(data = train, mlearning = method)
-        pred <- ts.dir_test(model, test.value, predict_custom)
-      }
-    }
-  }
-  else {
-    mmscale <- 1
-    mmoffset <- 0
-    swx <- data.frame(ts.sw(x, sw_size))
-    
-    n <- nrow(swx)-steps_ahead
-    train <- na.omit(swx[1:n,])
-    
-    test <- swx[(n+1):nrow(swx),]
-    test.value = test$t0
-    test$t0 <- NULL
-    
-    if (steps_ahead > 1)
-      test <- test[1,]
-    
-    train_length <- nrow(train)
-    
-    if (train_length > 2) {
-      if(mlearning == "nnet")
-        method = ts.ml(nnet, size=neurons, maxit=5000, trace=FALSE)
-      else if(mlearning == "mlp")
-        method = ts.ml(RSNNS::mlp, size=neurons, learnFuncParams=c(0.1), maxit=5000)
-      else if(mlearning == "rf")
-        method = ts.ml(randomForest, ntree=neurons)
-      else if(mlearning == "svm") {
-        #method = ts.ml(svm_ext, scale = FALSE, epsilon=neurons*10/100, cost=neurons*10)
-        method = ts.ml(svm, kernel="radial", type="eps-regression", scale = FALSE, epsilon=neurons*10/100, cost=neurons*10)
-        mmscale <- 2
-        mmoffset <- -1
-      }
-      else if(mlearning == "elm") {
-        method = ts.ml(elm_train, nhid = neurons, actfun = 'purelin', init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
-        predict_custom = elm_predict    
-      }
-      
-      if ((preprocessing == "gmm") || (preprocessing == "gmmo")) {
-        model = ts.gmm_train(data = train, size = input_size, mlearning = method, predict_custom, mmscale, mmoffset, rescale = preprocessing == "gmm")
-        pred = ts.gmm_test(model, fnorm = model$fnorm, size = input_size, test, test.value, predict_custom)
-      }
-      else if ((preprocessing == "swmm") || (preprocessing == "swmmo")) {
-        model = ts.swmm_train(data = train, size = input_size, mlearning = method, predict_custom, mmscale, mmoffset, rescale = preprocessing == "swmm")
-        pred = ts.swmm_test(model, fnorm = model$fnorm, size = input_size, test, test.value, predict_custom)
-      }
-      else if ((preprocessing == "an") || (preprocessing == "ano")) {
-        model = ts.an_train(data = train, size = input_size, mlearning = method, predict_custom, mmscale, mmoffset, rescale = preprocessing == "an")
-        pred = ts.an_test(model, fnorm = model$fnorm, size = input_size, test, test.value, predict_custom)  
-      }
-      else if ((preprocessing == "ane") || (preprocessing == "aneo")) {
-        model = ts.ane_train(data = train, size = input_size, mlearning = method, predict_custom, mmscale, mmoffset, rescale = preprocessing == "ane")
-        pred = ts.ane_test(model, fnorm = model$fnorm, size = input_size, test, test.value, predict_custom)  
-      }
-      else if ((preprocessing == "ani") || (preprocessing == "anio"))  {
-        model = ts.ani_train(data = train, size = input_size, mlearning = method, predict_custom, mmscale, mmoffset, rescale = preprocessing == "ani")
-        pred = ts.ani_test(model, fnorm = model$fnorm, size = input_size, test, test.value, predict_custom)  
-      }
-      else if ((preprocessing == "diff") || (preprocessing == "diffo")) {
-        model = ts.diff_train(data = train, size = input_size, mlearning = method, predict_custom, mmscale, mmoffset, rescale = preprocessing == "diff")
-        pred = ts.diff_test(model, fnorm = model$fnorm, size = input_size, test, test.value, predict_custom)  
-      }
-    }
-  }
-  if (!is.na(model) && !is.na(pred)) {
-    mse_train <- model$train.mse
-    smape_train <- model$train.smape
-    mse_test <- pred$mse
-    smape_test <- pred$smape
-    prediction <- pred$prediction
-
-    return(list(name=name, train_length=train_length, sw_size=sw_size, offset=offset,
-                steps_ahead=steps_ahead, input_size=input_size, neurons=neurons,
-                mlearning=mlearning, preprocessing=preprocessing, 
-                mse_train=mse_train, smape_train=smape_train, mse_test=mse_test, smape_test=smape_test, values=test.value, predictions=pred, model=model))
-  }
+ts_invoke_predict.ts_tensor_lstm <- function(obj, X) {
+  X <- array(as.vector(X), dim=(c(dim(X),1)))
+  batch.size <- 1
+  prediction <- obj$mdl %>% predict(X, batch_size = batch.size) %>% .[,1]
+  return(prediction)
 }
 
 
-tt_add_predictions <- function(dataset, global_horizon, value, pred) {
-  for (i in 1:global_horizon) {
-    name <- sprintf("v%d", i)
-    dataset[,name] <- NA
-    class(dataset[,name]) = "numeric"
-  }
-  
-  for (i in 1:global_horizon) {
-    name <- sprintf("p%d", i)
-    dataset[,name] <- NA 
-    class(dataset[,name]) = "numeric"
-  }
-  
-  value <- as.vector(value)
-  for (i in 1:length(value)) {
-    name <- sprintf("v%d", i)
-    dataset[,name] <- value[i]
-  }
-  
-  pred <- as.vector(pred)
-  for (i in 1:length(pred)) {
-    name <- sprintf("p%d", i)
-    dataset[,name] <- pred[i]
-  }
-  return(dataset)
+# utility functions
+
+
+plot_grf <- function(y, yadj, ypre, modelname) {
+  ntrain <- length(yadj)
+  smape_train <- TSPred::sMAPE(y[1:ntrain], yadj)*100
+  smape_test <- TSPred::sMAPE(y[(ntrain+1):(ntrain+length(ypre))], ypre)*100
+  par(xpd=TRUE)      
+  plot(1:length(y), y, main = modelname, xlab = sprintf("time [smape train=%.2f%%], [smape test=%.2f%%]", smape_train, smape_test), ylab="value")
+  lines(1:ntrain, yadj, col="blue")  
+  lines((ntrain+1):(ntrain+length(ypre)), ypre, col="green")  
+  par(xpd=FALSE)      
 }
-
-
