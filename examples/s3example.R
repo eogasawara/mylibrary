@@ -1,60 +1,52 @@
 #https://www.datamentor.io/r-programming/s3-class/
 
-student <- function(n,a,g) {
-  # we can add our own integrity checks
-  if(g>4 || g<0)  stop("GPA must be between 0 and 4")
-  value <- list(name = n, age = a, GPA = g)
+polygon <- function(n) {
+  if(n <= 0)  stop("number of vertices should be greater than zero")
+  obj <- list(n = n)
   # class can be set using class() or attr() function
-  attr(value, "class") <- "student"
-  return(value)
+  attr(obj, "class") <- "polygon"
+  return(obj)
 }
 
-professor <- function(n,a) {
-  value <- student(n, a, 4)
-# attr(value, "class") <- "professor"
-  class(value) <- append("professor", class(value))  
-  return(value)
+rectangle <- function(w, h) {
+  obj <- polygon(4)
+  obj$w <- w
+  obj$h <- h
+  class(obj) <- append("rectangle", class(obj))  
+  return(obj)
 }
 
-print.student <- function(obj) {
-  cat(obj$name, "\n")
-  cat(obj$age, "years old\n")
-  cat("GPA:", obj$GPA, "\n")
+print.polygon <- function(obj) {
+  cat(obj$n, "\n")
 }
 
-print.professor <- function(obj) {
-  cat(obj$name, "\n")
-  cat(obj$age, "years old\n")
+print.rectangle <- function(obj) {
+  cat(obj$w, ",", obj$h, "\n")
 }
 
-
-
-grade <- function(obj) {
-  UseMethod("grade")
+area <- function(obj) {
+  UseMethod("area")
 }
 
-grade.default <- function(obj) {
-  cat("This is a generic function\n")
+area.default <- function(obj) {
+  return(0)
 }
 
-
-grade.student <- function(obj) {
-  cat("Your grade is", obj$GPA, "\n")
+area.rectangle <- function(obj) {
+  return(obj$w * obj$h)
 }
-
 
 a <- 3
-s <- student("Paul", 26, 3.7)
-p <- professor("Eduardo", 46)
+p <- polygon(5)
+r <- rectangle(3, 10)
+
 print(a)
-print(s)
 print(p)
+print(r)
 
-grade(a)
-grade(s)
-grade(p)
-
+print(area(a))
+print(area(p))
+print(area(r))
 
 methods(class="default")
-
 
