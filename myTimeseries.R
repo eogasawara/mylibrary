@@ -1,3 +1,5 @@
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myOutliers.R")
+
 loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
 {
   if (!require(x,character.only = TRUE))
@@ -46,39 +48,6 @@ ts_as_matrix <- function(sw, size) {
   sw <- sw[, (ncol(sw)-size+1):ncol(sw)]
   sw <- as.matrix(sw)
   return(sw)
-}
-
-outliers.boxplot <- function(x, alpha = 1.5)
-{
-  ismatrix <- is.matrix(x)
-  if(ismatrix || is.data.frame(x)) {
-    x <- data.frame(x)
-    x <- na.omit(x)
-    org <- nrow(x)
-    if (org >= 30) {
-      q <- as.data.frame(lapply(x, quantile, na.rm=TRUE))
-      n <- ncol(x)
-      for (i in 1:n)
-      {
-        IQR <- q[4,i] - q[2,i]
-        lq1 <- q[2,i] - alpha*IQR
-        hq3 <- q[4,i] + alpha*IQR
-        cond <- x[,i] >= lq1 & x[,i] <= hq3
-        x <- x[cond,]
-      }
-    }
-    if (ismatrix)
-      x <- as.matrix(x)
-  }
-  else if (length(x) >= 30) {
-    q <- quantile(x)
-    IQR <- q[4] - q[2]
-    lq1 <- q[2] - alpha*IQR
-    hq3 <- q[4] + alpha*IQR
-    cond <- x >= lq1 & x <= hq3
-    x <- x[cond]
-  }
-  return (x)
 }
 
 ts_train_test <- function(x, test_size, sw_size = 0, offset=0) {
