@@ -139,7 +139,7 @@ ts_setup.ts_gminmax <- function(obj, x) {
     swio_max <- apply(x, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    ratio <- outliers.boxplot(ratio)
+    ratio <- outliers_remove(data_outliers(), ratio)
     ratio <- mean(ratio)
     
     w <- (obj$gmax - obj$gmin)/(2*ratio)
@@ -201,7 +201,7 @@ ts_setup.ts_gminmax_diff <- function(obj, x) {
     swio_max <- apply(x, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    ratio <- outliers.boxplot(ratio)
+    ratio <- outliers_remove(data_outliers(), ratio)
     ratio <- mean(ratio)
     
     obj$offset <- obj$offset + (1 - ratio) * obj$scale / 2
@@ -272,7 +272,7 @@ ts_setup.ts_swminmax <- function(obj, x) {
     swio_max <- apply(x, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    ratio <- outliers.boxplot(ratio)
+    ratio <- outliers_remove(data_outliers(), ratio)
     ratio <- valid_range(ratio)
     obj$offset <- obj$offset + (1 - ratio) * obj$scale / 2
     obj$scale <- obj$scale * ratio

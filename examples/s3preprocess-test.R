@@ -1,4 +1,4 @@
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTS.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTS.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
