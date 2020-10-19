@@ -37,7 +37,7 @@ outliers.default <- function(obj, data) {
       hq3 <- q[4] + obj$alpha*IQR
       idx <- data < lq1 | data > hq3
     }
-    return (idx)
+    return (idx) 
   } 
 }
 
