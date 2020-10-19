@@ -27,17 +27,17 @@ if (TRUE) {
   
   ttx <- ts_train_test(x, test_size=5, sw_size=0)
   train_test(x, model=ts_arima(), ttx$train, ttx$test, steps_ahead = 5)
-  train_test(x, model=ts_eelm_dir(4), ttx$train, ttx$test, steps_ahead = 5)
-  train_test(x, model=ts_emlp_dir(4), ttx$train, ttx$test, steps_ahead = 5)
+  #train_test(x, model=ts_eelm_dir(4), ttx$train, ttx$test, steps_ahead = 5)
+  #train_test(x, model=ts_emlp_dir(4), ttx$train, ttx$test, steps_ahead = 5)
   
   preprocess <- ts_gminmax()
   ttx <- ts_train_test(x, test_size=5, sw_size=10)
   train_test(x, model=ts_nnet(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
-  train_test(x, model=ts_svm(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
-  train_test(x, model=ts_rf(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
-  train_test(x, model=ts_elm(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
-  train_test(x, model=ts_mlp(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
-  train_test(x, model=ts_tensor_cnn(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
-  train_test(x, model=ts_tensor_lstm(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
+  #train_test(x, model=ts_svm(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
+  #train_test(x, model=ts_rf(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
+  #train_test(x, model=ts_elm(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
+  #train_test(x, model=ts_mlp(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
+  #train_test(x, model=ts_tensor_cnn(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
+  #train_test(x, model=ts_tensor_lstm(preprocess, input_size=4), ttx$train, ttx$test, steps_ahead = 5)
 }
 
