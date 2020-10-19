@@ -33,8 +33,8 @@ outliers.default <- function(obj, data) {
     if (length(data) >= 30) {
       q <- quantile(data)
       IQR <- q[4] - q[2]
-      lq1 <- q[2] - alpha*IQR
-      hq3 <- q[4] + alpha*IQR
+      lq1 <- q[2] - obj$alpha*IQR
+      hq3 <- q[4] + obj$alpha*IQR
       idx <- data >= lq1 & data <= hq3
     }
     return (idx)
