@@ -1,45 +1,57 @@
-outliers.boxplot <- function(x, alpha = 1.5, idx=FALSE)
-{
-  ismatrix <- is.matrix(x)
-  if(ismatrix || is.data.frame(x)) {
-    out = rep(FALSE, nrow(x))
-    x <- data.frame(x)
-    x <- na.omit(x)
-    org <- nrow(x)
+data_outliers <- function(alpha = 1.5) {
+  obj <- list(alpha = alpha)
+  attr(obj, "class") <- "data_outliers"  
+  return(obj)
+}
+
+outliers <- function(obj, data) {
+  UseMethod("outliers")
+}
+
+outliers.default <- function(obj, data) {
+  if(is.matrix(data) || is.data.frame(data)) {
+    idx = rep(FALSE, nrow(data))
+    org <- nrow(data)
+    data <- as.data.frame(data)
     if (org >= 30) {
-      q <- as.data.frame(lapply(x, quantile, na.rm=TRUE))
-      n <- ncol(x)
+      isnumeric = (ifelse(sapply(data, is.numeric), TRUE, FALSE))
+      data <- data[,as.vector(isnumeric)]
+      q <- sapply(data, quantile, na.rm=TRUE)
+      n <- ncol(data)
       for (i in 1:n)
       {
         IQR <- q[4,i] - q[2,i]
-        lq1 <- q[2,i] - alpha*IQR
-        hq3 <- q[4,i] + alpha*IQR
-        out = out | (!is.na(x[,i]) & (x[,i] < lq1 | x[,i] > hq3))
+        lq1 <- q[2,i] - obj$alpha*IQR
+        hq3 <- q[4,i] + obj$alpha*IQR
+        idx = idx | (!is.na(data[,i]) & (data[,i] < lq1 | data[,i] > hq3))
       }
     }
-    if (idx)
-      x <- out
-    else
-      x <- x[!out,]
-    if (ismatrix)
-      x <- as.matrix(x)
+    return(idx)
   }
   else {
-    if (length(x) >= 30) {
-      q <- quantile(x)
+    idx <- rep(FALSE, length(data))
+    if (length(data) >= 30) {
+      q <- quantile(data)
       IQR <- q[4] - q[2]
       lq1 <- q[2] - alpha*IQR
       hq3 <- q[4] + alpha*IQR
-      cond <- x >= lq1 & x <= hq3
+      idx <- data >= lq1 & data <= hq3
     }
-    else
-      out <- rep(FALSE, length(x))
-    if (idx)
-      x <- out
-    else
-      x <- x[!out]
+    return (idx)
   } 
-  return (x)
 }
 
+outliers_remove <- function(obj, data) {
+  UseMethod("outliers_remove")
+}
 
+outliers_remove.default <- function(obj, data)
+{
+  idx <- outliers(obj, data)
+  if(is.matrix(data) || is.data.frame(data)) {
+    return(data[!idx,])
+  }
+  else {
+    return(data[!idx])
+  } 
+}
