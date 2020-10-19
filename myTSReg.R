@@ -1,4 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myOutliers.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myOutlier.R")
 
 loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
 {
