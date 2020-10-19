@@ -165,7 +165,7 @@ load_series <- function(name) {
 x <- load_series("sin")
 
 tt <- ts_train_test(x, test_size=12, sw_size=36)
-
+head(tt$train)
 AN <- AN_setup(tt$train)
 
 io <- ts_sw_project(tt$train)
