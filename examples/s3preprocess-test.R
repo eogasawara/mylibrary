@@ -1,4 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTimeseries.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTS.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
@@ -9,7 +9,8 @@ load_series <- function(name) {
 x <- load_series("sin")
 
 dir_test <- function(x) {
-  y <- outliers.boxplot(x)
+  out <- data_outliers()
+  y <- outliers_remove(out, x)  
   tt <- ts_train_test(y, test_size=5)
 }
 dir_test(x)

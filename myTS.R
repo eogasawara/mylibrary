@@ -124,7 +124,7 @@ ts_gminmax <- function() {
 ts_setup.ts_gminmax <- function(obj, x) {
   obj <- ts_setup.default(obj, x)
   
-  x <- outliers.boxplot(x)
+  x <- outliers_remove(data_outliers(), x)    
   
   io <- ts_sw_project(x)
   
@@ -186,7 +186,7 @@ ts_setup.ts_gminmax_diff <- function(obj, x) {
   
   x <- ts_diff(x)
   
-  x <- outliers.boxplot(x)
+  x <- outliers_remove(data_outliers(), x)    
   
   io <- ts_sw_project(x)
   
@@ -260,7 +260,7 @@ ts_setup.ts_swminmax <- function(obj, x) {
   
   obj <- ts_setup.default(obj, x)
   
-  x <- outliers.boxplot(x)
+  x <- outliers_remove(data_outliers(), x)    
   
   io <- ts_sw_project(x)
   
@@ -342,7 +342,7 @@ ts_setup.ts_anminmax <- function(obj, x) {
   an <- ts_inertia(obj, ts_sw_project(x)$input)
   x <- ts_remove_inertia(obj, x, an)
   x <- cbind(x, an)
-  x <- outliers.boxplot(x)
+  x <- outliers_remove(data_outliers(), x)    
   x <- x[,1:(ncol(x)-1)]
   
   io <- ts_sw_project(x)
