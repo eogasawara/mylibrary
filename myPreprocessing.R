@@ -2,7 +2,6 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphics
 
 loadlibrary("caret")
 loadlibrary("MASS")
-loadlibrary("DMwR")
 loadlibrary("dplyr")
 
 

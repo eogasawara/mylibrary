@@ -1,6 +1,7 @@
-obj_preprocessing <- function(data) {
+obj_transform <- function(data) {
   obj <- list(data=data)
-  attr(obj, "class") <- "obj_preprocessing"  
+  attr(obj, "class") <- "obj_transform"  
+  obj <- prepare(obj)
   return(obj)
 }
 
@@ -9,26 +10,30 @@ action <- function(obj) {
 }
 
 action.default <- function(obj) {
+  return(NULL)
+}
+
+action.obj_transform <- function(obj) {
+  return(obj$data)
+}
+
+prepare <- function(obj) {
+  UseMethod("prepare")
+}
+
+prepare.default <- function(obj) {
   return(obj)
 }
 
-rel_preprocessing <- function(data) {
-  obj <- obj_preprocessing(data)
-  class(obj) <- append("rel_preprocessing", class(obj))    
+rel_transform <- function(data) {
+  obj <- obj_transform(data)
+  class(obj) <- append("rel_transform", class(obj))    
   return(obj)
 }
 
-action <- function(obj) {
-  UseMethod("action")
-}
-
-action.default <- function(obj) {
-  return(obj)
-}
-
-atr_preprocessing <- function(data) {
-  obj <- obj_preprocessing(data)
-  class(obj) <- append("atr_preprocessing", class(obj))    
+atr_transform <- function(data) {
+  obj <- obj_transform(data)
+  class(obj) <- append("atr_transform", class(obj))    
   return(obj)
 }
 
