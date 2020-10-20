@@ -9,10 +9,9 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
 
 loadlibrary("caret")
 
-
 # sampling
 
-# classe sample
+# class sample
 
 data_sample <- function(data) {
   obj <- list(data=data)
@@ -53,8 +52,6 @@ k_fold.data_sample <- function(obj, k) {
   return (obj)
 }
 
-
-
 # classe sample_random
 
 sample_random <- function(data) {
@@ -70,7 +67,7 @@ train_test.sample_random <- function(obj, perc=0.8) {
   return (obj)
 }
 
-# classe sample_random
+# class sample_stratified
 
 sample_stratified <- function(data, label) {
   obj <- data_sample(data)
@@ -90,16 +87,3 @@ train_test.sample_stratified <- function(obj, perc=0.8) {
   obj$test = obj$data[-idx,]
   return (obj)
 }
-
-data(iris)
-
-sr <- sample_random(iris)
-sr <- train_test(sr)
-sr <- k_fold(sr,4)
-
-ss <- sample_stratified(iris, "Species")
-ss <- train_test(ss)
-ss <- k_fold(ss,4)
-
-
-#samples <- sample.stratified(iris, "Species")
