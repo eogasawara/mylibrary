@@ -9,13 +9,11 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
 
 loadlibrary("caret")
 
-# sampling
-
 # class sample
 
 data_sample <- function(data) {
-  obj <- list(data=data)
-  attr(obj, "class") <- "data_sample"  
+  obj <- rel_preprocessing(data)
+  class(obj) <- append("data_sample", class(obj))    
   return(obj)
 }
 
