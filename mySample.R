@@ -1,11 +1,4 @@
-loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
-{
-  if (!require(x,character.only = TRUE))
-  {
-    install.packages(x, repos=repos, dep=TRUE)
-    require(x)
-  }
-}
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRel.R")
 
 # class sample
 

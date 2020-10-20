@@ -1,3 +1,12 @@
+loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
+{
+  if (!require(x,character.only = TRUE))
+  {
+    install.packages(x, repos=repos, dep=TRUE)
+    require(x)
+  }
+}
+
 obj_transform <- function(data) {
   obj <- list(data=data)
   attr(obj, "class") <- "obj_transform"  
