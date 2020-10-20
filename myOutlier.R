@@ -1,14 +1,16 @@
-data_outliers <- function(alpha = 1.5) {
-  obj <- list(alpha = alpha)
-  attr(obj, "class") <- "data_outliers"  
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRel.R")
+
+outliers <- function(data, alpha = 1.5, prepare=TRUE) {
+  obj <- rel_transform(data)
+  obj$alpha <- alpha
+  class(obj) <- append("outliers", class(obj))    
+  if (prepare)
+    obj <- prepare(obj)
   return(obj)
 }
 
-outliers <- function(obj, data) {
-  UseMethod("outliers")
-}
-
-outliers.default <- function(obj, data) {
+prepare.outliers <- function(obj) {
+  data <- obj$data
   if(is.matrix(data) || is.data.frame(data)) {
     idx = rep(FALSE, nrow(data))
     org <- nrow(data)
@@ -26,7 +28,7 @@ outliers.default <- function(obj, data) {
         idx = idx | (!is.na(data[,i]) & (data[,i] < lq1 | data[,i] > hq3))
       }
     }
-    return(idx)
+    obj$idx <- idx
   }
   else {
     idx <- rep(FALSE, length(data))
@@ -37,21 +39,17 @@ outliers.default <- function(obj, data) {
       hq3 <- q[4] + obj$alpha*IQR
       idx <- data < lq1 | data > hq3
     }
-    return (idx) 
+    obj$idx <- idx
   } 
+  return(obj)
 }
 
-outliers_remove <- function(obj, data) {
-  UseMethod("outliers_remove")
-}
-
-outliers_remove.default <- function(obj, data)
+action.outliers <- function(obj)
 {
-  idx <- outliers(obj, data)
-  if(is.matrix(data) || is.data.frame(data)) {
-    return(data[!idx,])
+  if(is.matrix(obj$data) || is.data.frame(obj$data)) {
+    return(obj$data[!obj$idx,])
   }
   else {
-    return(data[!idx])
+    return(obj$data[!obj$idx])
   } 
 }
