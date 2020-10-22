@@ -10,6 +10,7 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
 obj_transform <- function(data) {
   obj <- list(data=data)
   attr(obj, "class") <- "obj_transform"  
+  #obj <- prepare(obj)
   return(obj)
 }
 

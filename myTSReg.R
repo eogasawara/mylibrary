@@ -121,8 +121,8 @@ ts_arima <- function() {
 }
 
 ts_invoke_train.ts_arima <- function(obj, X, Y = NULL, arguments = NULL) {
-  obj$mdl <- auto.arima(X, approximation = FALSE, allowdrift = TRUE, allowmean = TRUE) 
-  obj$train_pred <- obj$mdl$residuals + X
+  obj$mdl <- auto.arima(X, allowdrift = TRUE, allowmean = TRUE) 
+  obj$train_pred <- X - obj$mdl$residuals
   obj$train_value <- X
   return(obj)
 }
