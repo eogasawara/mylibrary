@@ -1,7 +1,5 @@
 # min-max normalization
 
-normalize
-
 normalize.minmax <- function(data, norm.set=NULL){
   data = data.frame(data)
   if(is.null(norm.set))

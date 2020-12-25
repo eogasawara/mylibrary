@@ -1,4 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphics.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
 
 loadlibrary("caret")
 loadlibrary("MASS")
@@ -36,8 +36,8 @@ dt.pca <- function(data, class, transf = NULL, do_plot=FALSE)
   if (is.null(transf)) {
     pca_res = prcomp(data, center=TRUE, scale.=TRUE)
     cumvar = cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
-    res = curvature.min(c(1:(length(cumvar))), cumvar, do_plot=do_plot)
-    pca.transf = as.matrix(pca_res$rotation[, 1:res$x])
+    res = curvature(c(1:(length(cumvar))), cumvar, min)
+    pca.transf = as.matrix(pca_res$rotation[, 1:res$xfit])
   }
 
   data = data %*% pca.transf
