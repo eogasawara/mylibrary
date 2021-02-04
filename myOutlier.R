@@ -1,11 +1,9 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRel.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
-outliers <- function(data, alpha = 1.5, prepare=TRUE) {
+outliers <- function(data, alpha = 1.5) {
   obj <- rel_transform(data)
   obj$alpha <- alpha
   class(obj) <- append("outliers", class(obj))    
-  if (prepare)
-    obj <- prepare(obj)
   return(obj)
 }
 
