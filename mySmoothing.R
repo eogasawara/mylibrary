@@ -1,96 +1,93 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
-
-loadlibrary("caret")
-loadlibrary("MASS")
-loadlibrary("dplyr")
+# version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
 # smoothing
+smoothing <- function(data) {
+  obj <- atr_transform(data)
+  class(obj) <- append("smoothing", class(obj))    
+  return(obj)
+}
 
-smoothing <- function(v, interval) {
+prepare.smoothing <- function(obj) {
+  v <- obj$data  
+  interval <- obj$interval
   names(interval) <- NULL
   interval[1] <- min(v)
   interval[length(interval)] <- max(v)
   interval.adj <- interval
   interval.adj[1] <- -.Machine$double.xmax
-  interval.adj[length(interval)] <- .Machine$double.xmax
-  
+  interval.adj[length(interval)] <- .Machine$double.xmax  
+  obj$interval <- interval
+  obj$interval.adj <- interval.adj
+  return(obj)
+}
+
+action.smoothing <- function(obj) {
+  v <- obj$data
+  interval.adj <- obj$interval.adj
   vp <- cut(v, unique(interval.adj), FALSE, include.lowest=TRUE)
   m <- tapply(v, vp, mean)
   vm <- m[vp]
-  mse <- mean((v - vm)^2, na.rm = TRUE) 
-  
-  return (list(smoothing=m, bins_factor=vp, bins=vm, mse=mse, interval=interval, interval.adj=interval.adj))
+#  mse <- mean((v - vm)^2, na.rm = TRUE) 
+  return(vm)  
 }
 
 # smoothing by interval
+smoothing_inter <- function(data, n) {
+  obj <- smoothing(data)
+  obj$n <- n
+  class(obj) <- append("smoothing_inter", class(obj))    
+  return(obj)  
+}
 
-smoothing.interval <- function(v, n = NULL, interval=NULL, range=1.5) {
-  if (is.null(interval)) {
-    bp <- boxplot(v, range=range, plot = FALSE)
-    bimax <- bp$stats[5]
-    bimin <- bp$stats[1]
-    if (bimin == bimax) {
-      bimax = max(v)
-      bimin = min(v)
-    }
-    interval <- seq(from = bimin, to = bimax, by = (bimax-bimin)/n)
+prepare.smoothing_inter <- function(obj) {
+  v <- obj$data
+  n <- obj$n
+  bp <- boxplot(v, range=1.5, plot = FALSE)
+  bimax <- bp$stats[5]
+  bimin <- bp$stats[1]
+  if (bimin == bimax) {
+    bimax = max(v)
+    bimin = min(v)
   }
-  return(smoothing(v,interval))
+  obj$interval <- seq(from = bimin, to = bimax, by = (bimax-bimin)/n)
+  obj <- prepare.smoothing(obj)
+  return(obj)
 }
 
 # smoothing by freq
+smoothing_freq <- function(data, n) {
+  obj <- smoothing(data)
+  obj$n <- n
+  class(obj) <- append("smoothing_freq", class(obj))    
+  return(obj)  
+}
 
-smoothing.freq <- function(v, n = NULL, interval=NULL) {
-  if (is.null(interval)) {
-    p <- seq(from = 0, to = 1, by = 1/n)
-    interval <- quantile(v, p)
-  }
-  return(smoothing(v,interval))
+prepare.smoothing_freq <- function(obj) {
+  v <- obj$data
+  n <- obj$n
+  p <- seq(from = 0, to = 1, by = 1/n)
+  obj$interval <- quantile(v, p)
+  obj <- prepare.smoothing(obj)
+  return(obj)
 }
 
 # smoothing by cluster
-
-smoothing.cluster <- function(v, n = NULL, interval=NULL) {
-  if (is.null(interval)) {
-    if (n > 1) {
-      km <- kmeans(x = v, centers = n)
-      s <- sort(km$centers)
-      s <- stats::filter(s,rep(1/2,2), sides=2)[1:(n-1)]
-      interval <- c(min(v), s, max(v))
-    }
-    else {
-      interval <- c(min(v), max(v))
-    }
-  }
-  return(smoothing(v,interval))
+smoothing_cluster <- function(data, n) {
+  obj <- smoothing(data)
+  obj$n <- n
+  class(obj) <- append("smoothing_cluster", class(obj))    
+  return(obj)  
 }
 
-# optimizing smoothing
-
-smoothing.opt <- function(v, smoothing=NULL, n=20, do_plot=FALSE) {
-  z <- data.frame()
-  interval <- list()
-  for (i in 1:n)
-  {
-    t <- smoothing(v, i)
-    interval = append(interval, list(t))
-    newrow <- c(t$mse , i)
-    z <- rbind(z,newrow)
-  }
-  colnames(z)<-c("mean","num") 
-  res <- curvature.max(z$num, z$mean, do_plot = do_plot)
-  return(interval[[res$x]])
+prepare.smoothing_cluster <- function(obj) {
+  v <- obj$data
+  n <- obj$n
+  km <- kmeans(x = v, centers = n)
+  s <- sort(km$centers)
+  s <- stats::filter(s,rep(1/2,2), sides=2)[1:(n-1)]
+  obj$interval <- c(min(v), s, max(v))
+  obj <- prepare.smoothing(obj)
+  return(obj)
 }
-
-smoothing_entropy <- function(cluster, class) {
-  tbl <- data.frame(x = cluster, y = class) %>% group_by(x, y) %>% summarise(qtd=n()) 
-  tbs <- data.frame(x = cluster, y = class) %>% group_by(x) %>% summarise(t=n()) 
-  tbl <- merge(x=tbl, y=tbs, by.x="x", by.y="x")
-  tbl$e <- -(tbl$qtd/tbl$t)*log(tbl$qtd/tbl$t,2)
-  tbl <- tbl %>% group_by(x) %>% summarise(ce=sum(e), qtd=sum(qtd)) 
-  tbl$ceg <- tbl$ce*tbl$qtd/length(cluster)
-  tbl <- sum(tbl$ceg)
-  return (tbl)
-}
-
 
