@@ -1,5 +1,7 @@
-#setwd("C:/Users/eduar/OneDrive/Git/mylibrary")
+# version 1.0
+# debug: setwd("C:/Users/eduar/OneDrive/Git/mylibrary")
 myrepos <- "http://cran.fiocruz.br"
+
 
 setrepos <- function(repos=repos) {
   myrepos <- repos 

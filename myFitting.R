@@ -1,3 +1,4 @@
+# version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
 # curvature
