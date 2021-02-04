@@ -1,10 +1,9 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
 # min-max normalization
 minmax <- function(data) {
-  obj <- data_sample(as.data.frame(data))
-  obj$attribute <- attribute
+  obj <- rel_transform(data)
   class(obj) <- append("minmax", class(obj))    
   return(obj)
 }  
@@ -41,27 +40,39 @@ action.minmax <- function(obj) {
 
 # z-score normalization
 
-normalize.zscore <- function(data, norm.set=NULL, nmean=0, nsd=1){
-  data = data.frame(data)
-  if(is.null(norm.set))
-  {
-    zscore = data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
-    zscore = rbind(zscore, rep(NA, ncol(zscore)))
-    zscore = rbind(zscore, rep(NA, ncol(zscore)))
-    zscore = rbind(zscore, rep(NA, ncol(zscore)))
-    zscore = rbind(zscore, rep(NA, ncol(zscore)))
-    colnames(zscore) = colnames(data)    
-    rownames(zscore) = c("numeric", "mean", "sd","nmean", "nsd")
-    for (j in colnames(zscore)[zscore["numeric",]==1]) {
-      zscore["mean",j] <- mean(data[,j], na.rm=TRUE)
-      zscore["sd",j] <- sd(data[,j], na.rm=TRUE)
-      zscore["nmean",j] <- nmean
-      zscore["nsd",j] <- nsd
-    }
+zscore <- function(data, nmean=0, nsd=1) {
+  obj <- rel_transform(data)
+  obj$nmean <- nmean
+  obj$nsd <- nsd
+  class(obj) <- append("zscore", class(obj))    
+  return(obj)
+}  
+
+prepare.zscore <- function(obj) {
+  data <- obj$data
+  nmean <- obj$nmean
+  nsd <- obj$nsd
+  zscore = data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
+  zscore = rbind(zscore, rep(NA, ncol(zscore)))
+  zscore = rbind(zscore, rep(NA, ncol(zscore)))
+  zscore = rbind(zscore, rep(NA, ncol(zscore)))
+  zscore = rbind(zscore, rep(NA, ncol(zscore)))
+  colnames(zscore) = colnames(data)    
+  rownames(zscore) = c("numeric", "mean", "sd","nmean", "nsd")
+  for (j in colnames(zscore)[zscore["numeric",]==1]) {
+    zscore["mean",j] <- mean(data[,j], na.rm=TRUE)
+    zscore["sd",j] <- sd(data[,j], na.rm=TRUE)
+    zscore["nmean",j] <- nmean
+    zscore["nsd",j] <- nsd
   }
-  else {
-    zscore = norm.set
-  }
+  obj$norm.set <- zscore
+  
+  return(obj)  
+}
+
+action.zscore <- function(obj) {
+  data <- obj$data
+  zscore <- obj$norm.set
   for (j in colnames(zscore)[zscore["numeric",]==1]) {
     if ((zscore["sd", j]) > 0) {
       data[,j] = ((data[,j] - zscore["mean", j]) / zscore["sd", j]) * zscore["nsd", j] + zscore["nmean", j]
@@ -70,5 +81,5 @@ normalize.zscore <- function(data, norm.set=NULL, nmean=0, nsd=1){
       data[,j] = zscore["nmean", j]  
     }
   }
-  return (list(data=data, norm.set=zscore))
+  return (data)
 }
