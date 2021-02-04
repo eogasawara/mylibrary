@@ -4,58 +4,6 @@ loadlibrary("caret")
 loadlibrary("MASS")
 loadlibrary("dplyr")
 
-
-# Data Transformation
-
-# PCA
-dt.pca <- function(data, class, transf = NULL, do_plot=FALSE)
-{
-  data = data.frame(data)
-  if (class %in% colnames(data)) {
-    predictand <- data[,class]
-    data[,class] <- NULL
-  } else {
-    predictand <- NULL
-  }
-  
-  if (!is.null(transf)) {
-    pca.transf <- transf$pca.transf
-    nums <- transf$nums
-  } else {
-    nums = unlist(lapply(data, is.numeric))
-    remove <- NULL
-    for(j in names(nums[nums])) {
-      if(min(data[,j])==max(data[,j]))
-        remove <- cbind(remove, j)
-    }
-    nums[remove] <- FALSE
-  }
-  
-  data = as.matrix(data[ , nums])
-
-  if (is.null(transf)) {
-    pca_res = prcomp(data, center=TRUE, scale.=TRUE)
-    cumvar = cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
-    res = curvature(c(1:(length(cumvar))), cumvar, min)
-    pca.transf = as.matrix(pca_res$rotation[, 1:res$xfit])
-  }
-
-  data = data %*% pca.transf
-  data = data.frame(data)
-  if (!is.null(predictand)){
-    data[,class] <- predictand
-  }
-  transf=list(pca.transf=pca.transf, nums=nums)
-  return (list(pca=data, transf=transf))
-}
-
-dt.categ_mapping <- function(data, attribute){
-  mdlattribute = formula(paste("~", paste(attribute, "-1")))
-  x <- model.matrix(mdlattribute, data=data)
-  data <- cbind(data, x)
-  return(data)
-}
-
 # smoothing
 
 smoothing <- function(v, interval) {
@@ -134,7 +82,7 @@ smoothing.opt <- function(v, smoothing=NULL, n=20, do_plot=FALSE) {
   return(interval[[res$x]])
 }
 
-entropy_group <- function(cluster, class) {
+smoothing_entropy <- function(cluster, class) {
   tbl <- data.frame(x = cluster, y = class) %>% group_by(x, y) %>% summarise(qtd=n()) 
   tbs <- data.frame(x = cluster, y = class) %>% group_by(x) %>% summarise(t=n()) 
   tbl <- merge(x=tbl, y=tbs, by.x="x", by.y="x")

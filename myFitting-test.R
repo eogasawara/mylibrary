@@ -1,5 +1,5 @@
 
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 wine <- get(load(url("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/wine.RData")))
 head(wine)
@@ -10,6 +10,9 @@ x <- 1:length(y)
 plot(x, y)
 
 myfit <- curvature(x, y, min)
+plot(myfit)
+
+myfit <- curvature(x, -y, max)
 plot(myfit)
 
 

@@ -10,11 +10,7 @@ mycolors <- col.set[c(1,3,5,7,9)]
 
 plot_size(4, 3)
 
-mypca <- dt.pca(iris, "Species")
-head(mypca$pca)
-
-head(mypca$transf$pca.transf)
-
-plot.scatter(mypca$pca %>% select(x=PC1, value=PC2, variable=Species), colors=mycolors[1:3])
+mycm <- dt.categ_mapping(iris, "Species")
+head(mycm)
 
 
