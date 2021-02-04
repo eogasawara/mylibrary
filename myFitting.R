@@ -5,25 +5,24 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation
 
 
 curvature <- function(x, y, func) {
-  obj <- list(x = x, y = y, df=2, deriv=2)
+  obj <- list(x = x, y = y, df=2, deriv=2, func=func)
   attr(obj, "class") <- "curvature"
-  obj <- fit(obj, func)
   return(obj)
 }
 
-fit <- function(obj, func) {
+fit <- function(obj) {
   #x contains both input and output
   UseMethod("fit")
 }
 
-fit.default <- function(obj, func) {
+fit.default <- function(obj) {
   return(obj)
 }
 
-fit.curvature <- function(obj, func) {
+fit.curvature <- function(obj) {
   smodel = smooth.spline(obj$x, obj$y, df = obj$df)
   curvature = predict(smodel, x = obj$x, deriv = obj$deriv)
-  obj$yfit = func(curvature$y)
+  obj$yfit = obj$func(curvature$y)
   obj$xfit = match(obj$yfit, curvature$y)
   
   res = data.frame(x=obj$x[obj$xfit], y=obj$y[obj$xfit], z=obj$yfit)

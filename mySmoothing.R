@@ -1,10 +1,20 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # smoothing
 smoothing <- function(data) {
   obj <- atr_transform(data)
   class(obj) <- append("smoothing", class(obj))    
+  return(obj)
+}
+
+optimize <- function(obj, ...) {
+  #x contains both input and output
+  UseMethod("optimize")
+}
+
+optimize.default <- function(obj, ...) {
   return(obj)
 }
 
@@ -28,8 +38,29 @@ action.smoothing <- function(obj) {
   vp <- cut(v, unique(interval.adj), FALSE, include.lowest=TRUE)
   m <- tapply(v, vp, mean)
   vm <- m[vp]
-#  mse <- mean((v - vm)^2, na.rm = TRUE) 
   return(vm)  
+}
+
+optimize.smoothing <- function(obj, do_plot=FALSE) {
+  n <- obj$n
+  opt <- data.frame()
+  interval <- list()
+  for (i in 1:n)
+  {
+    obj$n <- i
+    obj <- prepare(obj)
+    vm <- action(obj)
+    mse <- mean((obj$data - vm)^2, na.rm = TRUE) 
+    row <- c(mse , i)
+    opt <- rbind(opt, row)
+  }
+  colnames(opt)<-c("mean","num") 
+  curv <- curvature(opt$num, opt$mean, max)
+  curv <- fit(curv)
+  obj$n <- curv$xfit
+  if (do_plot)
+    plot(curv)
+  return(obj)
 }
 
 # smoothing by interval

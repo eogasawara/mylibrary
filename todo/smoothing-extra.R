@@ -1,5 +1,5 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
-
+#
 loadlibrary("caret")
 loadlibrary("MASS")
 loadlibrary("dplyr")
