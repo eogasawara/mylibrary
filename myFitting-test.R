@@ -9,10 +9,14 @@ y <- cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
 x <- 1:length(y)
 plot(x, y)
 
-myfit <- curvature(x, y, min)
+myfit <- curvature_min(y)
+myfit <- prepare(myfit)
+res <- action(myfit)
 plot(myfit)
 
-myfit <- curvature(x, -y, max)
+myfit <- curvature_max(-y)
+myfit <- prepare(myfit)
+res <- action(myfit)
 plot(myfit)
 
 
