@@ -30,8 +30,11 @@ prepare.dt_pca <- function(obj) {
   
   pca_res <- prcomp(data, center=TRUE, scale.=TRUE)
   cumvar <-  cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
-  res <-  curvature(c(1:(length(cumvar))), cumvar, min)
-  pca.transf <- as.matrix(pca_res$rotation[, 1:res$xfit])
+  curv <-  curvature_min(cumvar)
+  curv <- prepare(curv)
+  res <- action(curv)
+  
+  pca.transf <- as.matrix(pca_res$rotation[, 1:res$x])
   
   obj$transf <- list(pca.transf=pca.transf, nums=nums)
   

@@ -47,9 +47,10 @@ optimize.smoothing <- function(obj, do_plot=FALSE) {
     opt <- rbind(opt, row)
   }
   colnames(opt)<-c("mean","num") 
-  curv <- curvature(opt$num, opt$mean, max)
-  curv <- fit(curv)
-  obj$n <- curv$xfit
+  curv <- curvature_max(opt$mean)
+  curv <- prepare(curv)
+  res <- action(curv)
+  obj$n <- res$x
   if (do_plot)
     plot(curv)
   return(obj)
