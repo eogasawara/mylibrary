@@ -1,14 +1,20 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
+# version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
-#loadlibrary("caret")
-#loadlibrary("MASS")
-#loadlibrary("dplyr")
+categ_mapping <- function(data, attribute) {
+  obj <- data_sample(data)
+  obj$attribute <- attribute
+  class(obj) <- append("categ_mapping", class(obj))  
+  return(obj)  
+}
 
-
-dt.categ_mapping <- function(data, attribute){
+action.categ_mapping <- function(obj) {
+  data <- obj$data
+  attribute <- obj$attribute  
+  
   mdlattribute = formula(paste("~", paste(attribute, "-1")))
-  x <- model.matrix(mdlattribute, data=data)
-  data <- cbind(data, x)
+  catmap <- model.matrix(mdlattribute, data=data)
+  data <- cbind(data, catmap)
   return(data)
 }
 

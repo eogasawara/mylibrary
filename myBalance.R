@@ -2,28 +2,6 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 
-# class sample_stratified
-loadlibrary("caret")
-
-sample_stratified <- function(data, attribute) {
-  obj <- data_sample(data)
-  obj$attribute <- attribute
-  class(obj) <- append("sample_stratified", class(obj))  
-  return(obj)
-}
-
-train_test.sample_stratified <- function(obj, perc=0.8) {
-  predictors_name  = setdiff(colnames(obj$data), obj$attribute)
-  
-  predictors = obj$data[,predictors_name] 
-  predictand = obj$data[,obj$attribute] 
-  
-  idx = createDataPartition(predictand, p=perc, list=FALSE)  
-  obj$train = obj$data[idx,]
-  obj$test = obj$data[-idx,]
-  return (obj)
-}
-
 #class oversampling
 loadlibrary("DMwR")
 
