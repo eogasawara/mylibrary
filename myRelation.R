@@ -42,6 +42,14 @@ prepare.default <- function(obj) {
   return(obj)
 }
 
+optimize <- function(obj, ...) {
+  UseMethod("optimize")
+}
+
+optimize.default <- function(obj, ...) {
+  return(obj)
+}
+
 rel_transform <- function(data) {
   obj <- obj_transform(data)
   class(obj) <- append("rel_transform", class(obj))    

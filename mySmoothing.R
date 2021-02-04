@@ -9,14 +9,6 @@ smoothing <- function(data) {
   return(obj)
 }
 
-optimize <- function(obj, ...) {
-  #x contains both input and output
-  UseMethod("optimize")
-}
-
-optimize.default <- function(obj, ...) {
-  return(obj)
-}
 
 prepare.smoothing <- function(obj) {
   v <- obj$data  
