@@ -1,11 +1,5 @@
-loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
-{
-  if (!require(x,character.only = TRUE))
-  {
-    install.packages(x, repos=repos, dep=TRUE)
-    require(x)
-  }
-}
+# version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
 loadlibrary("ggplot2")
 loadlibrary("scales")
