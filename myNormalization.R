@@ -1,22 +1,33 @@
-# min-max normalization
+# version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
-normalize.minmax <- function(data, norm.set=NULL){
-  data = data.frame(data)
-  if(is.null(norm.set))
-  {
-    minmax = data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
-    minmax = rbind(minmax, rep(NA, ncol(minmax)))
-    minmax = rbind(minmax, rep(NA, ncol(minmax)))
-    colnames(minmax) = colnames(data)    
-    rownames(minmax) = c("numeric", "max", "min")
-    for (j in colnames(minmax)[minmax["numeric",]==1]) {
-      minmax["min",j] <- min(data[,j], na.rm=TRUE)
-      minmax["max",j] <- max(data[,j], na.rm=TRUE)
-    }
+# min-max normalization
+minmax <- function(data) {
+  obj <- data_sample(as.data.frame(data))
+  obj$attribute <- attribute
+  class(obj) <- append("minmax", class(obj))    
+  return(obj)
+}  
+
+prepare.minmax <- function(obj) {
+  data <- obj$data
+  minmax = data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
+  minmax = rbind(minmax, rep(NA, ncol(minmax)))
+  minmax = rbind(minmax, rep(NA, ncol(minmax)))
+  colnames(minmax) = colnames(data)    
+  rownames(minmax) = c("numeric", "max", "min")
+  for (j in colnames(minmax)[minmax["numeric",]==1]) {
+    minmax["min",j] <- min(data[,j], na.rm=TRUE)
+    minmax["max",j] <- max(data[,j], na.rm=TRUE)
   }
-  else {
-    minmax = norm.set
-  }
+  obj$norm.set <- minmax
+  
+  return(obj)
+}
+
+action.minmax <- function(obj) {
+  data <- obj$data
+  minmax <- obj$norm.set
   for (j in colnames(minmax)[minmax["numeric",]==1]) {
     if ((minmax["max", j] != minmax["min", j])) {
       data[,j] = (data[,j] - minmax["min", j]) / (minmax["max", j] - minmax["min", j])
@@ -25,7 +36,7 @@ normalize.minmax <- function(data, norm.set=NULL){
       data[,j] = 0
     }
   }
-  return (list(data=data, norm.set=minmax))
+  return (data)
 }
 
 # z-score normalization

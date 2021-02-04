@@ -1,12 +1,12 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
 
 #class oversampling
 loadlibrary("DMwR")
 
 oversampling <- function(data, attribute) {
-  obj <- data_sample(as.data.frame(data))
+  obj <- rel_transform(data)
   obj$attribute <- attribute
   class(obj) <- append("oversampling", class(obj))    
   return(obj)
@@ -40,7 +40,7 @@ action.oversampling <- function(obj) {
 }
 
 subsampling <- function(data, attribute) {
-  obj <- data_sample(as.data.frame(data))
+  obj <- rel_transform(data)
   obj$attribute <- attribute
   class(obj) <- append("subsampling", class(obj))    
   return(obj)
