@@ -1,8 +1,15 @@
-loadlibrary <- function(x, repos='http://cran.fiocruz.br') 
+#setwd("C:/Users/eduar/OneDrive/Git/mylibrary")
+myrepos <- "http://cran.fiocruz.br"
+
+setrepos <- function(repos=repos) {
+  myrepos <- repos 
+}
+
+loadlibrary <- function(x) 
 {
   if (!require(x,character.only = TRUE))
   {
-    install.packages(x, repos=repos, dep=TRUE)
+    install.packages(x, repos=myrepos, dep=TRUE)
     require(x)
   }
 }
@@ -10,7 +17,6 @@ loadlibrary <- function(x, repos='http://cran.fiocruz.br')
 obj_transform <- function(data) {
   obj <- list(data=data)
   attr(obj, "class") <- "obj_transform"  
-  #obj <- prepare(obj)
   return(obj)
 }
 
