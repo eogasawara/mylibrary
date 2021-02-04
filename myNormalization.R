@@ -39,7 +39,6 @@ action.minmax <- function(obj) {
 }
 
 # z-score normalization
-
 zscore <- function(data, nmean=0, nsd=1) {
   obj <- rel_transform(data)
   obj$nmean <- nmean

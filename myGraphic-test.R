@@ -1,4 +1,4 @@
-# version 1.0
+# version 0.9
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
 
 loadlibrary("MASS")
