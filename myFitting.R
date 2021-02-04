@@ -15,8 +15,9 @@ prepare.curvature <- function(obj) {
   obj$x <- 1:length(obj$data)
   smodel = smooth.spline(obj$x, obj$data, df = obj$df)
   curvature = predict(smodel, x = obj$x, deriv = obj$deriv)
-  obj$yfit = obj$func(obj$data)
-  obj$xfit = match(obj$yfit, obj$data)
+  obj$yfit = obj$func(curvature$y)
+  obj$xfit = match(obj$yfit, curvature$y)
+  obj$y <- obj$data[obj$xfit]
   return(obj)
 }
 
@@ -25,7 +26,7 @@ plot.curvature <- function(obj) {
 }
 
 action.curvature <- function(obj) {
-  res = data.frame(x=obj$x[obj$xfit], y=obj$data[obj$xfit], yfit=obj$yfit)
+  res = data.frame(x=obj$xfit, y=obj$data[obj$xfit], yfit = obj$yfit)
   return(res)  
 }
 
