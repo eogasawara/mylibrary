@@ -1,5 +1,5 @@
-
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+# version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBalance.R")
 
 data(iris)
 head(iris)
