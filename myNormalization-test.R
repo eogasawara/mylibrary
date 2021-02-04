@@ -1,5 +1,5 @@
 # version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 
 mm <- minmax(iris)
 mm <- prepare(mm)
