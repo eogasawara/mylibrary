@@ -1,20 +1,20 @@
+# version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPCA.R")
 
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
+mypca <- dt_pca(iris, "Species")
+mypca <- prepare(mypca)
+iris.pca <- action(mypca)
+
+head(iris.pca)
+head(mypca$transf$pca.transf)
+
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
 loadlibrary("RColorBrewer")
 loadlibrary("dplyr")
-loadlibrary("gridExtra")
-loadlibrary("reshape")
-
 col.set <- brewer.pal(11, 'Spectral')
 mycolors <- col.set[c(1,3,5,7,9)]
 
-plot_size(4, 3)
-
-mypca <- dt.pca(iris, "Species")
-head(mypca$pca)
-
-head(mypca$transf$pca.transf)
-
-plot.scatter(mypca$pca %>% select(x=PC1, value=PC2, variable=Species), colors=mycolors[1:3])
+grf <- plot.scatter(iris.pca %>% select(x=PC1, value=PC2, variable=Species), colors=mycolors[1:3])
+plot(grf)
 
 
