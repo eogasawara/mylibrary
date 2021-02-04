@@ -1,8 +1,8 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
 categ_mapping <- function(data, attribute) {
-  obj <- data_sample(data)
+  obj <- rel_transform(data)
   obj$attribute <- attribute
   class(obj) <- append("categ_mapping", class(obj))  
   return(obj)  
