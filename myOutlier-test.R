@@ -1,15 +1,15 @@
-
+# version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myOutlier.R")
 
 head(iris)
 nrow(iris)
 
-obj <- outliers(iris)
-table(obj$idx)
+out <- outliers(iris)
+out <- prepare(out)
+table(out$idx)
+iris.out <- action(out)
 
-iris_out <- action(obj)
-
-head(iris_out)
-nrow(iris_out)
+head(iris.out)
+nrow(iris.out)
 
 
