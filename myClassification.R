@@ -2,7 +2,6 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassificationEvaluation.R")
 
 # classif
-
 classification <- function(data, attribute) {
   data[,attribute] = as.factor(data[,attribute])
   obj <- rel_transform(data)
@@ -13,7 +12,6 @@ classification <- function(data, attribute) {
 }
 
 # zero_rule
-
 classif_zero_rule <- function(data, attribute) {
   obj <- classification(data, attribute)
   class(obj) <- append("classif_zero_rule", class(obj))    
@@ -23,11 +21,11 @@ classif_zero_rule <- function(data, attribute) {
 prepare.classif_zero_rule <- function(obj) {
   loadlibrary("RSNNS")
   predictand = decodeClassLabels(obj$data[,obj$attribute])
-
+  
   cols <- apply(predictand, 2, sum)
   col <- match(max(cols),cols)
   obj$model <- list(cols=cols, col=col)
-
+  
   return(obj)
 }
 
@@ -42,9 +40,7 @@ action.classif_zero_rule <- function(obj) {
   return(prediction)
 }
 
-
 # decision_tree
-
 classif_decision_tree <- function(data, attribute) {
   obj <- classification(data, attribute)
   class(obj) <- append("classif_decision_tree", class(obj))    
@@ -67,7 +63,6 @@ action.classif_decision_tree <- function(obj) {
 }
 
 # naive_bayes
-
 classif_naive_bayes <- function(data, attribute) {
   obj <- classification(data, attribute)
   class(obj) <- append("classif_naive_bayes", class(obj))    
@@ -79,7 +74,7 @@ prepare.classif_naive_bayes <- function(obj) {
   
   loadlibrary("e1071")
   obj$model <- naiveBayes(regression, obj$data, laplace=0)
-
+  
   return(obj)
 }
 
@@ -89,11 +84,7 @@ action.classif_naive_bayes  <- function(obj) {
   return(prediction)
 }
 
-
-
-
 # random_forest
-
 classif_random_forest <- function(data, attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
   obj <- classification(data, attribute)
   obj$ntree <- ntree
@@ -119,7 +110,6 @@ action.classif_random_forest  <- function(obj) {
 }
 
 # mlp_nnet
-
 classif_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.05), maxit=10000) {
   obj <- classification(data, attribute)
   obj$maxit <- maxit
@@ -139,7 +129,7 @@ prepare.classif_mlp_nnet <- function(obj) {
   
   tuned <- tune.nnet(regression, data=obj$data, trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons)
   obj$model <- tuned$best.model  
-
+  
   return(obj)
 }
 
@@ -149,9 +139,7 @@ action.classif_mlp_nnet  <- function(obj) {
   return(prediction)
 }
 
-
 # classif_svm 
-
 classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(2,100,2)), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   obj <- classification(data, attribute)
@@ -180,7 +168,6 @@ action.classif_svm  <- function(obj) {
 }
 
 # classif_knn 
-
 classif_knn <- function(data, attribute, k=1:20) {
   obj <- classification(data, attribute)
   obj$k <- k
@@ -206,6 +193,3 @@ action.classif_knn  <- function(obj) {
   prediction = decodeClassLabels(prediction)  
   return(prediction)
 }
-
-
-
