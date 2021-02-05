@@ -44,4 +44,7 @@ train_test <- function(model, iris_train, iris_test) {
 train_test(classif_zero_rule(iris_train, "Species"), iris_train, iris_test)
 train_test(classif_decision_tree(iris_train, "Species"), iris_train, iris_test)
 train_test(classif_random_forest(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_naive_bayes(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_mlp_nnet(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_svm(iris_train, "Species"), iris_train, iris_test)
 

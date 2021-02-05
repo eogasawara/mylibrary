@@ -92,3 +92,88 @@ action.classif_random_forest  <- function(obj) {
   prediction <- predict(obj$model, predictors, type="prob")  
   return(prediction)
 }
+
+
+# naive_bayes
+
+classif_naive_bayes <- function(data, attribute) {
+  obj <- classification(data, attribute)
+  class(obj) <- append("classif_naive_bayes", class(obj))    
+  return(obj)
+}
+
+prepare.classif_naive_bayes <- function(obj) {
+  regression <- formula(paste(obj$attribute, "  ~ ."))  
+  
+  loadlibrary("e1071")
+  obj$model <- naiveBayes(regression, obj$data, laplace=0)
+
+  return(obj)
+}
+
+action.classif_naive_bayes  <- function(obj) {
+  predictors = obj$data[,obj$predictors]   
+  prediction <- predict(obj$model, predictors, type="raw")  
+  return(prediction)
+}
+
+# mlp_nnet
+
+classif_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.025), maxit=10000) {
+  obj <- classification(data, attribute)
+  obj$maxit <- maxit
+  obj$decay <- decay
+  obj$neurons <- length(obj$predictors)
+  if (!is.null(neurons))
+    obj$neurons <- neurons
+  class(obj) <- append("classif_mlp_nnet", class(obj))    
+  return(obj)
+}
+
+prepare.classif_mlp_nnet <- function(obj) {
+  regression <- formula(paste(obj$attribute, "  ~ ."))  
+  
+  loadlibrary("e1071")
+  loadlibrary("nnet")
+  
+  tuned <- tune.nnet(regression, data=obj$data, maxit=obj$maxit, trace=FALSE, , size=(1:obj$neurons))
+  obj$model <- tuned$best.model  
+
+  return(obj)
+}
+
+action.classif_mlp_nnet  <- function(obj) {
+  predictors = obj$data[,obj$predictors]   
+  prediction <- predict(obj$model, predictors, type="raw")  
+  return(prediction)
+}
+
+
+# classif_svm 
+
+classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=1:100, kernel="radial") {
+  #kernel: linear, radial, polynomial, sigmoid
+  obj <- classification(data, attribute)
+  obj$kernel <- kernel
+  obj$epsilon <- epsilon
+  obj$cost <- cost
+  class(obj) <- append("classif_svm", class(obj))    
+  return(obj)
+}
+
+prepare.classif_svm <- function(obj) {
+  regression <- formula(paste(obj$attribute, "  ~ ."))  
+  
+  loadlibrary("e1071")
+  tuned <- tune.svm(regression, data=obj$data, epsilon=obj$epsilon, cost=obj$cost, probability=TRUE, kernel=obj$kernel)
+  obj$model <- tuned$best.model  
+  
+  return(obj)
+}
+
+action.classif_svm  <- function(obj) {
+  predictors = obj$data[,obj$predictors]   
+  prediction <- predict(obj$model, predictors, probability = TRUE)  
+  return(prediction)
+}
+
