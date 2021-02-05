@@ -42,10 +42,6 @@ roc_curve <- function(obj) {
   UseMethod("roc_curve")
 }
 
-roc_curve.default <- function(obj) {
-  return(obj)
-}
-
 roc_curve.evaluation <- function(obj) {
   loadlibrary("ROCR")
   pred <- prediction(obj$prediction, obj$data)
