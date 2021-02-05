@@ -18,7 +18,7 @@ head(tbl)
 
 
 train_test <- function(model, iris_train, iris_test) {
-  print(className(model))
+  print(class(model)[1])
   
   loadlibrary("RSNNS")
   iris_train_predictand = decodeClassLabels(iris_train[,"Species"])
@@ -41,9 +41,7 @@ train_test <- function(model, iris_train, iris_test) {
   plot(roc_curve(test_eval))
 }
 
-train_test(classification_zerorule(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_zero_rule(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_decision_tree(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_random_forest(iris_train, "Species"), iris_train, iris_test)
 
-
-#head(model$train$metrics)
-#test <- ZeroRule_test <- class_test(model, iris_test, "Species")
-#head(test$predictions)
