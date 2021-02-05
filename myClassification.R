@@ -154,7 +154,7 @@ action.classif_mlp_nnet  <- function(obj) {
 
 # classif_svm 
 
-classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(5,100,5)), kernel="radial") {
+classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(2,100,2)), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   obj <- classification(data, attribute)
   obj$kernel <- kernel
