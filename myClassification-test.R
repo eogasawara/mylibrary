@@ -1,4 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
@@ -41,10 +41,11 @@ train_test <- function(model, iris_train, iris_test) {
   plot(roc_curve(test_eval))
 }
 
-train_test(classif_zero_rule(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_decision_tree(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_naive_bayes(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_random_forest(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_mlp_nnet(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_svm(iris_train, "Species"), iris_train, iris_test)
+#train_test(classif_zero_rule(iris_train, "Species"), iris_train, iris_test)
+#train_test(classif_decision_tree(iris_train, "Species"), iris_train, iris_test)
+#train_test(classif_naive_bayes(iris_train, "Species"), iris_train, iris_test)
+#train_test(classif_random_forest(iris_train, "Species"), iris_train, iris_test)
+#train_test(classif_mlp_nnet(iris_train, "Species"), iris_train, iris_test)
+#train_test(classif_svm(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_knn(iris_train, "Species"), iris_train, iris_test)
 

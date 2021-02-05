@@ -103,8 +103,6 @@ classif_random_forest <- function(data, attribute, mtry = NULL, ntree = seq(50, 
 }
 
 prepare.classif_random_forest <- function(obj) {
-  #predictors = obj$data[,obj$predictors] 
-  #predictand = obj$data[,obj$attribute]
   regression <- formula(paste(obj$attribute, "  ~ ."))  
   
   loadlibrary("randomForest")
@@ -180,4 +178,34 @@ action.classif_svm  <- function(obj) {
   prediction <- attr(prediction, "probabilities")
   return(prediction)
 }
+
+# classif_knn 
+
+classif_knn <- function(data, attribute, k=1:20) {
+  obj <- classification(data, attribute)
+  obj$k <- k
+  class(obj) <- append("classif_knn", class(obj))    
+  return(obj)
+}
+
+prepare.classif_knn <- function(obj) {
+  predictors = obj$data[,obj$predictors] 
+  predictand = obj$data[,obj$attribute]
+  
+  loadlibrary("e1071")
+  tuned <- tune.knn(x = predictors, y = predictand, k = obj$k)  
+  obj$model <- list(predictors=predictors, predictand=predictand)
+  obj$k <- tuned$k
+  
+  return(obj)
+}
+
+action.classif_knn  <- function(obj) {
+  loadlibrary("class")
+  prediction = knn(train=obj$model$predictors, test=obj$data[,obj$predictors], cl=obj$model$predictand, prob=TRUE)
+  prediction = decodeClassLabels(prediction)  
+  return(prediction)
+}
+
+
 
