@@ -34,7 +34,7 @@ prepare.evaluation <- function(obj) {
 }
 
 action.evaluation <- function(obj) {
-  metrics <- data.frame(accuracy=obj$accuracy, f1=obj$f1, sensitivity=obj$sensitivity, c=obj$sensitivity, precision=obj$precision, recall=obj$recall)
+  metrics <- data.frame(accuracy=obj$accuracy, f1=obj$f1, sensitivity=obj$sensitivity, specificity=obj$specificity, precision=obj$precision, recall=obj$recall)
   return(metrics)
 }
 
