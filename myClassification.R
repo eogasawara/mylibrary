@@ -66,34 +66,6 @@ action.classif_decision_tree <- function(obj) {
   return(prediction)
 }
 
-
-
-# random_forest
-
-classif_random_forest <- function(data, attribute, ntree = 100) {
-  obj <- classification(data, attribute)
-  obj$ntree <- ntree
-  class(obj) <- append("classif_random_forest", class(obj))    
-  return(obj)
-}
-
-prepare.classif_random_forest <- function(obj) {
-  predictors = obj$data[,obj$predictors] 
-  predictand = obj$data[,obj$attribute]
-  
-  loadlibrary("randomForest")
-  obj$model <- randomForest(predictors, predictand, ntree=obj$ntree)
-
-  return(obj)
-}
-
-action.classif_random_forest  <- function(obj) {
-  predictors = obj$data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, type="prob")  
-  return(prediction)
-}
-
-
 # naive_bayes
 
 classif_naive_bayes <- function(data, attribute) {
@@ -117,13 +89,44 @@ action.classif_naive_bayes  <- function(obj) {
   return(prediction)
 }
 
+
+
+
+# random_forest
+
+classif_random_forest <- function(data, attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
+  obj <- classification(data, attribute)
+  obj$ntree <- ntree
+  obj$mtry <- unique(c(2,2:round(max(sqrt(ncol(data)),ncol(data)/3))))
+  class(obj) <- append("classif_random_forest", class(obj))    
+  return(obj)
+}
+
+prepare.classif_random_forest <- function(obj) {
+  #predictors = obj$data[,obj$predictors] 
+  #predictand = obj$data[,obj$attribute]
+  regression <- formula(paste(obj$attribute, "  ~ ."))  
+  
+  loadlibrary("randomForest")
+  tuned <- tune.randomForest(regression, data=obj$data, mtry=obj$mtry, ntree=obj$ntree)
+  obj$model <- tuned$best.model 
+  
+  return(obj)
+}
+
+action.classif_random_forest  <- function(obj) {
+  predictors = obj$data[,obj$predictors]   
+  prediction <- predict(obj$model, predictors, type="prob")  
+  return(prediction)
+}
+
 # mlp_nnet
 
 classif_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.025), maxit=10000) {
   obj <- classification(data, attribute)
   obj$maxit <- maxit
   obj$decay <- decay
-  obj$neurons <- length(obj$predictors)
+  obj$neurons <- 1:length(obj$predictors)
   if (!is.null(neurons))
     obj$neurons <- neurons
   class(obj) <- append("classif_mlp_nnet", class(obj))    
@@ -136,7 +139,7 @@ prepare.classif_mlp_nnet <- function(obj) {
   loadlibrary("e1071")
   loadlibrary("nnet")
   
-  tuned <- tune.nnet(regression, data=obj$data, maxit=obj$maxit, trace=FALSE, decay = obj$decay, size=(1:obj$neurons))
+  tuned <- tune.nnet(regression, data=obj$data, trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons)
   obj$model <- tuned$best.model  
 
   return(obj)
