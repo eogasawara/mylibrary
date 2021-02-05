@@ -1,6 +1,10 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassificationEvaluation.R")
 
+#loadlibrary("kernlab")
+#loadlibrary("rattle")
+#loadlibrary("MASS")
+
 # classif
 classification <- function(data, attribute) {
   data[,attribute] = as.factor(data[,attribute])
