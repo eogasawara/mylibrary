@@ -122,7 +122,7 @@ action.classif_random_forest  <- function(obj) {
 
 # mlp_nnet
 
-classif_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.025), maxit=10000) {
+classif_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.05), maxit=10000) {
   obj <- classification(data, attribute)
   obj$maxit <- maxit
   obj$decay <- decay
@@ -154,7 +154,7 @@ action.classif_mlp_nnet  <- function(obj) {
 
 # classif_svm 
 
-classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=1:100, kernel="radial") {
+classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(5,100,5)), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   obj <- classification(data, attribute)
   obj$kernel <- kernel
