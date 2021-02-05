@@ -168,7 +168,7 @@ prepare.classif_svm <- function(obj) {
   regression <- formula(paste(obj$attribute, "  ~ ."))  
   
   loadlibrary("e1071")
-  tuned <- tune.svm(regression, data=obj$data, epsilon=obj$epsilon, cost=obj$cost, probability=TRUE, kernel=obj$kernel)
+  tuned <- tune.svm(regression, data=obj$data, probability=TRUE, epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
   obj$model <- tuned$best.model  
   
   return(obj)
@@ -176,7 +176,8 @@ prepare.classif_svm <- function(obj) {
 
 action.classif_svm  <- function(obj) {
   predictors = obj$data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, probability = TRUE)  
+  prediction <- predict(obj$model, predictors, probability = TRUE) 
+  prediction <- attr(prediction, "probabilities")
   return(prediction)
 }
 
