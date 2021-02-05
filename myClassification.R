@@ -136,7 +136,7 @@ prepare.classif_mlp_nnet <- function(obj) {
   loadlibrary("e1071")
   loadlibrary("nnet")
   
-  tuned <- tune.nnet(regression, data=obj$data, maxit=obj$maxit, trace=FALSE, , size=(1:obj$neurons))
+  tuned <- tune.nnet(regression, data=obj$data, maxit=obj$maxit, trace=FALSE, decay = obj$decay, size=(1:obj$neurons))
   obj$model <- tuned$best.model  
 
   return(obj)
