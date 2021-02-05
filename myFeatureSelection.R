@@ -92,6 +92,7 @@ feature_selection_ig <- function(data, attribute) {
 
 prepare.feature_selection_ig <- function(obj) {
   loadlibrary("FSelector")
+  loadlibrary("doBy")
   data <- data.frame(obj$data)
   
   class_formula <- formula(paste(obj$attribute, "  ~ ."))
@@ -120,29 +121,25 @@ feature_selection_relief <- function(data, attribute) {
 }
 
 prepare.feature_selection_relief <- function(obj) {
+  loadlibrary("FSelector")
   loadlibrary("doBy")
-  
+
   data <- data.frame(obj$data)
   
-  if (!is.numeric(data[,obj$attribute]))
-    data[,obj$attribute] =  as.numeric(data[,obj$attribute])
-  nums = unlist(lapply(data, is.numeric))
-  data = data[ , nums]
+  class_formula <- formula(paste(obj$attribute, "  ~ ."))
+  weights <- relief(class_formula, data)
   
-  class_formula = formula(paste(obj$attribute, "  ~ ."))
-  weights = relief(class_formula, data)
-  
-  tab=data.frame(weights)
-  tab=orderBy(~-attr_importance, data=tab)
-  tab$i=row(tab)
-  tab$import_acum=cumsum(tab$attr_importance)
+  tab <- data.frame(weights)
+  tab <- orderBy(~-attr_importance, data=tab)
+  tab$i <- row(tab)
+  tab$import_acum <- cumsum(tab$attr_importance)
   myfit <- curvature_min(tab$import_acum)
   myfit <- prepare(myfit)  
   tab <- tab[tab$import_acum <= myfit$y, ]
-  vec = rownames(tab)
+  vec <- rownames(tab)
   
   obj$features <- vec
-  
+
   return(obj)
 }
 
