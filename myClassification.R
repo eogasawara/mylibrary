@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassificationEvaluation.R")
 
 # classification
 
@@ -12,16 +12,16 @@ classification <- function(data, attribute) {
   return(obj)
 }
 
-
 classification_zerorule <- function(data, attribute) {
-  obj <- classification(data, atribute)
+  obj <- classification(data, attribute)
   class(obj) <- append("classification_zerorule", class(obj))    
   return(obj)
 }
 
 
 prepare.classification_zerorule <- function(obj) {
-#  predictors = obj$data[,obj$predictors] 
+  loadlibrary("RSNNS")
+  #  predictors = obj$data[,obj$predictors] 
   predictand = decodeClassLabels(obj$data[,obj$attribute])
 #  regression = formula(paste(obj$attribute, "  ~ ."))  
   
@@ -35,9 +35,12 @@ prepare.classification_zerorule <- function(obj) {
 }
 
 action.classification_zerorule <- function(obj) {
+  loadlibrary("Matrix")  
   rows <- nrow(obj$data)
   cols <- length(obj$model$cols)
   result <- Matrix(rep.int(0, rows*cols), nrow=rows, ncol=cols)
-  result[,obj$model$col] <- 1  
+  result[,obj$model$col] <- 1
+  colnames(result) <- names(obj$model$cols)
+  result <- as.matrix(result)
   return(result)
 }
