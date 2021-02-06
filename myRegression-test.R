@@ -1,5 +1,5 @@
 #source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
 
@@ -19,7 +19,7 @@ train_test <- function(model, boston_train, boston_test) {
   
   loadlibrary("RSNNS")
   boston_train_predictand = boston_train[,"medv"]
-  boston_test_predictand = decodeClassLabels(boston_test[,"medv"])
+  boston_test_predictand = boston_test[,"medv"]
   
   model <- prepare(model)
   train_prediction <- action(model)
@@ -34,13 +34,11 @@ train_test <- function(model, boston_train, boston_test) {
   test_eval <- regression_evaluation(boston_test_predictand, test_prediction)
   test_eval <- prepare(test_eval)
   print(action(test_eval))
-  plot(roc_curve(test_eval))
 }
 
-train_test(classif_decision_tree(boston_train, "medv"), boston_train, boston_test)
-#train_test(classif_naive_bayes(boston_train, "medv"), boston_train, boston_test)
-#train_test(classif_random_forest(boston_train, "medv"), boston_train, boston_test)
-#train_test(classif_mlp_nnet(boston_train, "medv"), boston_train, boston_test)
-#train_test(classif_svm(boston_train, "medv"), boston_train, boston_test)
-#train_test(classif_knn(boston_train, "medv"), boston_train, boston_test)
+train_test(regression_decision_tree(boston_train, "medv"), boston_train, boston_test)
+#train_test(regression_random_forest(boston_train, "medv", ntree=50), boston_train, boston_test)
+#train_test(regression_mlp_nnet(boston_train, "medv", neurons=3, maxit=500, decay=0.9), boston_train, boston_test)
+#train_test(regression_svm(boston_train, "medv"), boston_train, boston_test)
+#train_test(regression_knn(boston_train, "medv"), boston_train, boston_test)
 

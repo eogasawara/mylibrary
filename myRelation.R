@@ -50,6 +50,33 @@ optimize.default <- function(obj, ...) {
   return(obj)
 }
 
+start_log <- function(obj) {
+  UseMethod("start_log")
+}
+
+start_log.default <- function(obj) {
+  obj$log_time <- Sys.time()
+  return(obj)
+}
+
+register_log <- function(obj, msg, ref) {
+  UseMethod("register_log")
+}
+
+register_log.default <- function(obj, msg = "") {
+  obj$log_time <- Sys.time() - obj$log_time
+  ref <- deparse(sys.calls()[[sys.nframe()-2]])
+  if (is.null(ref))
+    ref <- class(obj)
+  if (is.null(ref))
+    ref <- ""
+  obj$log_msg <- sprintf("[%s],%.2f,%s", ref, obj$log_time, msg)
+  message(obj$log_msg)
+  return(obj)
+}
+
+
+
 rel_transform <- function(data) {
   obj <- obj_transform(data)
   class(obj) <- append("rel_transform", class(obj))    
