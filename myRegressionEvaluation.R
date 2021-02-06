@@ -14,7 +14,7 @@ prepare.regression_evaluation <- function(obj) {
   #loadlibrary("MLmetrics")  
   values <- obj$data
   prediction <- obj$prediction
-  obj$mse <- (sum(values - prediction)^2)/lenght(values)
+  obj$mse <- (sum(values - prediction)^2)/length(values)
   return(obj)
 }
 

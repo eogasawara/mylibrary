@@ -7,7 +7,6 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegressi
 
 # classif
 regression <- function(data, attribute) {
-  data[,attribute] = as.factor(data[,attribute])
   obj <- rel_transform(data)
   obj$attribute <- attribute
   obj$predictors <- setdiff(colnames(obj$data), attribute)  

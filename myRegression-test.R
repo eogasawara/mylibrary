@@ -1,4 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
@@ -37,7 +37,7 @@ train_test <- function(model, boston_train, boston_test) {
   plot(roc_curve(test_eval))
 }
 
-#train_test(classif_decision_tree(boston_train, "medv"), boston_train, boston_test)
+train_test(classif_decision_tree(boston_train, "medv"), boston_train, boston_test)
 #train_test(classif_naive_bayes(boston_train, "medv"), boston_train, boston_test)
 #train_test(classif_random_forest(boston_train, "medv"), boston_train, boston_test)
 #train_test(classif_mlp_nnet(boston_train, "medv"), boston_train, boston_test)
