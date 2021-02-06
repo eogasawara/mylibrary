@@ -70,7 +70,7 @@ register_log.default <- function(obj, msg = "") {
     ref <- class(obj)
   if (is.null(ref))
     ref <- ""
-  obj$log_msg <- sprintf("[%s],%.2f,%s", ref, obj$log_time, msg)
+  obj$log_msg <- sprintf("%s,%.2f,%s", ref, obj$log_time, msg)
   message(obj$log_msg)
   return(obj)
 }
