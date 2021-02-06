@@ -1,14 +1,14 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
-evaluation <- function(data, prediction) {
+classif_evaluation <- function(data, prediction) {
   obj <- atr_transform(data)
   obj$prediction <- prediction
-  class(obj) <- append("evaluation", class(obj))    
+  class(obj) <- append("classif_evaluation", class(obj))    
   return(obj)
 }
 
-prepare.evaluation <- function(obj) {
+prepare.classif_evaluation <- function(obj) {
   loadlibrary("RSNNS")  
   loadlibrary("nnet")  
   loadlibrary("MLmetrics")  
@@ -29,11 +29,11 @@ prepare.evaluation <- function(obj) {
   obj$specificity <- Specificity(y_pred = predictions, y_true = values, positive = 1)
   obj$precision <- Precision(y_pred = predictions, y_true = values, positive = 1)
   obj$recall <- Recall(y_pred = predictions, y_true = values, positive = 1)
-  
+
   return(obj)
 }
 
-action.evaluation <- function(obj) {
+action.classif_evaluation <- function(obj) {
   metrics <- data.frame(accuracy=obj$accuracy, f1=obj$f1, sensitivity=obj$sensitivity, specificity=obj$specificity, precision=obj$precision, recall=obj$recall)
   return(metrics)
 }
@@ -42,7 +42,7 @@ roc_curve <- function(obj) {
   UseMethod("roc_curve")
 }
 
-roc_curve.evaluation <- function(obj) {
+roc_curve.classif_evaluation <- function(obj) {
   loadlibrary("ROCR")
   pred <- prediction(obj$prediction, obj$data)
   rocr <- performance(pred, "tpr", "fpr")  

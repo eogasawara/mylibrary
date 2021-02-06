@@ -2,9 +2,6 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassificationEvaluation.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
-#loadlibrary("leaps")
-#loadlibrary("doBy")
-
 # feature selection
 feature_selection <- function(data, attribute) {
   data[,attribute] = as.factor(data[,attribute])
