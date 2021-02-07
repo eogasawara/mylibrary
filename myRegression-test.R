@@ -5,7 +5,8 @@ loadlibrary("MASS")
 
 print(t(sapply(Boston, class)))
 head(Boston)
-?MASS::Boston
+#dataset catalog
+#?MASS::Boston
 
 # preparing dataset for random sampling
 set.seed(1)
