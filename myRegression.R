@@ -146,23 +146,11 @@ regression_knn <- function(data, attribute, k=1:10) {
 
 prepare.regression_knn <- function(obj) {
   obj <- start_log(obj)  
-  
-  loadlibrary("e1071")
-  
-  predictors = obj$data[,obj$predictors] 
-  predictand = obj$data[,obj$attribute]
-  tuned <- tune.knn(x = predictors, y = predictand, k = obj$k)  
-  obj$model <- list(predictors=predictors, predictand=predictand)
-  obj$k <- tuned$k
-  
-  msg <- sprintf("k=%d", obj$k)
-  obj <- register_log(obj, msg)
   return(obj)
 }
 
 action.regression_knn  <- function(obj) {
-  loadlibrary("class")
-  prediction = knn(train=obj$model$predictors, test=obj$data[,obj$predictors], cl=obj$model$predictand, prob=TRUE)
-  prediction = decodeClassLabels(prediction)  
+  #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html  
+  prediction <- rep(0, nrow(obj$data))
   return(prediction)
 }
