@@ -27,7 +27,7 @@ train_test <- function(model, iris_train, iris_test) {
   model <- prepare(model)
   train_prediction <- action(model)
   
-  train_eval <- evaluation(iris_train_predictand, train_prediction)
+  train_eval <- classif_evaluation(iris_train_predictand, train_prediction)
   train_eval <- prepare(train_eval)
   print(action(train_eval))
   plot(roc_curve(train_eval))
@@ -35,17 +35,17 @@ train_test <- function(model, iris_train, iris_test) {
   model$data <- iris_test
   test_prediction <- action(model)
   
-  test_eval <- evaluation(iris_test_predictand, test_prediction)
+  test_eval <- classif_evaluation(iris_test_predictand, test_prediction)
   test_eval <- prepare(test_eval)
   print(action(test_eval))
   plot(roc_curve(test_eval))
 }
 
-#train_test(classif_zero_rule(iris_train, "Species"), iris_train, iris_test)
-#train_test(classif_decision_tree(iris_train, "Species"), iris_train, iris_test)
-#train_test(classif_naive_bayes(iris_train, "Species"), iris_train, iris_test)
-#train_test(classif_random_forest(iris_train, "Species"), iris_train, iris_test)
-#train_test(classif_mlp_nnet(iris_train, "Species"), iris_train, iris_test)
-#train_test(classif_svm(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_zero_rule(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_decision_tree(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_naive_bayes(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_random_forest(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_mlp_nnet(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_svm(iris_train, "Species"), iris_train, iris_test)
 train_test(classif_knn(iris_train, "Species"), iris_train, iris_test)
 
