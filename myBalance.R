@@ -5,14 +5,14 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation
 #class oversampling
 loadlibrary("DMwR")
 
-oversampling <- function(data, attribute) {
+balance_oversampling <- function(data, attribute) {
   obj <- rel_transform(data)
   obj$attribute <- attribute
   class(obj) <- append("oversampling", class(obj))    
   return(obj)
 }
 
-action.oversampling <- function(obj) {
+action.balance_oversampling <- function(obj) {
   data <- obj$data
   attribute <- obj$attribute
   
@@ -39,14 +39,14 @@ action.oversampling <- function(obj) {
   return(newdata)
 }
 
-subsampling <- function(data, attribute) {
+balance_subsampling <- function(data, attribute) {
   obj <- rel_transform(data)
   obj$attribute <- attribute
   class(obj) <- append("subsampling", class(obj))    
   return(obj)
 }
 
-action.subsampling <- function(obj) {
+action.balance_subsampling <- function(obj) {
   data <- obj$data
   attribute <- obj$attribute
   x <- sort((table(data[,attribute]))) 

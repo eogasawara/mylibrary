@@ -1,4 +1,4 @@
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
