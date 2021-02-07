@@ -132,7 +132,7 @@ action.regression_mlp_nnet  <- function(obj) {
 }
 
 # regression_svm 
-regression_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=seq(0,100,5), kernel="radial") {
+regression_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   #analisar: https://rpubs.com/Kushan/296706  
   obj <- regression(data, attribute)

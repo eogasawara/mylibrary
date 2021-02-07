@@ -26,7 +26,7 @@ classif_zero_rule <- function(data, attribute) {
 
 prepare.classif_zero_rule <- function(obj) {
   obj <- start_log(obj)  
-
+  
   loadlibrary("RSNNS")
   
   predictand = decodeClassLabels(obj$data[,obj$attribute])
@@ -59,7 +59,7 @@ classif_decision_tree <- function(data, attribute) {
 
 prepare.classif_decision_tree <- function(obj) {
   obj <- start_log(obj)  
-
+  
   loadlibrary("tree")
   
   regression <- formula(paste(obj$attribute, "  ~ ."))  
@@ -146,7 +146,7 @@ classif_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.02
 
 prepare.classif_mlp_nnet <- function(obj) {
   obj <- start_log(obj)  
-
+  
   loadlibrary("nnet")
   loadlibrary("e1071")
   
@@ -166,10 +166,10 @@ action.classif_mlp_nnet  <- function(obj) {
 }
 
 # classif_svm 
-classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=seq(0,100,5), kernel="radial") {
+classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   #analisar: https://rpubs.com/Kushan/296706  
-  obj <- regression(data, attribute)
+  obj <- classification(data, attribute)
   obj$kernel <- kernel
   obj$epsilon <- epsilon
   obj$cost <- cost
