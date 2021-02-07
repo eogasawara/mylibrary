@@ -1,4 +1,4 @@
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
@@ -36,9 +36,9 @@ train_test <- function(model, boston_train, boston_test) {
   print(action(test_eval))
 }
 
-#train_test(regression_decision_tree(boston_train, "medv"), boston_train, boston_test)
-#train_test(regression_random_forest(boston_train, "medv"), boston_train, boston_test)
-#train_test(regression_mlp_nnet(boston_train, "medv"), boston_train, boston_test)
-#train_test(regression_svm(boston_train, "medv"), boston_train, boston_test)
+train_test(regression_decision_tree(boston_train, "medv"), boston_train, boston_test)
+train_test(regression_random_forest(boston_train, "medv"), boston_train, boston_test)
+train_test(regression_mlp_nnet(boston_train, "medv"), boston_train, boston_test)
+train_test(regression_svm(boston_train, "medv"), boston_train, boston_test)
 train_test(regression_knn(boston_train, "medv"), boston_train, boston_test)
 

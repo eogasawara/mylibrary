@@ -5,13 +5,32 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegressi
 #loadlibrary("rattle")
 #loadlibrary("MASS")
 
-# classif
+# regression
 regression <- function(data, attribute) {
   obj <- rel_transform(data)
   obj$attribute <- attribute
   obj$predictors <- setdiff(colnames(obj$data), attribute)  
   class(obj) <- append("regression", class(obj))    
   return(obj)
+}
+
+# regression_multiple 
+regression_multiple <- function(data, attribute) {
+  obj <- regression(data, attribute)
+  class(obj) <- append("regression_multiple", class(obj))    
+  return(obj)
+}
+
+prepare.regression_multiple <- function(obj) {
+  #optimize it using lasso + anova
+  obj <- start_log(obj)  
+  return(obj)
+}
+
+action.regression_multiple  <- function(obj) {
+  #pick code for multiple regression
+  prediction <- rep(0, nrow(obj$data))
+  return(prediction)
 }
 
 # decision_tree
@@ -40,10 +59,20 @@ action.regression_decision_tree <- function(obj) {
 }
 
 # random_forest
-regression_random_forest <- function(data, attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
+regression_random_forest <- function(data, attribute, mtry = NULL, ntree = NULL) {
   obj <- regression(data, attribute)
+  
+  if (is.null(mtry))
+    mtry <- unique(1:ceiling(ncol(data)/3))
+  obj$mtry <- mtry
+
+  if (is.null(ntree)) {
+    steps <- ceiling(20/length(obj$mtry))
+    ntree <- ceiling(500/steps)
+    ntree <- (seq(ntree, 500, ntree))
+  }
   obj$ntree <- ntree
-  obj$mtry <- unique(2:round(ncol(data)/3))
+
   class(obj) <- append("regression_random_forest", class(obj))    
   return(obj)
 }
@@ -72,14 +101,17 @@ action.regression_random_forest  <- function(obj) {
 regression_mlp_nnet <- function(data, attribute, neurons=NULL, decay=NULL, maxit=1000) {
   obj <- regression(data, attribute)
   obj$maxit <- maxit
+
   if (is.null(neurons))
-    neurons <- unique(1:round(ncol(data)/3))
+    neurons <- unique(1:ceiling(ncol(data)/3))
   obj$neurons <- neurons
   if (is.null(decay)) {
-    decay <- 1.0/max(obj$neurons)    
-    decay <- unique(c(seq(0, 1, decay),1))
+    steps <- ceiling(20/max(obj$neurons))
+    decay <- 1.0/steps   
+    decay <- unique(seq(decay, 1, decay))
   }
   obj$decay <- decay
+  
   class(obj) <- append("regression_mlp_nnet", class(obj))    
   return(obj)
 }
@@ -94,7 +126,7 @@ prepare.regression_mlp_nnet <- function(obj) {
   tuned <- tune.nnet(regression, data=obj$data, trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons, linout=TRUE)
   obj$model <- tuned$best.model  
   
-  msg <- sprintf("neurons=%d,decay=%.2f", obj$model$size, obj$model$decay)
+  msg <- sprintf("neurons=%d,decay=%.2f", tuned$best.parameters$size, tuned$best.parameters$decay)
   obj <- register_log(obj, msg)
   return(obj)
 }
@@ -106,12 +138,23 @@ action.regression_mlp_nnet  <- function(obj) {
 }
 
 # regression_svm 
-regression_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(10,100,10)), kernel="radial") {
+regression_svm <- function(data, attribute, gamma=c(0.25,0.5,1,2,4), degree=c(3,4,5), coef0=c(0.1,0.5,1,2,3,4), cost=NULL, kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
+  #analisar: https://rpubs.com/Kushan/296706  
   obj <- regression(data, attribute)
   obj$kernel <- kernel
-  obj$epsilon <- epsilon
-  obj$cost <- cost
+
+  if (kernel == "radial") {
+    obj$gamma <- gamma
+    if (is.null(cost)) {
+      steps <- ceiling(20/length(obj$gamma))
+      cost <- 5/steps
+      cost <- unique(seq(1, 5, cost))
+      cost <- 10^(unique(round(cost - 4)))
+      obj$cost <- cost
+    }
+  }
+
   class(obj) <- append("regression_svm", class(obj))    
   return(obj)
 }
@@ -122,8 +165,10 @@ prepare.regression_svm <- function(obj) {
   loadlibrary("e1071")
   
   regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.svm(regression, data=obj$data, epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
-  obj$model <- tuned$best.model  
+  if (obj$kernel == "radial") {
+    tuned <- tune.svm(regression, data=obj$data, gamma=obj$gamma, cost=obj$cost, kernel="radial")
+    obj$model <- tuned$best.model  
+  }
   
   msg <- sprintf("epsilon=%.1f,cost=%d", obj$model$epsilon, obj$model$cost)
   obj <- register_log(obj, msg)
@@ -137,7 +182,7 @@ action.regression_svm  <- function(obj) {
 }
 
 # regression_knn 
-regression_knn <- function(data, attribute, k=1:10) {
+regression_knn <- function(data, attribute, k=1:20) {
   obj <- regression(data, attribute)
   obj$k <- k
   class(obj) <- append("regression_knn", class(obj))    
