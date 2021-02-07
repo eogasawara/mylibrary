@@ -64,7 +64,7 @@ register_log <- function(obj, msg, ref) {
 }
 
 register_log.default <- function(obj, msg = "") {
-  obj$log_time <- Sys.time() - obj$log_time
+  obj$log_time <- sprintf("%.3f", difftime(obj$log_time, Sys.time(), units = "min"))
   ref <- deparse(sys.calls()[[sys.nframe()-2]])
   if (is.null(ref))
     ref <- class(obj)

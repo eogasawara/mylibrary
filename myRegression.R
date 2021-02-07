@@ -101,15 +101,11 @@ action.regression_random_forest  <- function(obj) {
 regression_mlp_nnet <- function(data, attribute, neurons=NULL, decay=NULL, maxit=1000) {
   obj <- regression(data, attribute)
   obj$maxit <- maxit
-
   if (is.null(neurons))
-    neurons <- unique(1:ceiling(ncol(data)/3))
+    neurons <- unique(1:ceiling(1*ncol(data)/3))
   obj$neurons <- neurons
-  if (is.null(decay)) {
-    steps <- ceiling(20/max(obj$neurons))
-    decay <- 1.0/steps   
-    decay <- unique(seq(decay, 1, decay))
-  }
+  if (is.null(decay)) 
+    decay <- seq(0, 1, 0.02)
   obj$decay <- decay
   
   class(obj) <- append("regression_mlp_nnet", class(obj))    
@@ -144,7 +140,7 @@ regression_svm <- function(data, attribute, gamma=c(0.25,0.5,1,2,4), degree=c(3,
   obj <- regression(data, attribute)
   obj$kernel <- kernel
 
-  if (kernel == "radial") {
+  if (kernel == "radial2") {
     obj$gamma <- gamma
     if (is.null(cost)) {
       steps <- ceiling(20/length(obj$gamma))
@@ -154,6 +150,10 @@ regression_svm <- function(data, attribute, gamma=c(0.25,0.5,1,2,4), degree=c(3,
       obj$cost <- cost
     }
   }
+  else if (kernel == "radial") {
+    obj$epsilon <- seq(0,1,0.1)
+    obj$cost <- 1:100
+  }  
 
   class(obj) <- append("regression_svm", class(obj))    
   return(obj)
@@ -163,14 +163,19 @@ prepare.regression_svm <- function(obj) {
   obj <- start_log(obj)  
   
   loadlibrary("e1071")
-  
+  msg <- ""
   regression <- formula(paste(obj$attribute, "  ~ ."))  
-  if (obj$kernel == "radial") {
+  if (obj$kernel == "radial2") {
     tuned <- tune.svm(regression, data=obj$data, gamma=obj$gamma, cost=obj$cost, kernel="radial")
     obj$model <- tuned$best.model  
+    msg <- sprintf("epsilon=%.1f,gamma=%.2f,cost=%.3f", obj$model$epsilon, obj$model$gamma, obj$model$cost)
+  }
+  if (obj$kernel == "radial") {
+    tuned <- tune.svm(regression, data=obj$data, epsilon=obj$epsilon, cost=obj$cost, kernel="radial")
+    obj$model <- tuned$best.model  
+    msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
   }
   
-  msg <- sprintf("epsilon=%.1f,cost=%d", obj$model$epsilon, obj$model$cost)
   obj <- register_log(obj, msg)
   return(obj)
 }
