@@ -10,6 +10,7 @@ regression <- function(data, attribute) {
   obj <- rel_transform(data)
   obj$attribute <- attribute
   obj$predictors <- setdiff(colnames(obj$data), attribute)  
+
   class(obj) <- append("regression", class(obj))    
   return(obj)
 }
@@ -17,6 +18,7 @@ regression <- function(data, attribute) {
 # regression_multiple 
 regression_multiple <- function(data, attribute) {
   obj <- regression(data, attribute)
+
   class(obj) <- append("regression_multiple", class(obj))    
   return(obj)
 }
@@ -24,6 +26,8 @@ regression_multiple <- function(data, attribute) {
 prepare.regression_multiple <- function(obj) {
   #optimize it using lasso + anova
   obj <- start_log(obj)  
+  
+  obj <- register_log(obj)
   return(obj)
 }
 
@@ -36,6 +40,7 @@ action.regression_multiple  <- function(obj) {
 # decision_tree
 regression_decision_tree <- function(data, attribute) {
   obj <- regression(data, attribute)
+
   class(obj) <- append("regression_decision_tree", class(obj))    
   return(obj)
 }
@@ -143,19 +148,11 @@ prepare.regression_svm <- function(obj) {
   obj <- start_log(obj)  
   
   loadlibrary("e1071")
-  msg <- ""
   regression <- formula(paste(obj$attribute, "  ~ ."))  
-  if (obj$kernel == "radial2") {
-    tuned <- tune.svm(regression, data=obj$data, gamma=obj$gamma, cost=obj$cost, kernel="radial")
-    obj$model <- tuned$best.model  
-    msg <- sprintf("epsilon=%.1f,gamma=%.2f,cost=%.3f", obj$model$epsilon, obj$model$gamma, obj$model$cost)
-  }
-  if (obj$kernel == "radial") {
-    tuned <- tune.svm(regression, data=obj$data, epsilon=obj$epsilon, cost=obj$cost, kernel="radial")
-    obj$model <- tuned$best.model  
-    msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
-  }
+  tuned <- tune.svm(regression, data=obj$data, epsilon=obj$epsilon, cost=obj$cost, kernel="radial")
+  obj$model <- tuned$best.model  
   
+  msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
   obj <- register_log(obj, msg)
   return(obj)
 }
@@ -170,14 +167,15 @@ action.regression_svm  <- function(obj) {
 regression_knn <- function(data, attribute, k=1:20) {
   obj <- regression(data, attribute)
   obj$k <- k
+
   class(obj) <- append("regression_knn", class(obj))    
   return(obj)
 }
 
 prepare.regression_knn <- function(obj) {
   obj <- start_log(obj)  
-  msg <- ""
-  obj <- register_log(obj, msg)
+
+  obj <- register_log(obj)
   return(obj)
 }
 
