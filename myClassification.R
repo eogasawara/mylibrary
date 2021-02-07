@@ -92,7 +92,7 @@ action.classif_naive_bayes  <- function(obj) {
 classif_random_forest <- function(data, attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
   obj <- classification(data, attribute)
   obj$ntree <- ntree
-  obj$mtry <- unique(c(2,2:round(max(sqrt(ncol(data)),ncol(data)/3))))
+  obj$mtry <- unique(2:round(sqrt(ncol(data)))) 
   class(obj) <- append("classif_random_forest", class(obj))    
   return(obj)
 }
@@ -117,10 +117,14 @@ action.classif_random_forest  <- function(obj) {
 classif_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.05), maxit=10000) {
   obj <- classification(data, attribute)
   obj$maxit <- maxit
+  if (is.null(neurons))
+    neurons <- unique(1:round(sqrt(ncol(data))))
+  obj$neurons <- neurons
+  if (is.null(decay)) {
+    decay <- 1.0/max(obj$neurons)    
+    decay <- unique(c(seq(0, 1, decay),1))
+  }
   obj$decay <- decay
-  obj$neurons <- 1:length(obj$predictors)
-  if (!is.null(neurons))
-    obj$neurons <- neurons
   class(obj) <- append("classif_mlp_nnet", class(obj))    
   return(obj)
 }
@@ -144,7 +148,7 @@ action.classif_mlp_nnet  <- function(obj) {
 }
 
 # classif_svm 
-classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(2,100,2)), kernel="radial") {
+classif_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(10,100,10)), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   obj <- classification(data, attribute)
   obj$kernel <- kernel

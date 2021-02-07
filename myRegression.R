@@ -43,7 +43,7 @@ action.regression_decision_tree <- function(obj) {
 regression_random_forest <- function(data, attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
   obj <- regression(data, attribute)
   obj$ntree <- ntree
-  obj$mtry <- unique(c(2,2:round(max(sqrt(ncol(data)),ncol(data)/3))))
+  obj$mtry <- unique(2:round(ncol(data)/3))
   class(obj) <- append("regression_random_forest", class(obj))    
   return(obj)
 }
@@ -69,13 +69,17 @@ action.regression_random_forest  <- function(obj) {
 }
 
 # mlp_nnet
-regression_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.05), maxit=10000) {
+regression_mlp_nnet <- function(data, attribute, neurons=NULL, decay=NULL, maxit=1000) {
   obj <- regression(data, attribute)
   obj$maxit <- maxit
+  if (is.null(neurons))
+    neurons <- unique(1:round(ncol(data)/3))
+  obj$neurons <- neurons
+  if (is.null(decay)) {
+    decay <- 1.0/max(obj$neurons)    
+    decay <- unique(c(seq(0, 1, decay),1))
+  }
   obj$decay <- decay
-  obj$neurons <- 1:length(obj$predictors)
-  if (!is.null(neurons))
-    obj$neurons <- neurons
   class(obj) <- append("regression_mlp_nnet", class(obj))    
   return(obj)
 }
@@ -102,7 +106,7 @@ action.regression_mlp_nnet  <- function(obj) {
 }
 
 # regression_svm 
-regression_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(2,100,2)), kernel="radial") {
+regression_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=c(1, seq(10,100,10)), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   obj <- regression(data, attribute)
   obj$kernel <- kernel
@@ -133,7 +137,7 @@ action.regression_svm  <- function(obj) {
 }
 
 # regression_knn 
-regression_knn <- function(data, attribute, k=1:20) {
+regression_knn <- function(data, attribute, k=1:10) {
   obj <- regression(data, attribute)
   obj$k <- k
   class(obj) <- append("regression_knn", class(obj))    
