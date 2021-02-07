@@ -59,18 +59,12 @@ action.regression_decision_tree <- function(obj) {
 }
 
 # random_forest
-regression_random_forest <- function(data, attribute, mtry = NULL, ntree = NULL) {
+regression_random_forest <- function(data, attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
   obj <- regression(data, attribute)
   
   if (is.null(mtry))
     mtry <- unique(1:ceiling(ncol(data)/3))
   obj$mtry <- mtry
-
-  if (is.null(ntree)) {
-    steps <- ceiling(20/length(obj$mtry))
-    ntree <- ceiling(500/steps)
-    ntree <- (seq(ntree, 500, ntree))
-  }
   obj$ntree <- ntree
 
   class(obj) <- append("regression_random_forest", class(obj))    
@@ -98,14 +92,12 @@ action.regression_random_forest  <- function(obj) {
 }
 
 # mlp_nnet
-regression_mlp_nnet <- function(data, attribute, neurons=NULL, decay=NULL, maxit=1000) {
+regression_mlp_nnet <- function(data, attribute, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
   obj <- regression(data, attribute)
   obj$maxit <- maxit
   if (is.null(neurons))
-    neurons <- unique(1:ceiling(1*ncol(data)/3))
+    neurons <- unique(1:ceiling(ncol(data)/3))
   obj$neurons <- neurons
-  if (is.null(decay)) 
-    decay <- seq(0, 1, 0.02)
   obj$decay <- decay
   
   class(obj) <- append("regression_mlp_nnet", class(obj))    
@@ -134,27 +126,14 @@ action.regression_mlp_nnet  <- function(obj) {
 }
 
 # regression_svm 
-regression_svm <- function(data, attribute, gamma=c(0.25,0.5,1,2,4), degree=c(3,4,5), coef0=c(0.1,0.5,1,2,3,4), cost=NULL, kernel="radial") {
+regression_svm <- function(data, attribute, epsilon=seq(0,1,0.1), cost=seq(0,100,5), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   #analisar: https://rpubs.com/Kushan/296706  
   obj <- regression(data, attribute)
   obj$kernel <- kernel
-
-  if (kernel == "radial2") {
-    obj$gamma <- gamma
-    if (is.null(cost)) {
-      steps <- ceiling(20/length(obj$gamma))
-      cost <- 5/steps
-      cost <- unique(seq(1, 5, cost))
-      cost <- 10^(unique(round(cost - 4)))
-      obj$cost <- cost
-    }
-  }
-  else if (kernel == "radial") {
-    obj$epsilon <- seq(0,1,0.1)
-    obj$cost <- 1:100
-  }  
-
+  obj$epsilon <- epsilon
+  obj$cost <- cost
+  
   class(obj) <- append("regression_svm", class(obj))    
   return(obj)
 }
