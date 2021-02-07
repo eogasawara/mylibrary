@@ -177,7 +177,7 @@ regression_knn <- function(data, attribute, k=1:20) {
 prepare.regression_knn <- function(obj) {
   obj <- start_log(obj)  
   
-  obj <- register_log(obj, msg)
+  obj <- register_log(obj)
   return(obj)
 }
 
