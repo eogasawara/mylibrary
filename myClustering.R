@@ -1,5 +1,6 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClusteringEvaluation.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # clustering
 clustering <- function(data) {
@@ -44,6 +45,12 @@ optimize.cluster_kmeans <- function(obj, kmax=20, do_plot=FALSE) {
   loadlibrary("factoextra")  
   t <- fviz_nbclust(obj$data, kmeans, k.max = kmax, method = "wss")
   clusters <- data.frame(k=as.integer(t$data$clusters), wss=t$data$y)
-  cm <- curvature.max(clusters$k, clusters$wss, do_plot=FALSE)
+  myfit <- fit_curvature_max(clusters$wss)
+  myfit <- prepare(myfit)
+  res <- action(myfit)
+  if (do_plot)
+    plot(myfit)
+  obj$k <- myfit$xfit
+  return(obj)
 }
   

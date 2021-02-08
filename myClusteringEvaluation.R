@@ -10,6 +10,7 @@ cluster_evaluation <- function(cluster, attribute) {
 }
 
 prepare.cluster_evaluation <- function(obj) {
+  loadlibrary("DescTools")
   
   clust_entropy <- function(class, cluster) {
     class <- as.factor(class)
@@ -25,11 +26,11 @@ prepare.cluster_evaluation <- function(obj) {
     } 
     return (list(entropy=entropy, table=ctable)) 
   }
-  
+  obj$entropy <- clust_entropy(obj$attribute, obj$data)
   return(obj)
 }
 
-action.classif_evaluation <- function(obj) {
+action.cluster_evaluation <- function(obj) {
   metrics <- data.frame(entropy=0)
   return(metrics)
 }
