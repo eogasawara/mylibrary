@@ -7,9 +7,19 @@ load_series <- function(name) {
 
 x <- load_series("sin")
 
-ts <- ts_data(x
-              #, sw=10
-              )
+ts <- ts_data(x)
+
+ts <- prepare(ts)
+
+res <- action(ts)
+
+ts <- train_test(ts, test_size=10)
+
+print(res)
+
+
+
+ts <- ts_data(x, 10)
 
 ts <- prepare(ts)
 

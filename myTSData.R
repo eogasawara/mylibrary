@@ -2,7 +2,7 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
-ts_data <- function(data, sw=NULL) {
+ts_data <- function(data, sw=0) {
   obj <- rel_transform(data)
   obj$sw <- sw
   
@@ -28,7 +28,7 @@ prepare.ts_data <- function(obj) {
     return(sw)  
   }
   data <- obj$data
-  if(!is.null(obj$sw)) {
+  if(obj$sw > 1) {
     obj$data <- ts_sw(as.matrix(obj$data), obj$sw)  
   }
   return(obj)
@@ -38,23 +38,24 @@ action.ts_data <- function(obj) {
   return(obj$data)
 }
 
-length.ts_data <- function(obj) {
-  if (obj$sw > 0)
-    return(nrow(obj$data))
-  else
+ts_length <- function(obj) {
+  if (is.vector(obj$data))
     return(length(obj$data))
+  else
+    return(nrow(obj$data))
+}
+
+ts_getdata <- function(obj, range) {
+  if (is.vector(obj$data))
+    return(obj$data[range])
+  else
+    return(obj$data[range,])
 }
 
 train_test.ts_data <- function(obj, test_size=NULL, offset=0) {
-  offset <- length(obj)-test_size-offset
-  if (obj$sw == 0) {
-    obj$train <- obj$data[1:offset]
-    obj$test <- obj$data[(offset+1):(offset+test_size)]
-  }
-  else {
-    obj$train <- obj$data[1:offset,]
-    obj$test <- obj$data[(offset+1):(offset+test_size),]    
-  }
+  offset <- ts_length(obj)-test_size-offset
+  obj$train <- ts_getdata(obj, 1:offset)
+  obj$test <- ts_getdata(obj, (offset+1):(offset+test_size))
   return(obj)
 }
 
