@@ -54,7 +54,13 @@ clust_optimized_pam <- function(data, max_k=20) {
   return(list(clusters=clusters, cm=cm))
 }
 
-
+loadlibrary("useful")
+loadlibrary("dbscan")
+loadlibrary("fpc")
+loadlibrary("cluster")
+loadlibrary("DescTools")
+loadlibrary("factoextra")
+loadlibrary("NbClust")
 clust_pam <- function(data, k)
 {
   clu <- pam(data, k)

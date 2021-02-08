@@ -43,14 +43,103 @@ action.cluster_kmeans <- function(obj) {
 
 optimize.cluster_kmeans <- function(obj, kmax=20, do_plot=FALSE) {
   loadlibrary("factoextra")  
+  
   t <- fviz_nbclust(obj$data, kmeans, k.max = kmax, method = "wss")
-  clusters <- data.frame(k=as.integer(t$data$clusters), wss=t$data$y)
-  myfit <- fit_curvature_max(clusters$wss)
+  
+  myfit <- fit_curvature_max(t$data$y)
   myfit <- prepare(myfit)
   res <- action(myfit)
   if (do_plot)
     plot(myfit)
   obj$k <- myfit$xfit
+  
   return(obj)
 }
   
+# pam
+cluster_pam <- function(data, k = NULL) {
+  obj <- clustering(data)
+  obj$k <- k
+  
+  class(obj) <- append("cluster_pam", class(obj))
+  return(obj)
+}
+
+prepare.cluster_pam <- function(obj) {
+  loadlibrary("cluster")
+  if (is.null(obj$k)) {
+    obj <- optimize(obj)
+  }
+  k <- obj$k
+
+  cluster <- pam(obj$data, k)
+  dist <- 0
+  for (i in 1:k) {
+    idx <- i==cluster$clustering
+    center <- cluster$medoids[i,]
+    dist <- dist + sum(rowSums((obj$data[idx,] - center)^2))
+  }
+  
+  obj$dist <- dist
+  obj$cluster <- cluster
+  return(obj)
+}
+
+action.cluster_pam <- function(obj) {
+  return(obj$cluster$clustering)
+}
+
+optimize.cluster_pam <- function(obj, kmax=20, do_plot=FALSE) {
+  loadlibrary("factoextra")  
+  t <- fviz_nbclust(obj$data, pam, k.max = kmax, method = "wss")
+  
+  myfit <- fit_curvature_max(t$data$y)
+  myfit <- prepare(myfit)
+  res <- action(myfit)
+  if (do_plot)
+    plot(myfit)
+  obj$k <- myfit$xfit
+  
+  return(obj)
+}
+
+# dbscan
+cluster_dbscan <- function(data, eps=NULL, MinPts) {
+  obj <- clustering(data)
+  obj$eps <- eps
+  obj$MinPts <- MinPts
+  
+  class(obj) <- append("cluster_dbscan", class(obj))
+  return(obj)
+}
+
+prepare.cluster_dbscan <- function(obj) {
+  loadlibrary("dbscan")
+  if (is.null(obj$eps))
+      obj <- optimize(obj)
+
+  cluster <- fpc::dbscan(obj$data, eps = obj$eps, MinPts = obj$MinPts)
+  
+  obj$cluster <- cluster
+  return(obj)
+}
+
+action.cluster_dbscan <- function(obj) {
+  return(obj$cluster$cluster)
+}
+
+
+optimize.cluster_dbscan <- function(obj, do_plot=FALSE) {
+  t <- sort(dbscan::kNNdist(obj$data, k = obj$MinPts))
+  
+  myfit <- fit_curvature_max(t)
+  myfit <- prepare(myfit)
+  res <- action(myfit)
+  if (do_plot)
+    plot(myfit)
+  obj$eps <- myfit$y
+  
+  return(obj)
+}
+
+
