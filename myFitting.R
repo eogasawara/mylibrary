@@ -31,14 +31,14 @@ action.fit_curvature <- function(obj) {
 }
 
 fit_curvature_min <- function(data) {
-  obj <- curvature(data)
+  obj <- fit_curvature(data)
   obj$func <- min
   class(obj) <- append("fit_curvature_min", class(obj))    
   return(obj)
 }
 
 fit_curvature_max <- function(data) {
-  obj <- curvature(data)
+  obj <- fit_curvature(data)
   obj$func <- max
   class(obj) <- append("fit_curvature_max", class(obj))    
   return(obj)
