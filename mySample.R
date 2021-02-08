@@ -9,11 +9,11 @@ data_sample <- function(data) {
   return(obj)
 }
 
-train_test <- function(obj, perc=0.8) {
+train_test <- function(obj, ...) {
   UseMethod("train_test")
 }
 
-train_test.default <- function(obj, x) {
+train_test.default <- function(obj, ...) {
   return(obj)
 }
 

@@ -1,6 +1,6 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 ts_data <- function(data, sw=NULL) {
   obj <- rel_transform(data)
@@ -45,11 +45,7 @@ length.ts_data <- function(obj) {
     return(length(obj$data))
 }
 
-start_log <- function(obj) {
-  UseMethod("start_log")
-}
-
-train_test.ts_data <- function(obj, test_size, offset=0) {
+train_test.ts_data <- function(obj, test_size=NULL, offset=0) {
   offset <- length(obj)-test_size-offset
   if (sw_size == 0) {
     obj$train <- obj$data[1:offset]
