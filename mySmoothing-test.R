@@ -1,6 +1,6 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySmoothing.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myEntropy.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClusterEvaluation.R")
 
 bi <- smoothing_inter(iris$Sepal.Length, n=2)
 bi <- prepare(bi)
@@ -24,6 +24,6 @@ bi <- optimize(bi, do_plot=TRUE)
 bi <- prepare(bi)
 sl.bi <- action(bi)
 table(sl.bi)
-entro <- entropy(names(sl.bi),iris$Species)
+entro <- cluster_evaluation(names(sl.bi),iris$Species)
 entro <- prepare(entro)
 res <- action(entro)

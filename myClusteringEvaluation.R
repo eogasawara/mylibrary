@@ -10,28 +10,27 @@ cluster_evaluation <- function(cluster, attribute) {
 }
 
 prepare.cluster_evaluation <- function(obj) {
-  loadlibrary("DescTools")
+  loadlibrary("dplyr")
   
-  clust_entropy <- function(class, cluster) {
-    class <- as.factor(class)
-    l <- split(class, cluster)
-    entropy <- c(1:(length(l)+1))
-    entropy[1] <- (Entropy(table(class), base=exp(1)))
-    ctable <- table(class)
-    
-    for (i in 1:length(l)) {
-      x <- factor(l[[i]], levels(class))
-      entropy[i+1] <- Entropy(table(x), base=exp(1))
-      ctable <- rbind(ctable, table(x))
-    } 
-    return (list(entropy=entropy, table=ctable)) 
+  entropy <- function(obj) {
+    base <- data.frame(x = obj$data, y = obj$attribute) 
+    tbl <- base %>% group_by(x, y) %>% summarise(qtd=n()) 
+    tbs <- base %>% group_by(x) %>% summarise(t=n()) 
+    tbl <- merge(x=tbl, y=tbs, by.x="x", by.y="x")
+    tbl$e <- -(tbl$qtd/tbl$t)*log(tbl$qtd/tbl$t,2)
+    tbl <- tbl %>% group_by(x) %>% summarise(ce=sum(e), qtd=sum(qtd)) 
+    tbl$ceg <- tbl$ce*tbl$qtd/length(obj$data)
+    obj$entropy <- tbl
+    return(obj)
   }
-  obj$entropy <- clust_entropy(obj$attribute, obj$data)
+  
+  obj <- entropy(obj)
+  
   return(obj)
 }
 
 action.cluster_evaluation <- function(obj) {
-  metrics <- data.frame(entropy=0)
+  metrics <- data.frame(entropy=sum(obj$entropy$ceg))
   return(metrics)
 }
 
