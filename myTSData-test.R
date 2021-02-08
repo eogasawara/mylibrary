@@ -7,7 +7,9 @@ load_series <- function(name) {
 
 x <- load_series("sin")
 
-ts <- ts_data(x, sw=10)
+ts <- ts_data(x
+              #, sw=10
+              )
 
 ts <- prepare(ts)
 

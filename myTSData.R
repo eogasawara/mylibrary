@@ -1,6 +1,6 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 ts_data <- function(data, sw=NULL) {
   obj <- rel_transform(data)
@@ -47,7 +47,7 @@ length.ts_data <- function(obj) {
 
 train_test.ts_data <- function(obj, test_size=NULL, offset=0) {
   offset <- length(obj)-test_size-offset
-  if (sw_size == 0) {
+  if (obj$sw == 0) {
     obj$train <- obj$data[1:offset]
     obj$test <- obj$data[(offset+1):(offset+test_size)]
   }
