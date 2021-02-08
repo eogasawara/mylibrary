@@ -99,7 +99,7 @@ prepare.feature_selection_ig <- function(obj) {
   tab <- orderBy(~-attr_importance, data=tab)
   tab$i <- row(tab)
   tab$import_acum <- cumsum(tab$attr_importance)
-  myfit <- curvature_min(tab$import_acum)
+  myfit <- fit_curvature_min(tab$import_acum)
   myfit <- prepare(myfit)  
   tab <- tab[tab$import_acum <= myfit$y, ]
   vec <- rownames(tab)
@@ -130,7 +130,7 @@ prepare.feature_selection_relief <- function(obj) {
   tab <- orderBy(~-attr_importance, data=tab)
   tab$i <- row(tab)
   tab$import_acum <- cumsum(tab$attr_importance)
-  myfit <- curvature_min(tab$import_acum)
+  myfit <- fit_curvature_min(tab$import_acum)
   myfit <- prepare(myfit)  
   tab <- tab[tab$import_acum <= myfit$y, ]
   vec <- rownames(tab)

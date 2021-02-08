@@ -30,7 +30,7 @@ prepare.dt_pca <- function(obj) {
   
   pca_res <- prcomp(data, center=TRUE, scale.=TRUE)
   cumvar <-  cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
-  curv <-  curvature_min(cumvar)
+  curv <-  fit_curvature_min(cumvar)
   curv <- prepare(curv)
   res <- action(curv)
   
