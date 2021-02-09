@@ -15,6 +15,8 @@ res <- action(ts)
 
 ts <- train_test(ts, test_size=10)
 
+ts <- sw_project(ts)
+
 print(res)
 
 
@@ -26,6 +28,8 @@ ts <- prepare(ts)
 res <- action(ts)
 
 ts <- train_test(ts, test_size=10)
+
+ts <- sw_project(ts)
 
 print(res)
 

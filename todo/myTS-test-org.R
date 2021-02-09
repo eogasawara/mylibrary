@@ -19,7 +19,7 @@ dir_test(x)
 sw_test <- function(prec, x, size) {
   tt <- ts_train_test(x, test_size=size, sw_size=size)
 
-  prec <- ts_setup(prec, tt$train)
+  prec <- ts_normalize(prec, tt$train)
   
   io <- ts_sw_project(tt$train)
   

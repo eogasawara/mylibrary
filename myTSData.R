@@ -45,7 +45,11 @@ length.ts_data <- function(obj) {
     return(nrow(obj$data))
 }
 
-ts_getdata <- function(obj, range) {
+range_data <- function(obj, range) {
+  UseMethod("range_data")
+}
+
+range_data.ts_data <- function(obj, range) {
   if (is.vector(obj$data))
     return(obj$data[range])
   else
@@ -53,14 +57,38 @@ ts_getdata <- function(obj, range) {
 }
 
 train_test.ts_data <- function(obj, test_size=NULL, offset=0) {
-  offset <-  length(obj)-test_size-offset
-  obj$train <- ts_getdata(obj, 1:offset)
-  obj$test <- ts_getdata(obj, (offset+1):(offset+test_size))
+  offset <- length(obj) - test_size - offset
+  train <- range_data(obj, 1:offset)
+  obj$test <- range_data(obj, (offset+1):(offset+test_size))
+  obj$data <- train
+  return(obj)
+}
+
+ts_prep_normalize <- function(obj) {
+  UseMethod("ts_normalize")
+}
+
+ts_prep_normalize.default <- function(obj) {
+  return(obj)
+}
+
+ts_normalize <- function(obj) {
+  UseMethod("ts_normalize")
+}
+
+ts_normalize.default <- function(obj) {
+  return(obj)
+}
+
+ts_denormalize <- function(obj) {
+  UseMethod("ts_denormalize")
+}
+
+ts_denormalize.default <- function(obj) {
   return(obj)
 }
 
 sw_project <- function(obj) {
-  #x contains both input and output
   UseMethod("sw_project")
 }
 
@@ -68,7 +96,6 @@ sw_project.ts_data <- function(obj)
 {
   if (is.vector(obj$data)) {
     input <- obj$data
-    output <- obj$data
   }
   else {
     input <- obj$data[,1:ncol(obj$data)-1]

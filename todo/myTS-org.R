@@ -1,17 +1,5 @@
 # basic functions
 
-ts_sw_project <- function(sw) 
-{
-  if (is.vector(sw)) {
-    input <- sw
-    output <- sw
-  }
-  else {
-    input <- sw[,1:ncol(sw)-1]
-    output <- sw[,ncol(sw)]
-  }
-  return (list(input=input, output=output))
-} 
 
 # time series preprocessing
 
@@ -23,13 +11,12 @@ ts_preprocess <- function() {
   return(value)
 }
 
-
-ts_setup <- function(obj, x) {
+ts_normalize <- function(obj, x) {
   #x contains both input and output
-  UseMethod("ts_setup")
+  UseMethod("ts_normalize")
 }
 
-ts_setup.default <- function(obj, x) {
+ts_normalize.default <- function(obj, x) {
   if (is.vector(x)) 
     obj$sw_size <- 0
   else
@@ -37,25 +24,6 @@ ts_setup.default <- function(obj, x) {
   return(obj)
 }
 
-ts_normalize <- function(obj, x, arguments=NULL) {
-  # x can be either input matrix or output vector
-  UseMethod("ts_normalize")
-}
-
-ts_normalize.default <- function(obj, x, arguments=NULL) {
-  # x can be either input matrix or output vector
-  return(list(x=x,arguments=NULL))
-}
-
-ts_denormalize <- function(obj, x, arguments=NULL) {
-  # x can be either input matrix or output vector
-  UseMethod("ts_denormalize")
-}
-
-ts_denormalize.default <- function(obj, x, arguments=NULL) {
-  # x can be either input matrix or output vector
-  return(list(x=x,arguments=NULL))
-}
 
 # classe ts_gminmax
 
@@ -68,8 +36,8 @@ ts_gminmax <- function() {
   return(value)
 }
 
-ts_setup.ts_gminmax <- function(obj, x) {
-  obj <- ts_setup.default(obj, x)
+ts_normalize.ts_gminmax <- function(obj, x) {
+  obj <- ts_normalize.default(obj, x)
   
   x <- action(outliers(x))   
   
@@ -128,8 +96,8 @@ ts_diff <- function(x) {
   return(x)
 }
 
-ts_setup.ts_gminmax_diff <- function(obj, x) {
-  obj <- ts_setup.default(obj, x)
+ts_normalize.ts_gminmax_diff <- function(obj, x) {
+  obj <- ts_normalize.default(obj, x)
   
   x <- ts_diff(x)
   
@@ -198,14 +166,14 @@ ts_swminmax <- function() {
   return(value)
 }
 
-ts_setup.ts_swminmax <- function(obj, x) {
+ts_normalize.ts_swminmax <- function(obj, x) {
   valid_range <- function(x, alpha=1.5) {
     q <- quantile(x)
     IQR <- q[4] - q[2]
     return(q[2] - alpha*IQR)
   }
   
-  obj <- ts_setup.default(obj, x)
+  obj <- ts_normalize.default(obj, x)
   
   x <- action(outliers(x))   
   
@@ -283,8 +251,8 @@ ts_add_inertia.default <- function(obj, x, an) {
   return(x * an)
 }
 
-ts_setup.ts_anminmax <- function(obj, x) {
-  obj <- ts_setup.default(obj, x)
+ts_normalize.ts_anminmax <- function(obj, x) {
+  obj <- ts_normalize.default(obj, x)
   
   an <- ts_inertia(obj, ts_sw_project(x)$input)
   x <- ts_remove_inertia(obj, x, an)

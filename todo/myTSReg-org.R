@@ -206,7 +206,7 @@ ts_swmodel <- function(preprocess, input_size) {
 ts_train.ts_swmodel <- function(obj, x) {
   set.seed(1)
   
-  obj$preprocess <- ts_setup(obj$preprocess, x)
+  obj$preprocess <- ts_normalize(obj$preprocess, x)
   
   io <- ts_sw_project(x)
   
