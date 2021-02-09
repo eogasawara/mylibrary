@@ -38,7 +38,7 @@ action.ts_data <- function(obj) {
   return(obj$data)
 }
 
-ts_length <- function(obj) {
+length.ts_data <- function(obj) {
   if (is.vector(obj$data))
     return(length(obj$data))
   else
@@ -53,11 +53,31 @@ ts_getdata <- function(obj, range) {
 }
 
 train_test.ts_data <- function(obj, test_size=NULL, offset=0) {
-  offset <- ts_length(obj)-test_size-offset
+  offset <-  length(obj)-test_size-offset
   obj$train <- ts_getdata(obj, 1:offset)
   obj$test <- ts_getdata(obj, (offset+1):(offset+test_size))
   return(obj)
 }
+
+sw_project <- function(obj) {
+  #x contains both input and output
+  UseMethod("sw_project")
+}
+
+sw_project.ts_data <- function(obj) 
+{
+  if (is.vector(obj$data)) {
+    input <- obj$data
+    output <- obj$data
+  }
+  else {
+    input <- obj$data[,1:ncol(obj$data)-1]
+    output <- obj$data[,ncol(obj$data)]
+  }
+  obj$input <- input
+  obj$output <- output
+  return(obj)
+} 
 
 unused.ts_data <- function(obj) {
   ts_as_matrix <- function(sw, size) {
