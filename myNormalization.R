@@ -1,6 +1,6 @@
 # version 1.0 
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
-
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myOutlier.R")
 
 # normalize normalization
 normalize <- function(data) {
@@ -68,7 +68,6 @@ deaction.minmax <- function(obj) {
   return (data)
 }
 
-
 # z-score normalization
 zscore <- function(data, nmean=0, nsd=1) {
   obj <- normalize(data)
@@ -114,7 +113,6 @@ action.zscore <- function(obj) {
   return (data)
 }
 
-
 deaction.zscore <- function(obj) {
   data <- obj$data
   zscore <- obj$norm.set
@@ -128,4 +126,67 @@ deaction.zscore <- function(obj) {
   }
   return (data)
 }
+
+# ts_normalize (base class)
+ts_normalize <- function(data, scale = FALSE) {
+  obj <- normalize(data)
+  obj$sw <- ncol(data)
+  obj$scale <- scale
+  obj$scale_factor <- 1
+  obj$scale_offset <- 0
+
+  class(obj) <- append("ts_normalize", class(obj))    
+  return(obj)
+}
+
+# ts_gminmax
+ts_gminmax <- function(data, scale = FALSE) {
+  obj <- ts_normalize(data, scale)
+  class(obj) <- append("ts_gminmax", class(obj))    
+  return(obj)
+}
+
+prepare.ts_gminmax <- function(obj) {
+  out <- outliers(obj$data)
+  out <- prepare(out)
+  obj$data <- action(out)
+  
+  io <- ts_projection(obj)
+
+  obj$gmin <- min(obj$data)
+  obj$gmax <- max(obj$data)
+  
+  if (obj$scale) {
+    swi_min <- apply(io$input, 1, min)
+    swi_max <- apply(io$input, 1, max)
+    
+    swio_min <- apply(obj$data, 1, min)
+    swio_max <- apply(obj$data, 1, max)
+    
+    ratio <- (swi_max-swi_min)/(swio_max-swio_min)
+    out <- outliers(ratio)
+    out <- prepare(out)
+    ratio <- action(out)
+    ratio <- mean(ratio)
+    
+    w <- (obj$gmax - obj$gmin)/(2*ratio)
+    c <- (obj$gmax + obj$gmin)/2
+    obj$gmax <- c + w
+    obj$gmin <- c - w
+  }
+  
+  return(obj)
+}
+
+action.ts_gminmax <- function(obj) {
+  data <- obj$scale_factor*(obj$data-obj$gmin)/(obj$gmax-obj$gmin) + obj$scale_offset
+  return(data)
+}
+
+deaction.ts_gminmax <- function(obj) {
+  data <- (obj$data - obj$scale_offset) * (obj$gmax-obj$gmin) + obj$gmin
+  return (data)
+}
+
+
 

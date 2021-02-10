@@ -13,18 +13,16 @@ prepare.outliers <- function(obj) {
   if(is.matrix(data) || is.data.frame(data)) {
     idx = rep(FALSE, nrow(data))
     org <- nrow(data)
-    data <- as.data.frame(data)
     if (org >= 30) {
-      isnumeric = (ifelse(sapply(data, is.numeric), TRUE, FALSE))
-      data <- data[,as.vector(isnumeric)]
-      q <- sapply(data, quantile, na.rm=TRUE)
-      n <- ncol(data)
-      for (i in 1:n)
-      {
-        IQR <- q[4,i] - q[2,i]
-        lq1 <- q[2,i] - obj$alpha*IQR
-        hq3 <- q[4,i] + obj$alpha*IQR
-        idx = idx | (!is.na(data[,i]) & (data[,i] < lq1 | data[,i] > hq3))
+      for (i in 1:ncol(data)) {
+        num <- is.numeric(data[,i])
+        if (num) {
+          q <- quantile(data[,i])
+          IQR <- q[4] - q[2]
+          lq1 <- q[2] - obj$alpha*IQR
+          hq3 <- q[4] + obj$alpha*IQR
+          idx = idx | (!is.na(data[,i]) & (data[,i] < lq1 | data[,i] > hq3))
+        }
       }
     }
     obj$idx <- idx
@@ -45,10 +43,10 @@ prepare.outliers <- function(obj) {
 
 action.outliers <- function(obj)
 {
-  if(is.matrix(obj$data) || is.data.frame(obj$data)) {
-    return(obj$data[!obj$idx,])
-  }
-  else {
+  if(is.matrix(obj$data))
+    return(as.matrix(obj$data[!obj$idx,]))
+  else if (is.data.frame(obj$data))
+    return(as.data.frame(obj$data[!obj$idx,]))
+  else 
     return(obj$data[!obj$idx])
-  } 
 }

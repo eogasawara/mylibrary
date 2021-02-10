@@ -16,6 +16,12 @@ test_sw <- function(x, sw) {
   sample <- train_test(sample)
   print(head(sample$train))
   
+  norm <- ts_gminmax(sample$train)
+  norm <- prepare(norm)
+  train <- action(norm)
+  print(head(train))
+  
+  ts$data <- train
   ts <- ts_projection(ts)
   print(head(ts$input))
 }
