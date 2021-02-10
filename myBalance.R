@@ -10,6 +10,10 @@ balance_dataset <- function(data, attribute) {
   return(obj)
 }
 
+balance <- function(obj) {
+  UseMethod("balance")
+}
+
 balance_oversampling <- function(data, attribute) {
   obj <- balance_dataset(data, attribute)
   class(obj) <- append("oversampling", class(obj))    
