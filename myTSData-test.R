@@ -10,20 +10,13 @@ x <- load_series("sin")
 
 test_sw <- function(x, sw) {
   ts <- ts_data(x, sw)
-  
-  ts <- prepare(ts)
-  
-  res <- action(ts)
-  
-  print(head(res))
+  print(head(ts$data))
   
   sample <- ts_sample(ts)
-  
   sample <- train_test(sample)
   print(head(sample$train))
   
-  ts <- ts_projection(ts$data)
-  ts <- prepare(ts)
+  ts <- ts_projection(ts)
   print(head(ts$input))
 }
 
