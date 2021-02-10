@@ -1,16 +1,23 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 
-mm <- minmax(iris)
-mm <- prepare(mm)
-iris.mm <- action(mm)
+
+test_norm <- function(obj) {
+  print(class(obj)[1])
+  obj <- prepare(obj)
+  obj$data <- action(obj)
+  print(head(obj$data))
+  
+  obj$data <- deaction(obj)
+  print(head(obj$data))
+}
 
 
-zs <- zscore(iris)
-zs <- prepare(zs)
-iris.zs <- action(zs)
+head(iris)
 
+test_norm(minmax(iris))
 
-zszo <- zscore(iris, nmean=0.5, nsd=0.5/2.698)
-zszo <- prepare(zszo)
-iris.zszo <- action(zszo)
+test_norm(zscore(iris))
+
+test_norm(zscore(iris, nmean=0.5, nsd=0.5/2.698))
+

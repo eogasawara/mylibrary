@@ -9,11 +9,11 @@ normalize <- function(data) {
   return(obj)
 }  
 
-denormalize <- function(obj) {
-  UseMethod("denormalize")
+deaction <- function(obj) {
+  UseMethod("deaction")
 }
 
-denormalize.default <- function(obj) {
+deaction.default <- function(obj) {
   return(obj)
 }
 
@@ -54,6 +54,21 @@ action.minmax <- function(obj) {
   return (data)
 }
 
+deaction.minmax <- function(obj) {
+  data <- obj$data
+  minmax <- obj$norm.set
+  for (j in colnames(minmax)[minmax["numeric",]==1]) {
+    if ((minmax["max", j] != minmax["min", j])) {
+      data[,j] = data[,j] * (minmax["max", j] - minmax["min", j]) + minmax["min", j]
+    }
+    else {
+      data[,j] = minmax["max", j]
+    }
+  }
+  return (data)
+}
+
+
 # z-score normalization
 zscore <- function(data, nmean=0, nsd=1) {
   obj <- normalize(data)
@@ -90,7 +105,22 @@ action.zscore <- function(obj) {
   zscore <- obj$norm.set
   for (j in colnames(zscore)[zscore["numeric",]==1]) {
     if ((zscore["sd", j]) > 0) {
-      data[,j] = ((data[,j] - zscore["mean", j]) / zscore["sd", j]) * zscore["nsd", j] + zscore["nmean", j]
+      data[,j] = (data[,j] - zscore["mean", j]) / zscore["sd", j] * zscore["nsd", j] + zscore["nmean", j]
+    }
+    else {
+      data[,j] = obj$nmean
+    }
+  }
+  return (data)
+}
+
+
+deaction.zscore <- function(obj) {
+  data <- obj$data
+  zscore <- obj$norm.set
+  for (j in colnames(zscore)[zscore["numeric",]==1]) {
+    if ((zscore["sd", j]) > 0) {
+      data[,j] = (data[,j] - zscore["nmean", j]) / zscore["nsd", j] * zscore["sd", j] + zscore["mean", j]
     }
     else {
       data[,j] = zscore["nmean", j]  
