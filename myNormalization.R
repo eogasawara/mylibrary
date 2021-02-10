@@ -1,9 +1,25 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
+
+# normalize normalization
+normalize <- function(data) {
+  obj <- rel_transform(data)
+  class(obj) <- append("normalize", class(obj))    
+  return(obj)
+}  
+
+denormalize <- function(obj) {
+  UseMethod("denormalize")
+}
+
+denormalize.default <- function(obj) {
+  return(obj)
+}
+
 # min-max normalization
 minmax <- function(data) {
-  obj <- rel_transform(data)
+  obj <- normalize(data)
   class(obj) <- append("minmax", class(obj))    
   return(obj)
 }  
@@ -40,7 +56,7 @@ action.minmax <- function(obj) {
 
 # z-score normalization
 zscore <- function(data, nmean=0, nsd=1) {
-  obj <- rel_transform(data)
+  obj <- normalize(data)
   obj$nmean <- nmean
   obj$nsd <- nsd
   class(obj) <- append("zscore", class(obj))    
@@ -82,3 +98,4 @@ action.zscore <- function(obj) {
   }
   return (data)
 }
+

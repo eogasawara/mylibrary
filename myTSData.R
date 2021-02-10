@@ -1,8 +1,12 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 ts_data <- function(data, sw=0) {
+  data <- as.matrix(data)
+  if(ncol(data)==1)
+    colnames(data) <- "t0"
+  else 
+    sw <- ncol(data)
   obj <- rel_transform(data)
   obj$sw <- sw
   
@@ -29,89 +33,30 @@ prepare.ts_data <- function(obj) {
   }
   data <- obj$data
   if(obj$sw > 1) {
-    obj$data <- ts_sw(as.matrix(obj$data), obj$sw)  
+    obj$data <- ts_sw(obj$data[,ncol(obj$data)], obj$sw)  
   }
   return(obj)
 }
 
 action.ts_data <- function(obj) {
-  return(obj$data)
-}
-
-length.ts_data <- function(obj) {
-  if (is.vector(obj$data))
-    return(length(obj$data))
+  if (ncol(obj$data)>1)
+    return(obj$data)
   else
-    return(nrow(obj$data))
+    return(obj$data[,1])
 }
 
-range_data <- function(obj, range) {
-  UseMethod("range_data")
-}
-
-range_data.ts_data <- function(obj, range) {
-  if (is.vector(obj$data))
-    return(obj$data[range])
-  else
-    return(obj$data[range,])
-}
-
-train_test.ts_data <- function(obj, test_size=NULL, offset=0) {
-  offset <- length(obj) - test_size - offset
-  train <- range_data(obj, 1:offset)
-  obj$test <- range_data(obj, (offset+1):(offset+test_size))
-  obj$data <- train
-  return(obj)
-}
-
-ts_prep_normalize <- function(obj) {
-  UseMethod("ts_normalize")
-}
-
-ts_prep_normalize.default <- function(obj) {
-  return(obj)
-}
-
-ts_normalize <- function(obj) {
-  UseMethod("ts_normalize")
-}
-
-ts_normalize.default <- function(obj) {
-  return(obj)
-}
-
-ts_denormalize <- function(obj) {
-  UseMethod("ts_denormalize")
-}
-
-ts_denormalize.default <- function(obj) {
-  return(obj)
-}
-
-sw_project <- function(obj) {
-  UseMethod("sw_project")
-}
-
-sw_project.ts_data <- function(obj) 
-{
-  if (is.vector(obj$data)) {
+#ts_projection
+ts_projection <- function(obj) {
+  if (ncol(obj$data)==1) {
     input <- obj$data
+    output <- NULL
   }
   else {
     input <- obj$data[,1:ncol(obj$data)-1]
     output <- obj$data[,ncol(obj$data)]
   }
-  obj$input <- input
-  obj$output <- output
+  obj <- list(input = input, output = output)
+  attr(obj, "class") <- "ts_projection"  
   return(obj)
-} 
-
-unused.ts_data <- function(obj) {
-  ts_as_matrix <- function(sw, size) {
-    sw <- data.frame(sw)
-    sw <- sw[, (ncol(sw)-size+1):ncol(sw)]
-    sw <- as.matrix(sw)
-    return(sw)
-  }
-  return(obj) 
 }
+

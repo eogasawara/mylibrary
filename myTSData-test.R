@@ -7,29 +7,26 @@ load_series <- function(name) {
 
 x <- load_series("sin")
 
-ts <- ts_data(x)
 
-ts <- prepare(ts)
+test_sw <- function(x, sw) {
+  ts <- ts_data(x, sw)
+  
+  ts <- prepare(ts)
+  
+  res <- action(ts)
+  
+  print(head(res))
+  
+  sample <- ts_sample(ts)
+  
+  sample <- train_test(sample)
+  print(head(sample$train))
+  
+  ts <- ts_projection(ts$data)
+  ts <- prepare(ts)
+  print(head(ts$input))
+}
 
-res <- action(ts)
+test_sw(x, 0)
 
-ts <- train_test(ts, test_size=10)
-
-ts <- sw_project(ts)
-
-print(res)
-
-
-
-ts <- ts_data(x, 10)
-
-ts <- prepare(ts)
-
-res <- action(ts)
-
-ts <- train_test(ts, test_size=10)
-
-ts <- sw_project(ts)
-
-print(res)
-
+test_sw(x, 10)
