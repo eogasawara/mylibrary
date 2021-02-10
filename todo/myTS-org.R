@@ -1,167 +1,8 @@
-# basic functions
-
-
-# time series preprocessing
-
-# classe ts_preprocess
-
-ts_preprocess <- function() {
-  value <- list(sw_size = NA, scale = 1, offset = 0, rescale = FALSE)
-  attr(value, "class") <- "ts_preprocess"
-  return(value)
-}
-
-ts_normalize <- function(obj, x) {
-  #x contains both input and output
-  UseMethod("ts_normalize")
-}
-
-ts_normalize.default <- function(obj, x) {
-  if (is.vector(x)) 
-    obj$sw_size <- 0
-  else
-    obj$sw_size <- ncol(x)
-  return(obj)
-}
-
-
-# classe ts_gminmax
-
-ts_gminmax <- function() {
-  value <- ts_preprocess()
-  value$gmin <- NaN
-  value$gmax <- NaN
-  value$rescale <- TRUE
-  class(value) <- append("ts_gminmax", class(value))  
-  return(value)
-}
-
-ts_normalize.ts_gminmax <- function(obj, x) {
-  obj <- ts_normalize.default(obj, x)
-  
-  x <- action(outliers(x))   
-  
-  io <- ts_sw_project(x)
-  
-  obj$gmin <- min(x)
-  obj$gmax <- max(x)
-  
-  if (obj$rescale) {
-    swi_min <- apply(io$input, 1, min)
-    swi_max <- apply(io$input, 1, max)
-    
-    swio_min <- apply(x, 1, min)
-    swio_max <- apply(x, 1, max)
-    
-    ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    ratio <- action(outliers(ratio))
-    ratio <- mean(ratio)
-    
-    w <- (obj$gmax - obj$gmin)/(2*ratio)
-    c <- (obj$gmax + obj$gmin)/2
-    obj$gmax <- c + w
-    obj$gmin <- c - w
-  }
-  
-  return(obj)
-}
-
-ts_normalize.ts_gminmax <- function(obj, x, arguments=NULL) {
-  # x can be either input matrix or output vector
-  return (list(x = obj$scale*(x-obj$gmin)/(obj$gmax-obj$gmin) + obj$offset, arguments = NULL))
-}
-
-ts_denormalize.ts_gminmax <- function(obj, x, arguments=NULL) {
-  # x can be either input matrix or output vector
-  return (list(x=((x - obj$offset) * (obj$gmax-obj$gmin) + obj$gmin), arguments=NULL))
-}
-
-# classe ts_diff
-
-ts_gminmax_diff <- function() {
-  value <- ts_preprocess()
-  value$gmin <- NaN
-  value$gmax <- NaN
-  value$rescale <- TRUE
-  class(value) <- append("ts_gminmax_diff", class(value))  
-  return(value)
-}
-
-ts_diff <- function(x) {
-  isvector <- !(is.matrix(x) || is.data.frame(x))
-  if(isvector) {
-    x <- ts_sw(x,2)
-  }
-  x <- x[,2:ncol(x)] - x[,1:(ncol(x)-1)]
-  return(x)
-}
-
-ts_normalize.ts_gminmax_diff <- function(obj, x) {
-  obj <- ts_normalize.default(obj, x)
-  
-  x <- ts_diff(x)
-  
-  x <- action(outliers(x))   
-  
-  io <- ts_sw_project(x)
-  
-  obj$gmin <- min(x)
-  obj$gmax <- max(x)
-  
-  if (obj$rescale) {
-    swi_min <- apply(io$input, 1, min)
-    swi_max <- apply(io$input, 1, max)
-    
-    swio_min <- apply(x, 1, min)
-    swio_max <- apply(x, 1, max)
-    
-    ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    ratio <- action(outliers(ratio))
-    ratio <- mean(ratio)
-    
-    obj$offset <- obj$offset + (1 - ratio) * obj$scale / 2
-    obj$scale <- obj$scale * ratio
-  }
-  
-  return(obj)
-}
-
-ts_normalize.ts_gminmax_diff <- function(obj, x, arguments=NULL) {
-  # x can be either input matrix or output vector
-  if (is.vector(x)) {
-    ref <- arguments$ref
-    x <- x - ref
-  }
-  else {
-    ref <- x[,ncol(x)]
-    x <- ts_diff(x)
-  }
-  x <- obj$scale*(x-obj$gmin)/(obj$gmax-obj$gmin) + obj$offset
-  return (list(x=x, arguments=list(ref=ref)))
-}
-
-ts_denormalize.ts_gminmax_diff <- function(obj, x, arguments=NULL) {
-  # x can be either input matrix or output vector
-  x <- (x - obj$offset) * (obj$gmax-obj$gmin) / obj$scale + obj$gmin
-  if (is.vector(x)) {
-    ref <- arguments$ref
-    x <- x + ref
-  }
-  else {
-    ref <- arguments$ref
-    x <- cbind(x, arguments$ref)
-    for (i in (ncol(x)-1):1) {
-      x[,i] <- x[,i+1]-x[,i]
-    }
-  }
-  return (list(x=x, arguments=list(ref=ref)))
-}
-
 # classe ts_swminmax
 
 ts_swminmax <- function() {
   value <- ts_preprocess()
-  value$rescale <- TRUE
+  value$scale <- TRUE
   class(value) <- append("ts_swminmax", class(value))  
   return(value)
 }
@@ -179,7 +20,7 @@ ts_normalize.ts_swminmax <- function(obj, x) {
   
   io <- ts_sw_project(x)
   
-  if (obj$rescale) {
+  if (obj$scale) {
     swi_min <- apply(io$input, 1, min)
     swi_max <- apply(io$input, 1, max)
     
@@ -189,8 +30,8 @@ ts_normalize.ts_swminmax <- function(obj, x) {
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
     ratio <- action(outliers(ratio))
     ratio <- valid_range(ratio)
-    obj$offset <- obj$offset + (1 - ratio) * obj$scale / 2
-    obj$scale <- obj$scale * ratio
+    obj$scale_offset <- obj$scale_offset + (1 - ratio) * obj$scale_factor / 2
+    obj$scale_factor <- obj$scale_factor * ratio
   }
   
   return(obj)
@@ -206,12 +47,12 @@ ts_normalize.ts_swminmax <- function(obj, x, arguments=NULL) {
     i_min <- apply(x, 1, min)
     i_max <- apply(x, 1, max)
   }
-  return (list(x=obj$scale*(x-i_min)/(i_max-i_min) + obj$offset, arguments=list(i_min=i_min, i_max=i_max)))
+  return (list(x=obj$scale_factor*(x-i_min)/(i_max-i_min) + obj$scale_offset, arguments=list(i_min=i_min, i_max=i_max)))
 }
 
 ts_denormalize.ts_swminmax <- function(obj, x, arguments=NULL) {
   # x can be either input matrix or output vector
-  x <- (x - obj$offset) * (arguments$i_max - arguments$i_min) / obj$scale + arguments$i_min
+  x <- (x - obj$scale_offset) * (arguments$i_max - arguments$i_min) / obj$scale_factor + arguments$i_min
   return (list(x=x, arguments=arguments))
 }
 
@@ -221,7 +62,7 @@ ts_anminmax <- function() {
   value <- ts_preprocess()
   value$gmin <- NA
   value$gmax <- NA
-  value$rescale <- TRUE
+  value$scale <- TRUE
   class(value) <- append("ts_anminmax", class(value))  
   return(value)  
 }
@@ -265,11 +106,11 @@ ts_normalize.ts_anminmax <- function(obj, x) {
   obj$gmin <- min(io$input)
   obj$gmax <- max(io$input)
   
-  if (obj$rescale) {
+  if (obj$scale) {
     ratio <- (obj$gmax-obj$gmin)/(max(x)-min(x))
     
-    obj$offset <- obj$offset + (1 - ratio) * obj$scale / 2
-    obj$scale <- obj$scale * ratio
+    obj$scale_offset <- obj$scale_offset + (1 - ratio) * obj$scale_factor / 2
+    obj$scale_factor <- obj$scale_factor * ratio
   }
   return(obj)
 }
@@ -284,12 +125,12 @@ ts_normalize.ts_anminmax <- function(obj, x, arguments=NULL) {
     an <- ts_inertia(obj, x)
     x <- ts_remove_inertia(obj, x, an)
   }
-  return (list(x=obj$scale*(x - obj$gmin)/(obj$gmax - obj$gmin) + obj$offset, arguments=list(an=an)))
+  return (list(x=obj$scale_factor*(x - obj$gmin)/(obj$gmax - obj$gmin) + obj$scale_offset, arguments=list(an=an)))
 }
 
 ts_denormalize.ts_anminmax <- function(obj, x, arguments=NULL) {
   # x can be either input matrix or output vector
-  x <- (x - obj$offset) * (obj$gmax - obj$gmin) / (obj$scale) + obj$gmin
+  x <- (x - obj$scale_offset) * (obj$gmax - obj$gmin) / (obj$scale_factor) + obj$gmin
   x <- ts_add_inertia(obj, x, arguments$an)
   return (list(x=x, arguments=arguments))
 }
@@ -300,7 +141,7 @@ ts_animinmax <- function() {
   value <- ts_anminmax()
   value$gmin <- NA
   value$gmax <- NA
-  value$rescale <- TRUE
+  value$scale <- TRUE
   class(value) <- append("ts_animinmax", class(value))  
   return(value)  
 }
@@ -317,7 +158,7 @@ ts_aneminmax <- function() {
   value <- ts_anminmax()
   value$gmin <- NA
   value$gmax <- NA
-  value$rescale <- TRUE
+  value$scale <- TRUE
   class(value) <- append("ts_aneminmax", class(value))  
   return(value)  
 }

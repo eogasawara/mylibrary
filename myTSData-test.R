@@ -23,7 +23,7 @@ test_sw <- function(x, sw, norm) {
   
   norm$data <- sample$train
   norm <- prepare(norm)
-  norm <- action(norm)
+  norm <- action(norm, x)
   print("normalized data")
   print(head(norm$data))
   
@@ -39,7 +39,7 @@ test_sw <- function(x, sw, norm) {
   
 }
 
-test_sw(x, 0, ts_gminmax())
-test_sw(x, 10, ts_gminmax())
-test_sw(x, 0, ts_gminmax_diff())
-test_sw(x, 10, ts_gminmax_diff())
+#test_sw(x, 0, ts_gminmax())
+test_sw(x, 10, ts_swminmax())
+#test_sw(x, 0, ts_gminmax_diff())
+#test_sw(x, 10, ts_gminmax_diff())

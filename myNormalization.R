@@ -9,7 +9,7 @@ normalize <- function() {
   return(obj)
 }  
 
-deaction <- function(obj) {
+deaction <- function(obj, ...) {
   UseMethod("deaction")
 }
 
@@ -244,3 +244,61 @@ deaction.ts_gminmax_diff <- function(obj) {
   obj$data <- rbind(obj$ref[1, ], obj$data + obj$ref)
   return (obj)
 }
+
+#ts_swminmax
+ts_swminmax <- function(scale = FALSE) {
+  obj <- ts_normalize(scale)
+  class(obj) <- append("ts_swminmax", class(obj))    
+  return(obj)
+}
+
+prepare.ts_swminmax <- function(obj) {
+  data <- adjust.matrix(obj$data[2:nrow(obj$data),]-obj$data[1:(nrow(obj$data)-1),])
+  
+  out <- outliers(data)
+  out <- prepare(out)
+  data <- action(out)
+  obj$data <- adjust.matrix(obj$data[!c(FALSE, out$idx),])
+  
+  obj$gmin <- min(data)
+  obj$gmax <- max(data)
+  
+  if (obj$scale) {
+    io <- ts_projection(obj)
+    
+    swi_min <- apply(io$input, 1, min)
+    swi_max <- apply(io$input, 1, max)
+    
+    swio_min <- apply(data, 1, min)
+    swio_max <- apply(data, 1, max)
+    
+    ratio <- (swi_max-swi_min)/(swio_max-swio_min)
+    out <- outliers(ratio)
+    out <- prepare(out)
+    ratio <- action(out)
+    ratio <- mean(ratio)
+    
+    w <- (obj$gmax - obj$gmin)/(2*ratio)
+    c <- (obj$gmax + obj$gmin)/2
+    obj$gmax <- c + w
+    obj$gmin <- c - w
+  }
+  
+  return(obj)
+}
+
+action.ts_swminmax <- function(obj, x=NULL) {
+  obj$ref <- adjust.matrix(obj$data[1:(nrow(obj$data)-1),])
+  obj$data <- adjust.matrix(obj$data[2:nrow(obj$data),]-obj$ref)
+  obj$data <- (obj$data-obj$gmin)/(obj$gmax-obj$gmin)
+  return(obj)
+}
+
+deaction.ts_swminmax <- function(obj, x=NULL) {
+  obj$data <- obj$data * (obj$gmax-obj$gmin) + obj$gmin
+  obj$data <- rbind(obj$ref[1, ], obj$data + obj$ref)
+  return (obj)
+}
+
+
+

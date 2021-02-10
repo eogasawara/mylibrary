@@ -22,7 +22,7 @@ obj_transform <- function(data) {
   return(obj)
 }
 
-action <- function(obj) {
+action <- function(obj, ...) {
   UseMethod("action")
 }
 
@@ -34,7 +34,7 @@ action.obj_transform <- function(obj) {
   return(obj$data)
 }
 
-prepare <- function(obj) {
+prepare <- function(obj, ...) {
   UseMethod("prepare")
 }
 
@@ -46,7 +46,7 @@ optimize <- function(obj, ...) {
   UseMethod("optimize")
 }
 
-optimize.default <- function(obj, ...) {
+optimize.default <- function(obj) {
   return(obj)
 }
 
