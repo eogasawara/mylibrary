@@ -95,7 +95,7 @@ prepare.zscore <- function(obj) {
     zscore["nsd",j] <- nsd
   }
   obj$norm.set <- zscore
-  
+
   return(obj)  
 }
 
@@ -179,14 +179,68 @@ prepare.ts_gminmax <- function(obj) {
 }
 
 action.ts_gminmax <- function(obj) {
-  data <- obj$scale_factor*(obj$data-obj$gmin)/(obj$gmax-obj$gmin) + obj$scale_offset
-  return(data)
+  obj$data <- obj$scale_factor*(obj$data-obj$gmin)/(obj$gmax-obj$gmin) + obj$scale_offset
+  return(obj)
 }
 
 deaction.ts_gminmax <- function(obj) {
-  data <- (obj$data - obj$scale_offset) * (obj$gmax-obj$gmin) + obj$gmin
-  return (data)
+  obj$data <- (obj$data - obj$scale_offset) * (obj$gmax-obj$gmin) + obj$gmin
+  return (obj)
 }
+
+#ts_gminmax_diff
+ts_gminmax_diff <- function(data, scale = FALSE) {
+  obj <- ts_normalize(data, scale)
+  class(obj) <- append("ts_gminmax_diff", class(obj))    
+  return(obj)
+}
+
+prepare.ts_gminmax_diff <- function(obj) {
+  obj$data <- obj$data[2:nrow(obj$data),]-obj$data[1:(nrow(obj$data)-1),]
+  
+  out <- outliers(obj$data)
+  out <- prepare(out)
+  obj$data <- action(out)
+  
+  io <- ts_projection(obj)
+  
+  obj$gmin <- min(obj$data)
+  obj$gmax <- max(obj$data)
+
+  if (obj$scale) {
+    swi_min <- apply(io$input, 1, min)
+    swi_max <- apply(io$input, 1, max)
+    
+    swio_min <- apply(obj$data, 1, min)
+    swio_max <- apply(obj$data, 1, max)
+    
+    ratio <- (swi_max-swi_min)/(swio_max-swio_min)
+    out <- outliers(ratio)
+    out <- prepare(out)
+    ratio <- action(out)
+    ratio <- mean(ratio)
+    
+    obj$scale_offset <- obj$scale_offset + (1 - ratio) / 2
+    obj$scale_factor <- ratio
+  }
+  
+  return(obj)
+}
+
+action.ts_gminmax_diff <- function(obj) {
+  obj$ref <- obj$data[1,]
+  obj$data <- obj$data[2:nrow(obj$data),]-obj$data[1:(nrow(obj$data)-1),]
+  obj$data <- obj$scale_factor*(obj$data-obj$gmin)/(obj$gmax-obj$gmin) + obj$scale_offset
+  return(obj)
+}
+
+deaction.ts_gminmax_diff <- function(obj) {
+  obj$data <- (obj$data - obj$scale_offset) * (obj$gmax-obj$gmin) + obj$gmin
+  obj$data <- obj$data+obj$ref
+  obj$data <- rbind(obj$ref, obj$data)
+  return (obj)
+}
+
 
 
 

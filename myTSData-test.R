@@ -16,15 +16,14 @@ test_sw <- function(x, sw) {
   sample <- train_test(sample)
   print(head(sample$train))
   
-  norm <- ts_gminmax(sample$train)
+  norm <- ts_gminmax_diff(sample$train)
   norm <- prepare(norm)
-  train <- action(norm)
-  print(head(train))
-  norm$data <- train
-  traini <- deaction(norm)
-  print(head(traini))
+  norm <- action(norm)
+  print(head(norm$data))
+  normd <- deaction(norm)
+  print(head(normd$data))
   
-  ts$data <- train
+  ts$data <- norm$data
   ts <- ts_projection(ts)
   print(head(ts$input))
 }
