@@ -20,7 +20,7 @@ balance.default <- function(obj) {
 
 balance_oversampling <- function(data, attribute) {
   obj <- balance_dataset(data, attribute)
-  class(obj) <- append("oversampling", class(obj))    
+  class(obj) <- append("balance_oversampling", class(obj))    
   return(obj)
 }
 
@@ -54,7 +54,7 @@ balance.balance_oversampling <- function(obj) {
 
 balance_subsampling <- function(data, attribute) {
   obj <- balance_dataset(data, attribute)
-  class(obj) <- append("subsampling", class(obj))    
+  class(obj) <- append("balance_subsampling", class(obj))    
   return(obj)
 }
 
