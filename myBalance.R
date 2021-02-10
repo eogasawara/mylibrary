@@ -14,6 +14,10 @@ balance <- function(obj) {
   UseMethod("balance")
 }
 
+balance.default <- function(obj) {
+  return(obj)
+}
+
 balance_oversampling <- function(data, attribute) {
   obj <- balance_dataset(data, attribute)
   class(obj) <- append("oversampling", class(obj))    
