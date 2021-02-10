@@ -93,8 +93,8 @@ train_test.ts_sample <- function(obj, test_size=1, offset=0) {
   obj$train <- obj$data[1:offset, ]
   obj$test <- obj$data[(offset+1):(offset+test_size),]
   if (ncol(obj$data) == 1) {
-    obj$train <- as.matrix(obj$train)
-    obj$test <- as.matrix(obj$test)
+    obj$train <- adjust.matrix(obj$train)
+    obj$test <- adjust.matrix(obj$test)
   }
   return (obj)
 }

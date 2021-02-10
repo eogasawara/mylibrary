@@ -44,9 +44,9 @@ prepare.outliers <- function(obj) {
 action.outliers <- function(obj)
 {
   if(is.matrix(obj$data))
-    return(as.matrix(obj$data[!obj$idx,]))
+    return(adjust.matrix(obj$data[!obj$idx,]))
   else if (is.data.frame(obj$data))
-    return(as.data.frame(obj$data[!obj$idx,]))
+    return(adjust.data.frame(obj$data[!obj$idx,]))
   else 
     return(obj$data[!obj$idx])
 }

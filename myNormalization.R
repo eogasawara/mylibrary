@@ -196,7 +196,7 @@ ts_gminmax_diff <- function(data, scale = FALSE) {
 }
 
 prepare.ts_gminmax_diff <- function(obj) {
-  obj$data <- obj$data[2:nrow(obj$data),]-obj$data[1:(nrow(obj$data)-1),]
+  obj$data <- adjust.matrix(obj$data[2:nrow(obj$data),]-obj$data[1:(nrow(obj$data)-1),])
   
   out <- outliers(obj$data)
   out <- prepare(out)
@@ -228,16 +228,15 @@ prepare.ts_gminmax_diff <- function(obj) {
 }
 
 action.ts_gminmax_diff <- function(obj) {
-  obj$ref <- obj$data[1,]
-  obj$data <- obj$data[2:nrow(obj$data),]-obj$data[1:(nrow(obj$data)-1),]
+  obj$ref <- adjust.matrix(obj$data[1:(nrow(obj$data)-1),])
+  obj$data <- adjust.matrix(obj$data[2:nrow(obj$data),]-obj$ref)
   obj$data <- obj$scale_factor*(obj$data-obj$gmin)/(obj$gmax-obj$gmin) + obj$scale_offset
   return(obj)
 }
 
 deaction.ts_gminmax_diff <- function(obj) {
   obj$data <- (obj$data - obj$scale_offset) * (obj$gmax-obj$gmin) + obj$gmin
-  obj$data <- obj$data+obj$ref
-  obj$data <- rbind(obj$ref, obj$data)
+  obj$data <- rbind(adjust.matrix(obj$ref[1, ]), obj$data + obj$ref)
   return (obj)
 }
 

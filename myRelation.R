@@ -75,8 +75,6 @@ register_log.default <- function(obj, msg = "") {
   return(obj)
 }
 
-
-
 rel_transform <- function(data) {
   obj <- obj_transform(data)
   class(obj) <- append("rel_transform", class(obj))    
@@ -87,5 +85,21 @@ atr_transform <- function(data) {
   obj <- obj_transform(data)
   class(obj) <- append("atr_transform", class(obj))    
   return(obj)
+}
+
+adjust.matrix <- function(data) {
+  if(!is.matrix(data)) {
+    return(as.matrix(data))
+  }
+  else
+    return(data)
+}
+
+adjust.data.frame <- function(data) {
+  if(!is.data.frame(data)) {
+    return(as.data.frame(data))
+  }
+  else
+    return(data)
 }
 
