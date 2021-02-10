@@ -20,6 +20,9 @@ test_sw <- function(x, sw) {
   norm <- prepare(norm)
   train <- action(norm)
   print(head(train))
+  norm$data <- train
+  traini <- deaction(norm)
+  print(head(traini))
   
   ts$data <- train
   ts <- ts_projection(ts)
