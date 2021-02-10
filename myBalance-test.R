@@ -9,12 +9,12 @@ myiris <- iris[c(1:20,51:100, 110:120),]
 table(myiris$Species)
 
 bo <- balance_oversampling(myiris, "Species")
-myiris.bo <- action(bo)
+bo <- balance(bo)
 
 bs <- balance_subsampling(myiris, "Species")
-myiris.bs <- action(bs)
+bs <- balance(bs)
 
-tbl <- rbind(table(myiris$Species), table(myiris.bo$Species), table(myiris.bs$Species))
+tbl <- rbind(table(myiris$Species), table(bo$data$Species), table(bs$data$Species))
 rownames(tbl) <- c('unbalanced', 'oversampling', 'subsampling')
 head(tbl)
 

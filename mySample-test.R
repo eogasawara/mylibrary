@@ -16,7 +16,8 @@ table(sr$train$Species)
 # distribution of test
 table(sr$test$Species)
 
-# sampling dataset into four folds
+# preparing dataset into four folds
+sr <- sample_random(iris)
 sr <- k_fold(sr, 4)
 
 # distribution of folds
@@ -39,7 +40,8 @@ table(ss$train$Species)
 # distribution of test
 table(ss$test$Species)
 
-# sampling dataset into four folds
+# preparing dataset to create four-folds
+ss <- sample_stratified(iris, "Species")
 ss <- k_fold(ss, 4)
 
 # distribution of folds

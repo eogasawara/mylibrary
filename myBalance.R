@@ -1,18 +1,22 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
-
 #class oversampling
 loadlibrary("DMwR")
 
+balance_dataset <- function(data, attribute) {
+  obj <- list(data=data, attribute=attribute)
+  class(obj) <- append("balance_dataset", class(obj))    
+  return(obj)
+}
+
 balance_oversampling <- function(data, attribute) {
-  obj <- rel_transform(data)
-  obj$attribute <- attribute
+  obj <- balance_dataset(data, attribute)
   class(obj) <- append("oversampling", class(obj))    
   return(obj)
 }
 
-action.balance_oversampling <- function(obj) {
+balance.balance_oversampling <- function(obj) {
   data <- obj$data
   attribute <- obj$attribute
   
@@ -36,17 +40,17 @@ action.balance_oversampling <- function(obj) {
   curdata = data[data[,attribute]==mainclass,]
   newdata = rbind(newdata, curdata)
   newdata[,attribute] <- as.factor(newdata[,attribute])
-  return(newdata)
+  obj$data <- newdata
+  return(obj)
 }
 
 balance_subsampling <- function(data, attribute) {
-  obj <- rel_transform(data)
-  obj$attribute <- attribute
+  obj <- balance_dataset(data, attribute)
   class(obj) <- append("subsampling", class(obj))    
   return(obj)
 }
 
-action.balance_subsampling <- function(obj) {
+balance.balance_subsampling <- function(obj) {
   data <- obj$data
   attribute <- obj$attribute
   x <- sort((table(data[,attribute]))) 
@@ -58,6 +62,6 @@ action.balance_subsampling <- function(obj) {
     curdata = curdata[idx,]
     newdata = rbind(newdata, curdata)
   }
-  return(newdata)
+  obj$data <- newdata
+  return(obj)
 }
-
