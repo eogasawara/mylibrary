@@ -82,20 +82,3 @@ train_test.sample_stratified <- function(obj, perc=0.8) {
   return (obj)
 }
 
-ts_sample <- function(obj) {
-  obj <- data_sample(obj$data)
-  class(obj) <- append("ts_sample", class(obj))  
-  return(obj)
-}
-
-train_test.ts_sample <- function(obj, test_size=1, offset=0) {
-  offset <- nrow(obj$data) - test_size - offset
-  obj$train <- obj$data[1:offset, ]
-  obj$test <- obj$data[(offset+1):(offset+test_size),]
-  if (ncol(obj$data) == 1) {
-    obj$train <- adjust.matrix(obj$train)
-    obj$test <- adjust.matrix(obj$test)
-  }
-  return (obj)
-}
-

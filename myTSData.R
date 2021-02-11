@@ -1,5 +1,5 @@
 # version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
 ts_data <- function(data, sw=0) {
   ts_sw <- function(x, sw_size) {
@@ -31,17 +31,41 @@ ts_data <- function(data, sw=0) {
 }
 
 #ts_projection
-ts_projection <- function(obj) {
-  if (ncol(obj$data) == 1) {
-    input <- obj$data
+ts_sample <- function(ts, test_size=1, offset=0) {
+  train <- ts
+  test <- ts
+  
+  offset <- nrow(ts$data) - test_size - offset
+  train$data <- ts$data[1:offset, ]
+  test$data <- ts$data[(offset+1):(offset+test_size),]
+  if (ncol(ts$data) == 1) {
+    train$data <- adjust.matrix(train$data)
+    colnames(train$data) <- colnames(ts$data)
+    test$data <- adjust.matrix(test$data)
+    colnames(test$data) <- colnames(ts$data)
+  }
+  
+  samp <- list(train = train, test = test)
+  attr(samp, "class") <- "ts_sample"  
+  return(samp)
+}
+
+
+#ts_projection
+ts_projection <- function(ts) {
+  input <- ts
+  output <- ts
+  
+  if (ncol(ts$data) == 1) {
+    input$data <- ts$data
     output <- NULL
   }
   else {
-    input <- obj$data[,1:ncol(obj$data)-1]
-    output <- obj$data[,ncol(obj$data)]
+    input$data <- ts$data[,1:ncol(ts$data)-1]
+    output$data <- ts$data[,ncol(ts$data)]
   }
-  obj <- list(input = input, output = output)
-  attr(obj, "class") <- "ts_projection"  
-  return(obj)
+  
+  proj <- list(input = input, output = output)
+  attr(proj, "class") <- "ts_projection"  
+  return(proj)
 }
-

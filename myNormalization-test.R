@@ -4,13 +4,12 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormaliz
 
 test_norm <- function(data, norm) {
   print(class(norm)[1])
-  norm$data <- data
-  norm <- prepare(norm)
-  norm <- action(norm)
-  print(head(norm$data))
+  norm <- prepare(norm, data)
+  ndata <- action(norm, data)
+  print(head(ndata))
   
-  norm <- deaction(norm)
-  print(head(norm$data))
+  ddata <- deaction(norm, ndata)
+  print(head(ddata))
 }
 
 

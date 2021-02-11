@@ -1,6 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSData.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
-
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSData.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
@@ -16,30 +14,40 @@ test_sw <- function(x, sw, norm) {
   print("org data")
   print(head(ts$data))
   
-  sample <- ts_sample(ts)
-  sample <- train_test(sample)
+  samp <- ts_sample(ts)
   print("sample data")
-  print(head(sample$train))
+  print(head(samp$train$data))
   
-  norm$data <- sample$train
-  norm <- prepare(norm)
-  norm <- action(norm, x)
-  print("normalized data")
-  print(head(norm$data))
+  norm <- prepare(norm, samp$train$data)
   
-  tsproj <- ts
-  tsproj$data <- norm$data
-  tsproj <- ts_projection(tsproj)
-  print("projection of normalized data")
-  print(head(tsproj$input))
-
-  norm <- deaction(norm)
-  print("denormalized data")
-  print(head(norm$data))
+  proj <- ts_projection(samp$train)
   
+  ninput <- action(norm, proj$input$data)
+  print("normalized input")
+  print(head(ninput))
+  
+  if (!is.null(proj$output)) {
+    noutput <- action(norm, ninput, proj$output$data)
+    print("normalized output")
+    print(head(noutput))
+  }
+  plot(ninput)
+  
+  dinput <- deaction(norm, ninput)
+  print("denormalized input")
+  print(head(dinput))
+  
+  if (!is.null(proj$output)) {
+    doutput <- deaction(norm, dinput, noutput)
+    print("denormalized output")
+    print(head(doutput))
+  }
+  plot(dinput)
 }
 
-#test_sw(x, 0, ts_gminmax())
-test_sw(x, 10, ts_swminmax())
-#test_sw(x, 0, ts_gminmax_diff())
-#test_sw(x, 10, ts_gminmax_diff())
+#test_sw(x, 0, ts_gminmax(scale=TRUE))
+#test_sw(x, 10, ts_gminmax(scale=TRUE))
+#test_sw(x, 0, ts_gminmax_diff(scale=TRUE))
+#test_sw(x, 10, ts_gminmax_diff(scale=TRUE))
+#test_sw(x, 10, ts_swminmax(scale=TRUE))
+test_sw(x, 10, ts_an())

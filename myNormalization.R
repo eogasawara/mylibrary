@@ -24,8 +24,7 @@ minmax <- function() {
   return(obj)
 }  
 
-prepare.minmax <- function(obj) {
-  data <- obj$data
+prepare.minmax <- function(obj, data) {
   minmax = data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
   minmax = rbind(minmax, rep(NA, ncol(minmax)))
   minmax = rbind(minmax, rep(NA, ncol(minmax)))
@@ -40,8 +39,7 @@ prepare.minmax <- function(obj) {
   return(obj)
 }
 
-action.minmax <- function(obj) {
-  data <- obj$data
+action.minmax <- function(obj, data) {
   minmax <- obj$norm.set
   for (j in colnames(minmax)[minmax["numeric",]==1]) {
     if ((minmax["max", j] != minmax["min", j])) {
@@ -51,12 +49,10 @@ action.minmax <- function(obj) {
       data[,j] = 0
     }
   }
-  obj$data <- data
-  return (obj)
+  return (data)
 }
 
-deaction.minmax <- function(obj) {
-  data <- obj$data
+deaction.minmax <- function(obj, data) {
   minmax <- obj$norm.set
   for (j in colnames(minmax)[minmax["numeric",]==1]) {
     if ((minmax["max", j] != minmax["min", j])) {
@@ -66,8 +62,7 @@ deaction.minmax <- function(obj) {
       data[,j] = minmax["max", j]
     }
   }
-  obj$data <- data
-  return (obj)
+  return (data)
 }
 
 # z-score normalization
@@ -79,8 +74,7 @@ zscore <- function(nmean=0, nsd=1) {
   return(obj)
 }  
 
-prepare.zscore <- function(obj) {
-  data <- obj$data
+prepare.zscore <- function(obj, data) {
   nmean <- obj$nmean
   nsd <- obj$nsd
   zscore = data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
@@ -101,8 +95,7 @@ prepare.zscore <- function(obj) {
   return(obj)  
 }
 
-action.zscore <- function(obj) {
-  data <- obj$data
+action.zscore <- function(obj, data) {
   zscore <- obj$norm.set
   for (j in colnames(zscore)[zscore["numeric",]==1]) {
     if ((zscore["sd", j]) > 0) {
@@ -112,12 +105,10 @@ action.zscore <- function(obj) {
       data[,j] = obj$nmean
     }
   }
-  obj$data <- data
-  return (obj)
+  return (data)
 }
 
-deaction.zscore <- function(obj) {
-  data <- obj$data
+deaction.zscore <- function(obj, data) {
   zscore <- obj$norm.set
   for (j in colnames(zscore)[zscore["numeric",]==1]) {
     if ((zscore["sd", j]) > 0) {
@@ -127,14 +118,12 @@ deaction.zscore <- function(obj) {
       data[,j] = zscore["nmean", j]  
     }
   }
-  obj$data <- data
-  return (obj)
+  return (data)
 }
 
 # ts_normalize (base class)
 ts_normalize <- function(scale = FALSE) {
   obj <- normalize()
-  obj$sw <- ncol(data)
   obj$scale <- scale
 
   class(obj) <- append("ts_normalize", class(obj))    
@@ -148,22 +137,22 @@ ts_gminmax <- function(scale = FALSE) {
   return(obj)
 }
 
-prepare.ts_gminmax <- function(obj) {
-  out <- outliers(obj$data)
+prepare.ts_gminmax <- function(obj, data) {
+  out <- outliers(data)
   out <- prepare(out)
-  obj$data <- action(out)
+  data <- action(out)
   
-  obj$gmin <- min(obj$data)
-  obj$gmax <- max(obj$data)
+  obj$gmin <- min(data)
+  obj$gmax <- max(data)
   
-  if (obj$scale) {
-    io <- ts_projection(obj)
+  if (obj$scale && (ncol(data) > 1)) {
+    input <- data[,1:(ncol(data)-1)]
     
-    swi_min <- apply(io$input, 1, min)
-    swi_max <- apply(io$input, 1, max)
+    swi_min <- apply(input, 1, min)
+    swi_max <- apply(input, 1, max)
     
-    swio_min <- apply(obj$data, 1, min)
-    swio_max <- apply(obj$data, 1, max)
+    swio_min <- apply(data, 1, min)
+    swio_max <- apply(data, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
     out <- outliers(ratio)
@@ -180,14 +169,26 @@ prepare.ts_gminmax <- function(obj) {
   return(obj)
 }
 
-action.ts_gminmax <- function(obj) {
-  obj$data <- (obj$data-obj$gmin)/(obj$gmax-obj$gmin)
-  return(obj)
+action.ts_gminmax <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    x <- adjust.matrix((x-obj$gmin)/(obj$gmax-obj$gmin))
+    return(x)
+  }
+  else {
+    data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
+    return(data)
+  }
 }
 
-deaction.ts_gminmax <- function(obj) {
-  obj$data <- obj$data * (obj$gmax-obj$gmin) + obj$gmin
-  return (obj)
+deaction.ts_gminmax <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    x <- adjust.matrix(x * (obj$gmax-obj$gmin) + obj$gmin)
+    return(x)
+  }
+  else {
+    data <- data * (obj$gmax-obj$gmin) + obj$gmin
+    return (data)
+  }
 }
 
 #ts_gminmax_diff
@@ -197,52 +198,70 @@ ts_gminmax_diff <- function(scale = FALSE) {
   return(obj)
 }
 
-prepare.ts_gminmax_diff <- function(obj) {
-  data <- adjust.matrix(obj$data[2:nrow(obj$data),]-obj$data[1:(nrow(obj$data)-1),])
-  
-  out <- outliers(data)
-  out <- prepare(out)
-  data <- action(out)
-  obj$data <- adjust.matrix(obj$data[!c(FALSE, out$idx),])
-  
-  obj$gmin <- min(data)
-  obj$gmax <- max(data)
+prepare.ts_gminmax_diff <- function(obj, data) {
+  data <- adjust.matrix(data[2:nrow(data),]-data[1:(nrow(data)-1),])
+  obj <- prepare.ts_gminmax(obj, data)
+  return(obj)
+}
 
-  if (obj$scale) {
-    io <- ts_projection(obj)
-    
-    swi_min <- apply(io$input, 1, min)
-    swi_max <- apply(io$input, 1, max)
-    
-    swio_min <- apply(data, 1, min)
-    swio_max <- apply(data, 1, max)
-    
-    ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    out <- outliers(ratio)
-    out <- prepare(out)
-    ratio <- action(out)
-    ratio <- mean(ratio)
-    
-    w <- (obj$gmax - obj$gmin)/(2*ratio)
-    c <- (obj$gmax + obj$gmin)/2
-    obj$gmax <- c + w
-    obj$gmin <- c - w
+action.ts_gminmax_diff <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    ref <- attr(data, "ref")
+    sw <- attr(data, "sw")
+    if (sw == 1) {
+      x <- adjust.matrix(x[2:nrow(x),])-ref
+      x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
+    }
+    else {
+      x <- adjust.matrix(x-ref[,ncol(ref)])
+      x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
+    }
+    return(x)
   }
-  
-  return(obj)
+  else {
+    ref <- NULL
+    sw <- ncol(data) 
+    if (sw == 1) {
+      ref <- adjust.matrix(data[1:(nrow(data)-1),])
+      data <- adjust.matrix(data[2:nrow(data),] - ref)
+      data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
+    }
+    else {
+      ref <- adjust.matrix(data[,1:(ncol(data)-1)])
+      data <- adjust.matrix(data[,2:ncol(data)]-ref)
+      data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
+    }
+    attr(data, "ref") <- ref
+    attr(data, "sw") <- sw
+    return(data)
+  }
 }
 
-action.ts_gminmax_diff <- function(obj) {
-  obj$ref <- adjust.matrix(obj$data[1:(nrow(obj$data)-1),])
-  obj$data <- adjust.matrix(obj$data[2:nrow(obj$data),]-obj$ref)
-  obj$data <- (obj$data-obj$gmin)/(obj$gmax-obj$gmin)
-  return(obj)
-}
-
-deaction.ts_gminmax_diff <- function(obj) {
-  obj$data <- obj$data * (obj$gmax-obj$gmin) + obj$gmin
-  obj$data <- rbind(obj$ref[1, ], obj$data + obj$ref)
-  return (obj)
+deaction.ts_gminmax_diff <- function(obj, data, x=NULL) {
+  ref <- attr(data, "ref")
+  sw <- attr(data, "sw")
+  if (!is.null(x)) {
+    x <- x * (obj$gmax-obj$gmin) + obj$gmin
+    if (sw == 1) {
+      x <- adjust.matrix(x[2:nrow(x),])+ref
+    }
+    else {
+      x <- adjust.matrix(x+ref[,ncol(ref)])
+    }
+    return(x)
+  }
+  else {
+    data <- data * (obj$gmax-obj$gmin) + obj$gmin
+    if (sw == 1) {
+      data <- rbind(ref[1, ], data + ref)
+    }
+    else {
+      data <- cbind(ref[,1], (data + ref))
+    }
+    attr(data, "ref") <- ref
+    attr(data, "sw") <- sw
+    return(data)
+  }
 }
 
 #ts_swminmax
@@ -252,22 +271,93 @@ ts_swminmax <- function(scale = FALSE) {
   return(obj)
 }
 
-prepare.ts_swminmax <- function(obj) {
-  data <- adjust.matrix(obj$data[2:nrow(obj$data),]-obj$data[1:(nrow(obj$data)-1),])
-  
+prepare.ts_swminmax <- function(obj, data) {
   out <- outliers(data)
   out <- prepare(out)
   data <- action(out)
-  obj$data <- adjust.matrix(obj$data[!c(FALSE, out$idx),])
+
+  obj$scale_offset <- 0
+  obj$scale_factor <- 1
+  
+  if (obj$scale) {
+    input <- data[,1:(ncol(data)-1)]
+    
+    swi_min <- apply(input, 1, min)
+    swi_max <- apply(input, 1, max)
+    
+    swio_min <- apply(data, 1, min)
+    swio_max <- apply(data, 1, max)
+    
+    ratio <- (swi_max-swi_min)/(swio_max-swio_min)
+    out <- outliers(ratio)
+    out <- prepare(out)
+    ratio <- action(out)
+    q <- quantile(ratio)
+    IQR <- q[4] - q[2]
+    ratio <- q[2] - 1.5*IQR
+
+    obj$scale_factor <- ratio
+    obj$scale_offset <- (1 - ratio) / 2
+  }
+  return(obj)
+}
+
+action.ts_swminmax <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    i_min <- attr(data, "i_min")
+    i_max <- attr(data, "i_max")
+    x <- adjust.matrix(obj$scale_factor*(x-i_min)/(i_max-i_min) + obj$scale_offset)
+    return(x)
+  }
+  else {
+    i_min <- apply(data, 1, min)
+    i_max <- apply(data, 1, max)
+    data <- obj$scale_factor*(data-i_min)/(i_max-i_min) + obj$scale_offset
+    attr(data, "i_min") <- i_min
+    attr(data, "i_max") <- i_max
+    return(data)
+  }
+}
+
+deaction.ts_swminmax <- function(obj, data, x=NULL) {
+  i_min <- attr(data, "i_min")
+  i_max <- attr(data, "i_max")
+  if (!is.null(x)) {
+    x <- adjust.matrix((x - obj$scale_offset) * (i_max - i_min) / obj$scale_factor + i_min)
+    return(x)
+  }
+  else {
+    data <- (data - obj$scale_offset) * (i_max - i_min) / obj$scale_factor + i_min
+    attr(data, "i_min") <- i_min
+    attr(data, "i_max") <- i_max
+    return(data)
+  }
+}
+
+#ts_an
+ts_an <- function(scale = FALSE) {
+  obj <- ts_normalize(scale)
+  class(obj) <- append("ts_an", class(obj))    
+  return(obj)
+}
+
+prepare.ts_an <- function(obj, data) {
+  input <- data[,1:(ncol(data)-1)]
+  an <- apply(input, 1, mean)
+  data <- data / an
+
+  out <- outliers(data)
+  out <- prepare(out)
+  data <- action(out)
   
   obj$gmin <- min(data)
   obj$gmax <- max(data)
   
-  if (obj$scale) {
-    io <- ts_projection(obj)
+  if (obj$scale && (ncol(data) > 1)) {
+    input <- data[,1:(ncol(data)-1)]
     
-    swi_min <- apply(io$input, 1, min)
-    swi_max <- apply(io$input, 1, max)
+    swi_min <- apply(input, 1, min)
+    swi_max <- apply(input, 1, max)
     
     swio_min <- apply(data, 1, min)
     swio_max <- apply(data, 1, max)
@@ -287,18 +377,48 @@ prepare.ts_swminmax <- function(obj) {
   return(obj)
 }
 
-action.ts_swminmax <- function(obj, x=NULL) {
-  obj$ref <- adjust.matrix(obj$data[1:(nrow(obj$data)-1),])
-  obj$data <- adjust.matrix(obj$data[2:nrow(obj$data),]-obj$ref)
-  obj$data <- (obj$data-obj$gmin)/(obj$gmax-obj$gmin)
-  return(obj)
+action.ts_an <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    an <- attr(data, "an")
+    x <- x / an
+    x <- adjust.matrix((x - obj$gmin) / (obj$gmax-obj$gmin))
+    return(x)
+  }
+  else {
+    an <- apply(data, 1, mean)  
+    data <- data / an
+    data <- (data - obj$gmin) / (obj$gmax-obj$gmin) 
+    attr(data, "an") <- an
+    return (data)
+  }
 }
 
-deaction.ts_swminmax <- function(obj, x=NULL) {
-  obj$data <- obj$data * (obj$gmax-obj$gmin) + obj$gmin
-  obj$data <- rbind(obj$ref[1, ], obj$data + obj$ref)
-  return (obj)
+deaction.ts_an <- function(obj, data, x=NULL) {
+  an <- attr(data, "an")
+  if (!is.null(x)) {
+    x <- adjust.matrix(x * (obj$gmax-obj$gmin) + obj$gmin)
+    x <- x * an
+    return(x)
+  }
+  else {
+    data <- data * (obj$gmax-obj$gmin) + obj$gmin
+    data <- data * an
+    attr(data, "an") <- an
+    return (data)
+  }
 }
+
+exp_mean <- function(x) {
+  n <- length(x)
+  y <- rep(0,n)
+  alfa <- 1 - 2.0 / (n + 1);
+  for (i in 0:(n-1)) {
+    y[n-i] <- alfa^i
+  }
+  m <- sum(y * x)/sum(y)
+  return(m)
+}
+
 
 
 
