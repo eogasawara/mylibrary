@@ -23,7 +23,7 @@ optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
   t <- fviz_nbclust(data, kmeans, k.max = kmax, method = "wss")
   
   y <- t$data$y
-  myfit <- fit_curvature_max(y)
+  myfit <- fit_curvature_max()
   res <- action(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
@@ -63,7 +63,7 @@ optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
   t <- fviz_nbclust(data, pam, k.max = kmax, method = "wss")
   
   y <- t$data$y
-  myfit <- fit_curvature_max(y)
+  myfit <- fit_curvature_max()
   res <- action(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
@@ -111,7 +111,7 @@ optimize.cluster_dbscan <- function(obj, data, do_plot=FALSE) {
   t <- sort(dbscan::kNNdist(data, k = obj$MinPts))
   
   y <- t
-  myfit <- fit_curvature_max(y)
+  myfit <- fit_curvature_max()
   res <- action(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
@@ -129,6 +129,9 @@ cluster_evaluation <- function(cluster, attribute) {
   loadlibrary("dplyr")
   
   compute_entropy <- function(obj) {
+    value <- getOption("dplyr.summarise.inform")
+    options(dplyr.summarise.inform = FALSE)
+    
     base <- data.frame(x = obj$data, y = obj$attribute) 
     tbl <- base %>% group_by(x, y) %>% summarise(qtd=n()) 
     tbs <- base %>% group_by(x) %>% summarise(t=n()) 
@@ -138,6 +141,8 @@ cluster_evaluation <- function(cluster, attribute) {
     tbl$ceg <- tbl$ce*tbl$qtd/length(obj$data)
     obj$entropy_clusters <- tbl
     obj$entropy <- sum(obj$entropy$ceg)
+    
+    options(dplyr.summarise.inform = value)
     return(obj)
   }
   obj <- compute_entropy(obj)
