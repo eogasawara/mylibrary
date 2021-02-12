@@ -1,3 +1,6 @@
+# version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
+
 dal_transform <- function() {
   obj <- list()
   attr(obj, "class") <- "dal_transform"  
