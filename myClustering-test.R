@@ -1,10 +1,9 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
 data(iris)
 
 eval <- cluster_evaluation(rep(1, nrow(iris)), iris$Species)
-eval <- prepare(eval)
-print(action(eval)$entropy)
+print(eval$entropy)
 
 
 test_clustering <- function(model, attribute) {

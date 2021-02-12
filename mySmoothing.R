@@ -1,17 +1,17 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # smoothing
-smoothing <- function(data) {
-  obj <- atr_transform(data)
+smoothing <- function() {
+  obj <- dal_transform()
   class(obj) <- append("smoothing", class(obj))    
   return(obj)
 }
 
 
-prepare.smoothing <- function(obj) {
-  v <- obj$data  
+prepare.smoothing <- function(obj, data) {
+  v <- data
   interval <- obj$interval
   names(interval) <- NULL
   interval[1] <- min(v)
@@ -24,8 +24,8 @@ prepare.smoothing <- function(obj) {
   return(obj)
 }
 
-action.smoothing <- function(obj) {
-  v <- obj$data
+action.smoothing <- function(obj, data) {
+  v <- data
   interval.adj <- obj$interval.adj
   vp <- cut(v, unique(interval.adj), FALSE, include.lowest=TRUE)
   m <- tapply(v, vp, mean)
@@ -33,7 +33,7 @@ action.smoothing <- function(obj) {
   return(vm)  
 }
 
-optimize.smoothing <- function(obj, do_plot=FALSE) {
+optimize.smoothing <- function(obj, data, do_plot=FALSE) {
   n <- obj$n
   opt <- data.frame()
   interval <- list()
@@ -42,7 +42,7 @@ optimize.smoothing <- function(obj, do_plot=FALSE) {
     obj$n <- i
     obj <- prepare(obj)
     vm <- action(obj)
-    mse <- mean((obj$data - vm)^2, na.rm = TRUE) 
+    mse <- mean((data - vm)^2, na.rm = TRUE) 
     row <- c(mse , i)
     opt <- rbind(opt, row)
   }
@@ -57,15 +57,15 @@ optimize.smoothing <- function(obj, do_plot=FALSE) {
 }
 
 # smoothing by interval
-smoothing_inter <- function(data, n) {
-  obj <- smoothing(data)
+smoothing_inter <- function(n) {
+  obj <- smoothing()
   obj$n <- n
   class(obj) <- append("smoothing_inter", class(obj))    
   return(obj)  
 }
 
-prepare.smoothing_inter <- function(obj) {
-  v <- obj$data
+prepare.smoothing_inter <- function(obj, data) {
+  v <- data
   n <- obj$n
   bp <- boxplot(v, range=1.5, plot = FALSE)
   bimax <- bp$stats[5]
@@ -80,15 +80,15 @@ prepare.smoothing_inter <- function(obj) {
 }
 
 # smoothing by freq
-smoothing_freq <- function(data, n) {
-  obj <- smoothing(data)
+smoothing_freq <- function(n) {
+  obj <- smoothing()
   obj$n <- n
   class(obj) <- append("smoothing_freq", class(obj))    
   return(obj)  
 }
 
-prepare.smoothing_freq <- function(obj) {
-  v <- obj$data
+prepare.smoothing_freq <- function(obj, data) {
+  v <- data
   n <- obj$n
   p <- seq(from = 0, to = 1, by = 1/n)
   obj$interval <- quantile(v, p)
@@ -97,15 +97,15 @@ prepare.smoothing_freq <- function(obj) {
 }
 
 # smoothing by cluster
-smoothing_cluster <- function(data, n) {
-  obj <- smoothing(data)
+smoothing_cluster <- function(n) {
+  obj <- smoothing()
   obj$n <- n
   class(obj) <- append("smoothing_cluster", class(obj))    
   return(obj)  
 }
 
-prepare.smoothing_cluster <- function(obj) {
-  v <- obj$data
+prepare.smoothing_cluster <- function(obj, data) {
+  v <- data
   n <- obj$n
   km <- kmeans(x = v, centers = n)
   s <- sort(km$centers)

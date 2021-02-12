@@ -1,29 +1,28 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySmoothing.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClusterEvaluation.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
 
-bi <- smoothing_inter(iris$Sepal.Length, n=2)
-bi <- prepare(bi)
-sl.bi <- action(bi)
-table(sl.bi)
+explore_smoothing <- function(obj, data) {
+  obj <- prepare(obj, data)
+  sl.bi <- action(obj, data)
+  table(sl.bi)
+}
 
+optimize_smoothing <- function(obj, data) {
+  obj <- prepare(obj, data)
+  sl.bi <- action(obj, data)
+  bi <- optimize(bi, do_plot=TRUE)
+  bi <- prepare(bi)
+  sl.bi <- action(bi)
+  table(sl.bi)
+  table(sl.bi)
+}
 
-bf <- smoothing_freq(iris$Sepal.Length, n=2)
-bf <- prepare(bf)
-sl.bf <- action(bf)
-table(sl.bf)
+explore_smoothing(smoothing_inter(n=2), iris$Sepal.Length)
+explore_smoothing(smoothing_freq(n=2), iris$Sepal.Length)
+explore_smoothing(smoothing_cluster(n=2), iris$Sepal.Length)
+#optimize_smoothing(smoothing_inter(n=20), iris$Sepal.Length)
 
-bc <- smoothing_cluster(iris$Sepal.Length, n=2)
-bc <- prepare(bc)
-sl.bc <- action(bc)
-table(sl.bc)
-
-
-bi <- smoothing_inter(iris$Sepal.Length, n=20)
-bi <- optimize(bi, do_plot=TRUE)
-bi <- prepare(bi)
-sl.bi <- action(bi)
-table(sl.bi)
-entro <- cluster_evaluation(names(sl.bi),iris$Species)
-entro <- prepare(entro)
-res <- action(entro)
+#entro <- cluster_evaluation(names(sl.bi),iris$Species)
+#entro <- prepare(entro)
+#res <- action(entro)
