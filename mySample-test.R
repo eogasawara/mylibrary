@@ -30,6 +30,6 @@ process_samples <- function(sr, iris_data) {
 # iris dataset
 iris_data <- dal_data(iris)
 
-#process_samples(sample_random(), iris_data)
+process_samples(sample_random(), iris_data)
 process_samples(sample_stratified("Species"), iris_data)
 
