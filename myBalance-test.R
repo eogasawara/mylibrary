@@ -6,8 +6,8 @@ head(iris)
 table(iris$Species)
 
 # iris dataset
-iris_data <- dal_data(iris[c(1:20,51:100, 110:120),])
-table(iris_data$data$Species)
+iris_data <- iris[c(1:20,51:100, 110:120),]
+table(iris_data$Species)
 
 
 teste_balance <- function(obj, obj_data)  {
@@ -16,7 +16,7 @@ teste_balance <- function(obj, obj_data)  {
   print(table(obj_data$data$Species))
 }
 
-print(table(iris_data$data$Species))
+print(table(iris_data$Species))
 teste_balance(balance_oversampling("Species"), iris_data)
 teste_balance(balance_subsampling("Species"), iris_data)
 
