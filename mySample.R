@@ -42,16 +42,16 @@ train_test.sample_random <- function(obj, data, perc=0.8) {
 }
 
 k_fold.sample_random <- function(obj, data, k) {
-  folds <- list()
+  samp <- folds <- list()
   p <- 1.0 / k
   while (k > 1) {
-    obj <- train_test(obj, data, p)
-    data <- obj$test
-    folds <- append(folds, list(obj$train))
+    samp <- train_test(obj, data, p)
+    data <- samp$test
+    folds <- append(folds, list(samp$train))
     k = k - 1
     p = 1.0 / k
   }
-  folds <- append(folds, list(obj$test))
+  folds <- append(folds, list(samp$test))
   return (folds)
 }
 

@@ -5,31 +5,31 @@ data(iris)
 head(iris)
 
 
-process_samples <- function(sr, iris_data) {
+process_samples <- function(sr, iris) {
   # sampling dataset into train and test
-  tt <- train_test(sr, iris_data)
+  tt <- train_test(sr, iris)
   
   # distribution of train
-  print(table(tt$train$data$Species))
+  print(table(tt$train$Species))
   
   # distribution of test
-  print(table(tt$test$data$Species))
+  print(table(tt$test$Species))
   
   # preparing dataset into four folds
-  folds <- k_fold(sr, iris_data, 4)
+  folds <- k_fold(sr, iris, 4)
   
   # distribution of folds
   tbl <- NULL
   for (f in folds) {
-    tbl <- rbind(tbl, table(f$data$Species))
+    tbl <- rbind(tbl, table(f$Species))
   }
   rownames(tbl) <- rep(class(sr)[1], 4)
   print(tbl)
 }
 
 # iris dataset
-iris_data <- dal_data(iris)
 
-process_samples(sample_random(), iris_data)
-process_samples(sample_stratified("Species"), iris_data)
+
+process_samples(sample_random(), iris)
+process_samples(sample_stratified("Species"), iris)
 
