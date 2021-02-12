@@ -5,20 +5,19 @@ head(iris)
 nrow(iris)
 
 #outlier of a dataset
-out <- outliers(iris)
-out <- prepare(out)
+out <- outliers()
+out <- prepare(out, iris)
+iris.out <- action(out, iris)
 table(out$idx)
-iris.out <- action(out)
 head(iris.out)
 nrow(iris.out)
 
 
 #outlier of an attribute
-out <- outliers(iris$Sepal.Width)
-out <- prepare(out)
+out <- outliers()
+out <- prepare(out, iris$Sepal.Width)
+iris.out <- action(out, iris$Sepal.Width)
 table(out$idx)
-iris.out <- action(out)
-
 head(iris.out)
 length(iris.out)
 
