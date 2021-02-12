@@ -10,10 +10,10 @@ iris_data <- iris[c(1:20,51:100, 110:120),]
 table(iris_data$Species)
 
 
-teste_balance <- function(obj, obj_data)  {
+teste_balance <- function(obj, data)  {
   print(class(obj)[1])
-  obj_data <- balance(obj, obj_data)
-  print(table(obj_data$data$Species))
+  data <- balance(obj, data)
+  print(table(data$Species))
 }
 
 print(table(iris_data$Species))
