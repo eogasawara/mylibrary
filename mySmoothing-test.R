@@ -8,12 +8,12 @@ explore_smoothing <- function(obj, data, attribute) {
   print(table(sl.bi))
   
   entro <- cluster_evaluation(as.factor(names(sl.bi)), attribute)
-  print(entro$metrics$entropy)
+  print(entro$entropy)
 }
 
-optimize_smoothing <- function(obj, data) {
+optimize_smoothing <- function(obj, data, attribute) {
   obj <- optimize(obj, data, do_plot=TRUE)
-  explore_smoothing(obj, data)
+  explore_smoothing(obj, data, attribute)
 }
 
 explore_smoothing(smoothing_inter(n=2), iris$Sepal.Length, iris$Species)

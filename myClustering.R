@@ -158,8 +158,8 @@ cluster_evaluation <- function(cluster, attribute) {
     tbl$e <- -(tbl$qtd/tbl$t)*log(tbl$qtd/tbl$t,2)
     tbl <- tbl %>% group_by(x) %>% summarise(ce=sum(e), qtd=sum(qtd)) 
     tbl$ceg <- tbl$ce*tbl$qtd/length(obj$data)
-    obj$entropy <- tbl
-    obj$metrics <- data.frame(entropy=sum(obj$entropy$ceg))
+    obj$entropy_clusters <- tbl
+    obj$entropy <- sum(obj$entropy$ceg)
     return(obj)
   }
   obj <- compute_entropy(obj)
