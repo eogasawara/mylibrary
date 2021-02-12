@@ -143,3 +143,26 @@ optimize.cluster_dbscan <- function(obj, do_plot=FALSE) {
 }
 
 
+#cluster_evaluation
+
+cluster_evaluation <- function(cluster, attribute) {
+  obj <- list(data=cluster, attribute=attribute)
+  attr(obj, "class") <- "cluster_evaluation"  
+
+  loadlibrary("dplyr")
+  
+  compute_entropy <- function(obj) {
+    base <- data.frame(x = obj$data, y = obj$attribute) 
+    tbl <- base %>% group_by(x, y) %>% summarise(qtd=n()) 
+    tbs <- base %>% group_by(x) %>% summarise(t=n()) 
+    tbl <- merge(x=tbl, y=tbs, by.x="x", by.y="x")
+    tbl$e <- -(tbl$qtd/tbl$t)*log(tbl$qtd/tbl$t,2)
+    tbl <- tbl %>% group_by(x) %>% summarise(ce=sum(e), qtd=sum(qtd)) 
+    tbl$ceg <- tbl$ce*tbl$qtd/length(obj$data)
+    obj$entropy <- tbl
+    obj$metrics <- data.frame(entropy=sum(obj$entropy$ceg))
+    return(obj)
+  }
+  obj <- compute_entropy(obj)
+  return(obj)
+}
