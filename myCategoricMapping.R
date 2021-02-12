@@ -8,13 +8,10 @@ categ_mapping <- function(attribute) {
   return(obj)  
 }
 
-action.categ_mapping <- function(obj, obj_data) {
-  data <- obj_data$data
-  attribute <- obj$attribute  
-  
-  mdlattribute = formula(paste("~", paste(attribute, "-1")))
+action.categ_mapping <- function(obj, data) {
+  mdlattribute = formula(paste("~", paste(obj$attribute, "-1")))
   catmap <- model.matrix(mdlattribute, data=data)
-  obj_data$data <- cbind(data, catmap)
-  return(obj_data)
+  data <- cbind(data, catmap)
+  return(data)
 }
 
