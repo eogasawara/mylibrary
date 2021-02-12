@@ -9,19 +9,19 @@ data_sample <- function() {
   return(obj)
 }
 
-train_test <- function(obj, obj_data, ...) {
+train_test <- function(obj, data, ...) {
   UseMethod("train_test")
 }
 
-train_test.default <- function(obj, obj_data) {
+train_test.default <- function(obj, data) {
   return(list())
 }
 
-k_fold <- function(obj, obj_data, k) {
+k_fold <- function(obj, data, k) {
   UseMethod("k_fold")
 }
 
-k_fold.default <- function(obj, obj_data, k) {
+k_fold.default <- function(obj, data, k) {
   return(list())
 }
 
@@ -34,21 +34,19 @@ sample_random <- function() {
   return(obj)
 }
 
-train_test.sample_random <- function(obj, obj_data, perc=0.8) {
-  idx <- base::sample(1:nrow(obj_data$data),as.integer(perc*nrow(obj_data$data)))
-  obj_train <- obj_data
-  obj_train$data <- obj_data$data[idx,]
-  obj_test <- obj_data
-  obj_test$data <- obj_data$data[-idx,]
-  return (list(train=obj_train, test=obj_test))
+train_test.sample_random <- function(obj, data, perc=0.8) {
+  idx <- base::sample(1:nrow(data),as.integer(perc*nrow(data)))
+  train <- data[idx,]
+  test <- data[-idx,]
+  return (list(train=train, test=test))
 }
 
-k_fold.sample_random <- function(obj, obj_data, k) {
+k_fold.sample_random <- function(obj, data, k) {
   folds <- list()
   p <- 1.0 / k
   while (k > 1) {
-    obj <- train_test(obj, obj_data, p)
-    obj_data <- obj$test
+    obj <- train_test(obj, data, p)
+    data <- obj$test
     folds <- append(folds, list(obj$train))
     k = k - 1
     p = 1.0 / k
@@ -65,17 +63,15 @@ sample_stratified <- function(attribute) {
   return(obj)
 }
 
-train_test.sample_stratified <- function(obj, obj_data, perc=0.8) {
+train_test.sample_stratified <- function(obj, data, perc=0.8) {
   loadlibrary("caret")
   
-  predictors_name <- setdiff(colnames(obj_data$data), obj$attribute)
-  predictand <- obj_data$data[,obj$attribute] 
+  predictors_name <- setdiff(colnames(data), obj$attribute)
+  predictand <- data[,obj$attribute] 
   
   idx <- createDataPartition(predictand, p=perc, list=FALSE) 
-  obj_train <- obj_data
-  obj_train$data <- obj_data$data[idx,]
-  obj_test <- obj_data
-  obj_test$data <- obj_data$data[-idx,]
-  return (list(train=obj_train, test=obj_test))
+  train <- data[idx,]
+  test <- data[-idx,]
+  return (list(train=train, test=test))
 }
 
