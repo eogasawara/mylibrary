@@ -1,4 +1,5 @@
 #source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
@@ -31,7 +32,8 @@ test_sw <- function(x, sw, norm) {
     print("normalized output")
     print(head(noutput))
   }
-  plot(ninput)
+  y <- ninput[, ncol(ninput)]
+  plot(1:length(y), y)
   
   dinput <- deaction(norm, ninput)
   print("denormalized input")
@@ -42,12 +44,13 @@ test_sw <- function(x, sw, norm) {
     print("denormalized output")
     print(head(doutput))
   }
-  plot(dinput)
+  y <- dinput[, ncol(dinput)]
+  plot(1:length(y), y)
 }
 
-#test_sw(x, 0, ts_gminmax(scale=TRUE))
-#test_sw(x, 10, ts_gminmax(scale=TRUE))
-#test_sw(x, 0, ts_gminmax_diff(scale=TRUE))
-#test_sw(x, 10, ts_gminmax_diff(scale=TRUE))
-#test_sw(x, 10, ts_swminmax(scale=TRUE))
-test_sw(x, 10, ts_an())
+#test_sw(x, 0, ts_gminmax(scale=FALSE))
+#test_sw(x, 10, ts_gminmax(scale=FALSE))
+#test_sw(x, 0, ts_gminmax_diff(scale=FALSE))
+#test_sw(x, 10, ts_gminmax_diff(scale=FALSE))
+test_sw(x, 10, ts_swminmax(scale=TRUE))
+#test_sw(x, 10, ts_an(scale=TRUE))

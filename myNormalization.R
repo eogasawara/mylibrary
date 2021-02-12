@@ -137,9 +137,9 @@ ts_gminmax <- function(scale = FALSE) {
 }
 
 prepare.ts_gminmax <- function(obj, data) {
-  out <- outliers(data)
-  out <- prepare(out)
-  data <- action(out)
+  out <- outliers()
+  out <- prepare(out, data)
+  data <- action(out, data)
   
   obj$gmin <- min(data)
   obj$gmax <- max(data)
@@ -154,9 +154,9 @@ prepare.ts_gminmax <- function(obj, data) {
     swio_max <- apply(data, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    out <- outliers(ratio)
-    out <- prepare(out)
-    ratio <- action(out)
+    out <- outliers()
+    out <- prepare(out, ratio)
+    ratio <- action(out, ratio)
     ratio <- mean(ratio)
     
     w <- (obj$gmax - obj$gmin)/(2*ratio)
@@ -271,10 +271,10 @@ ts_swminmax <- function(scale = FALSE) {
 }
 
 prepare.ts_swminmax <- function(obj, data) {
-  out <- outliers(data)
-  out <- prepare(out)
-  data <- action(out)
-
+  out <- outliers()
+  out <- prepare(out, data)
+  data <- action(out, data)
+  
   obj$scale_offset <- 0
   obj$scale_factor <- 1
   
@@ -288,9 +288,9 @@ prepare.ts_swminmax <- function(obj, data) {
     swio_max <- apply(data, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    out <- outliers(ratio)
-    out <- prepare(out)
-    ratio <- action(out)
+    out <- outliers()
+    out <- prepare(out, ratio)
+    ratio <- action(out, ratio)
     q <- quantile(ratio)
     IQR <- q[4] - q[2]
     ratio <- q[2] - 1.5*IQR
@@ -345,9 +345,9 @@ prepare.ts_an <- function(obj, data) {
   an <- apply(input, 1, mean)
   data <- data / an
 
-  out <- outliers(data)
-  out <- prepare(out)
-  data <- action(out)
+  out <- outliers()
+  out <- prepare(out, data)
+  data <- action(out, data)
   
   obj$gmin <- min(data)
   obj$gmax <- max(data)
@@ -362,9 +362,9 @@ prepare.ts_an <- function(obj, data) {
     swio_max <- apply(data, 1, max)
     
     ratio <- (swi_max-swi_min)/(swio_max-swio_min)
-    out <- outliers(ratio)
-    out <- prepare(out)
-    ratio <- action(out)
+    out <- outliers()
+    out <- prepare(out, ratio)
+    ratio <- action(out, ratio)
     ratio <- mean(ratio)
     
     w <- (obj$gmax - obj$gmin)/(2*ratio)

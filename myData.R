@@ -105,11 +105,13 @@ ts_sw <- function(x, sw) {
     c(rep(NA, k), x)[1 : length(x)] 
   }
   n <- length(x)-sw+1
-  sw <- NULL
+  window <- NULL
   for(c in (sw-1):0){
     t  <- ts_lag(x,c)
     t <- t[sw:length(t)]
-    sw <- cbind(sw,t,deparse.level = 0)
+    window <- cbind(window,t,deparse.level = 0)
   }
-  return(sw)  
+  col <- paste("t",c((sw-1):0), sep="")
+  colnames(window) <- col
+  return(window)  
 }
