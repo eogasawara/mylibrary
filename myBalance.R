@@ -9,11 +9,11 @@ balance_dataset <- function(attribute) {
   return(obj)
 }
 
-balance <- function(obj, obj_data) {
+balance <- function(obj, data) {
   UseMethod("balance")
 }
 
-balance.default <- function(obj, obj_data) {
+balance.default <- function(obj, data) {
   return(list())
 }
 
@@ -25,10 +25,10 @@ balance_oversampling <- function(attribute) {
   return(obj)
 }
 
-balance.balance_oversampling <- function(obj, obj_data) {
+balance.balance_oversampling <- function(obj, data) {
   loadlibrary("DMwR")
   
-  data <- obj_data$data
+  data <- data
   attribute <- obj$attribute
   
   x <- sort((table(data[,attribute]))) 
@@ -51,8 +51,8 @@ balance.balance_oversampling <- function(obj, obj_data) {
   curdata = data[data[,attribute]==mainclass,]
   newdata = rbind(newdata, curdata)
   newdata[,attribute] <- as.factor(newdata[,attribute])
-  obj_data$data <- newdata
-  return(obj_data)
+  data <- newdata
+  return(data)
 }
 
 # balance_subsampling
@@ -62,8 +62,8 @@ balance_subsampling <- function(attribute) {
   return(obj)
 }
 
-balance.balance_subsampling <- function(obj, obj_data) {
-  data <- obj_data$data
+balance.balance_subsampling <- function(obj, data) {
+  data <- data
   attribute <- obj$attribute
   x <- sort((table(data[,attribute]))) 
   qminor = as.integer(x[1])
@@ -74,6 +74,6 @@ balance.balance_subsampling <- function(obj, obj_data) {
     curdata = curdata[idx,]
     newdata = rbind(newdata, curdata)
   }
-  obj_data$data <- newdata
-  return(obj_data)
+  data <- newdata
+  return(data)
 }
