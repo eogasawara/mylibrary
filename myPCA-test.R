@@ -1,12 +1,12 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPCA.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPCA.R")
 
-mypca <- dt_pca(iris, "Species")
-mypca <- prepare(mypca)
-iris.pca <- action(mypca)
+mypca <- dt_pca("Species")
+mypca <- prepare(mypca, iris)
+iris.pca <- action(mypca, iris)
 
-head(iris.pca)
-head(mypca$transf$pca.transf)
+print(head(iris.pca))
+print(head(mypca$pca.transf))
 
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
 loadlibrary("RColorBrewer")

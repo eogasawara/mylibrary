@@ -1,20 +1,20 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # Data Transformation
 
 # PCA
 
-dt_pca <- function(data, attribute=NULL) {
-  obj <- rel_transform(data)
+dt_pca <- function(attribute=NULL) {
+  obj <- dal_transform()
   obj$attribute <- attribute
   class(obj) <- append("dt_pca", class(obj))    
   return(obj)
 }  
 
-prepare.dt_pca <- function(obj) {
-  data <- data.frame(obj$data)
+prepare.dt_pca <- function(obj, data) {
+  data <- data.frame(data)
   attribute <- obj$attribute
   if (!is.null(attribute)) {
     data[,attribute] <- NULL
@@ -29,30 +29,28 @@ prepare.dt_pca <- function(obj) {
   data = as.matrix(data[ , nums])
   
   pca_res <- prcomp(data, center=TRUE, scale.=TRUE)
-  cumvar <-  cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
-  curv <-  fit_curvature_min(cumvar)
-  curv <- prepare(curv)
-  res <- action(curv)
-  
-  pca.transf <- as.matrix(pca_res$rotation[, 1:res$x])
-  
-  obj$transf <- list(pca.transf=pca.transf, nums=nums)
-  
+  y <-  cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
+  curv <-  fit_curvature_min()
+  res <- action(curv, y)
+
+  obj$pca.transf <- as.matrix(pca_res$rotation[, 1:res$x])
+  obj$nums <- nums
+
   return(obj)
 }
 
-action.dt_pca <- function(obj) {
-  data <- data.frame(obj$data)
+action.dt_pca <- function(obj, data) {
   attribute <- obj$attribute
-  pca.transf <- obj$transf$pca.transf
-  nums <- obj$transf$nums
+  pca.transf <- obj$pca.transf
+  nums <- obj$nums
   
+  data <- data.frame(data)
   if (!is.null(attribute)) {
     predictand <- data[,attribute]
     data[,attribute] <- NULL
   }
-
   data = as.matrix(data[ , nums])
+  
   data = data %*% pca.transf
   data = data.frame(data)
   if (!is.null(attribute)){
