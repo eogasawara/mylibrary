@@ -7,11 +7,10 @@ head(iris)
 
 # preparing dataset for random sampling
 set.seed(1)
-sr <- sample_random(iris)
-sr <- train_test(sr)
+sr <- sample_random()
+sr <- train_test(sr, iris)
 iris_train = sr$train
 iris_test = sr$test
-
 
 tbl <- rbind(table(iris$Species), table(iris_train$Species), table(iris_test$Species))
 rownames(tbl) <- c("dataset", "training", "test")
@@ -22,31 +21,28 @@ train_test <- function(model, iris_train, iris_test) {
   print(class(model)[1])
   
   loadlibrary("RSNNS")
+  
+  model <- prepare(model, iris_train)
+  train_prediction <- action(model, iris_train)
+  
   iris_train_predictand = decodeClassLabels(iris_train[,"Species"])
-  iris_test_predictand = decodeClassLabels(iris_test[,"Species"])
-  
-  model <- prepare(model)
-  train_prediction <- action(model)
-  
   train_eval <- classif_evaluation(iris_train_predictand, train_prediction)
-  train_eval <- prepare(train_eval)
-  print(action(train_eval))
+  print(train_eval$metrics)
   plot(roc_curve(train_eval))
   
-  model$data <- iris_test
-  test_prediction <- action(model)
+  test_prediction <- action(model, iris_test)
   
+  iris_test_predictand = decodeClassLabels(iris_test[,"Species"])
   test_eval <- classif_evaluation(iris_test_predictand, test_prediction)
-  test_eval <- prepare(test_eval)
-  print(action(test_eval))
+  print(test_eval$metrics)
   plot(roc_curve(test_eval))
 }
 
-train_test(classif_zero_rule(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_decision_tree(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_naive_bayes(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_random_forest(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_mlp_nnet(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_svm(iris_train, "Species"), iris_train, iris_test)
-train_test(classif_knn(iris_train, "Species"), iris_train, iris_test)
+train_test(classif_zero_rule("Species"), iris_train, iris_test)
+train_test(classif_decision_tree("Species"), iris_train, iris_test)
+train_test(classif_naive_bayes("Species"), iris_train, iris_test)
+train_test(classif_random_forest("Species"), iris_train, iris_test)
+train_test(classif_mlp_nnet("Species"), iris_train, iris_test)
+train_test(classif_svm("Species"), iris_train, iris_test)
+train_test(classif_knn("Species"), iris_train, iris_test)
 
