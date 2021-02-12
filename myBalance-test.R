@@ -16,8 +16,9 @@ teste_balance <- function(obj, obj_data)  {
   print(table(obj_data$data$Species))
 }
 
+print(table(iris_data$data$Species))
 teste_balance(balance_oversampling("Species"), iris_data)
 teste_balance(balance_subsampling("Species"), iris_data)
-print(table(iris_data$data$Species))
+
 
 
