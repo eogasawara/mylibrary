@@ -3,7 +3,8 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransfor
 
 # classif
 classification <- function(attribute) {
-  obj <- list(attribute=attribute)
+  obj <- dal_transform()
+  obj$attribute <- attribute
   
   class(obj) <- append("classification", class(obj))    
   return(obj)

@@ -2,9 +2,8 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # clustering
-clustering <- function(data) {
-  obj <- rel_transform(data)
-
+clustering <- function() {
+  obj <- dal_transform()
   class(obj) <- append("clustering", class(obj))    
   return(obj)
 }
