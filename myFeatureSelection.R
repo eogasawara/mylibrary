@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassificationEvaluation.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # feature selection
