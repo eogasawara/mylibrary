@@ -1,44 +1,40 @@
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
-
 # curvature
 
-fit_curvature <- function(data) {
-  obj <- atr_transform(data)
+fit_curvature <- function() {
+  obj <- dal_transform()
   obj$df <- 2
   obj$deriv <- 2
   class(obj) <- append("fit_curvature", class(obj))    
   return(obj)
 }
 
-prepare.fit_curvature <- function(obj) {
-  obj$x <- 1:length(obj$data)
-  smodel = smooth.spline(obj$x, obj$data, df = obj$df)
-  curvature = predict(smodel, x = obj$x, deriv = obj$deriv)
-  obj$yfit = obj$func(curvature$y)
-  obj$xfit = match(obj$yfit, curvature$y)
-  obj$y <- obj$data[obj$xfit]
-  return(obj)
+action.fit_curvature <- function(obj, y) {
+  x <- 1:length(y)
+  smodel = smooth.spline(x, y, df = obj$df)
+  curvature = predict(smodel, x = x, deriv = obj$deriv)
+  yfit = obj$func(curvature$y)
+  xfit = match(yfit, curvature$y)
+  y <- y[xfit]
+  res <- data.frame(x=xfit, y=y, yfit = yfit)
+  return(res)
 }
 
-plot.fit_curvature <- function(obj) {
-  plot(obj$x, obj$data, col=ifelse(obj$x==obj$xfit, "red", "black"))   
+plot.fit_curvature <- function(obj, y, res) {
+  x <- 1:length(y)
+  plot(x, y, col=ifelse(x==res$x, "red", "black"))   
 }
 
-action.fit_curvature <- function(obj) {
-  res = data.frame(x=obj$xfit, y=obj$data[obj$xfit], yfit = obj$yfit)
-  return(res)  
-}
-
-fit_curvature_min <- function(data) {
-  obj <- fit_curvature(data)
+fit_curvature_min <- function() {
+  obj <- fit_curvature()
   obj$func <- min
   class(obj) <- append("fit_curvature_min", class(obj))    
   return(obj)
 }
 
-fit_curvature_max <- function(data) {
-  obj <- fit_curvature(data)
+fit_curvature_max <- function() {
+  obj <- fit_curvature()
   obj$func <- max
   class(obj) <- append("fit_curvature_max", class(obj))    
   return(obj)
