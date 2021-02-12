@@ -17,8 +17,6 @@ loadlibrary <- function(x)
 }
 
 dal_data <- function(data) {
-  obj <- list(data=data)
-  attr(obj, "class") <- "dal_data"  
   return(obj)
 }
 
@@ -33,9 +31,8 @@ ts_data <- function(data, sw=0) {
   col <- paste("t",(ncol(data)-1):0, sep="")
   colnames(data) <- col
   
-  obj <- dal_data(data)
-  obj$sw <- sw
-  class(obj) <- append("ts_data", class(obj))    
+  obj <- list(data=data, sw=sw)
+  attr(obj, "class") <- "ts_data"  
   return(obj)
 }
 
