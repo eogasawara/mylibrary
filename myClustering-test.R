@@ -5,7 +5,6 @@ data(iris)
 eval <- cluster_evaluation(rep(1, nrow(iris)), iris$Species)
 print(eval$entropy)
 
-
 test_clustering <- function(model, attribute) {
   print(class(model)[1])
   
@@ -13,7 +12,6 @@ test_clustering <- function(model, attribute) {
   clu <- action(model)
   
   eval <- cluster_evaluation(clu, attribute)
-  eval <- prepare(eval)
   print(action(eval)$entropy)
 }
 

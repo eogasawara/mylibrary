@@ -2,10 +2,13 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySmoothing.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
 
-explore_smoothing <- function(obj, data) {
+explore_smoothing <- function(obj, data, attribute) {
   obj <- prepare(obj, data)
   sl.bi <- action(obj, data)
   print(table(sl.bi))
+  
+  entro <- cluster_evaluation(as.factor(names(sl.bi)), attribute)
+  print(res)
 }
 
 optimize_smoothing <- function(obj, data) {
@@ -13,13 +16,10 @@ optimize_smoothing <- function(obj, data) {
   explore_smoothing(obj, data)
 }
 
-explore_smoothing(smoothing_inter(n=2), iris$Sepal.Length)
-explore_smoothing(smoothing_freq(n=2), iris$Sepal.Length)
-explore_smoothing(smoothing_cluster(n=2), iris$Sepal.Length)
-optimize_smoothing(smoothing_inter(n=20), iris$Sepal.Length)
-optimize_smoothing(smoothing_freq(n=20), iris$Sepal.Length)
-optimize_smoothing(smoothing_freq(n=20), iris$Sepal.Length)
+explore_smoothing(smoothing_inter(n=2), iris$Sepal.Length, iris$Species)
+explore_smoothing(smoothing_freq(n=2), iris$Sepal.Length, iris$Species)
+explore_smoothing(smoothing_cluster(n=2), iris$Sepal.Length, iris$Species)
+optimize_smoothing(smoothing_inter(n=20), iris$Sepal.Length, iris$Species)
+optimize_smoothing(smoothing_freq(n=20), iris$Sepal.Length, iris$Species)
+optimize_smoothing(smoothing_freq(n=20), iris$Sepal.Length, iris$Species)
 
-#entro <- cluster_evaluation(names(sl.bi),iris$Species)
-#entro <- prepare(entro)
-#res <- action(entro)
