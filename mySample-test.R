@@ -4,50 +4,32 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R
 data(iris)
 head(iris)
 
-# preparing dataset for random sampling
-sr <- sample_random(iris)
 
-# sampling dataset into train and test
-sr <- train_test(sr)
-
-# distribution of train
-table(sr$train$Species)
-
-# distribution of test
-table(sr$test$Species)
-
-# preparing dataset into four folds
-sr <- sample_random(iris)
-sr <- k_fold(sr, 4)
-
-# distribution of folds
-tbl <- NULL
-for (f in sr$folds) {
-  tbl <- rbind(tbl, table(f$Species))
+process_samples <- function(sr, iris_data) {
+  # sampling dataset into train and test
+  tt <- train_test(sr, iris_data)
+  
+  # distribution of train
+  print(table(tt$train$data$Species))
+  
+  # distribution of test
+  print(table(tt$test$data$Species))
+  
+  # preparing dataset into four folds
+  folds <- k_fold(sr, iris_data, 4)
+  
+  # distribution of folds
+  tbl <- NULL
+  for (f in folds) {
+    tbl <- rbind(tbl, table(f$data$Species))
+  }
+  rownames(tbl) <- rep(class(sr)[1], 4)
+  print(tbl)
 }
-rownames(tbl) <- rep("random sampling", 4)
-head(tbl)
 
-# preparing dataset for random sampling
-ss <- sample_stratified(iris, "Species")
+# iris dataset
+iris_data <- dal_data(iris)
 
-# sampling dataset into train and test
-ss <- train_test(ss)
+#process_samples(sample_random(), iris_data)
+process_samples(sample_stratified("Species"), iris_data)
 
-# distribution of train
-table(ss$train$Species)
-
-# distribution of test
-table(ss$test$Species)
-
-# preparing dataset to create four-folds
-ss <- sample_stratified(iris, "Species")
-ss <- k_fold(ss, 4)
-
-# distribution of folds
-tbl <- NULL
-for (f in ss$folds) {
-  tbl <- rbind(tbl, table(f$Species))
-}
-rownames(tbl) <- rep("random sampling", 4)
-head(tbl)

@@ -1,21 +1,29 @@
 # version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
+# debug: setwd("C:/Users/eduar/OneDrive/Git/mylibrary")
+myrepos <- "http://cran.fiocruz.br"
 
-ts_data <- function(data, sw=0) {
-  ts_sw <- function(x, sw_size) {
-    ts_lag <- function(x, k) 
-    {
-      c(rep(NA, k), x)[1 : length(x)] 
-    }
-    n <- length(x)-sw_size+1
-    sw <- NULL
-    for(c in (sw_size-1):0){
-      t  <- ts_lag(x,c)
-      t <- t[sw_size:length(t)]
-      sw <- cbind(sw,t,deparse.level = 0)
-    }
-    return(sw)  
+
+setrepos <- function(repos=repos) {
+  myrepos <- repos 
+}
+
+loadlibrary <- function(x) 
+{
+  if (!require(x,character.only = TRUE))
+  {
+    install.packages(x, repos=myrepos, dep=TRUE)
+    require(x)
   }
+}
+
+dal_data <- function(data) {
+  obj <- list(data=data)
+  attr(obj, "class") <- "dal_data"  
+  return(obj)
+}
+
+#ts_data
+ts_data <- function(data, sw=0) {
   if (sw <= 1) {
     sw <- 0
     data <- as.matrix(data)
@@ -24,13 +32,15 @@ ts_data <- function(data, sw=0) {
     data <- ts_sw(as.matrix(data), sw)  
   col <- paste("t",(ncol(data)-1):0, sep="")
   colnames(data) <- col
-  obj <- list(data=data, sw=sw)
   
-  class(obj) <- "ts_data"    
+  obj <- dal_data(data)
+  obj$sw <- sw
+  class(obj) <- append("ts_data", class(obj))    
   return(obj)
 }
 
-#ts_projection
+#ts_sample
+
 ts_sample <- function(ts, test_size=1, offset=0) {
   train <- ts
   test <- ts
@@ -52,6 +62,7 @@ ts_sample <- function(ts, test_size=1, offset=0) {
 
 
 #ts_projection
+
 ts_projection <- function(ts) {
   input <- ts
   output <- ts
@@ -68,4 +79,37 @@ ts_projection <- function(ts) {
   proj <- list(input = input, output = output)
   attr(proj, "class") <- "ts_projection"  
   return(proj)
+}
+
+
+# general functions
+adjust.matrix <- function(data) {
+  if(!is.matrix(data)) {
+    return(as.matrix(data))
+  }
+  else
+    return(data)
+}
+
+adjust.data.frame <- function(data) {
+  if(!is.data.frame(data)) {
+    return(as.data.frame(data))
+  }
+  else
+    return(data)
+}
+
+ts_sw <- function(x, sw) {
+  ts_lag <- function(x, k) 
+  {
+    c(rep(NA, k), x)[1 : length(x)] 
+  }
+  n <- length(x)-sw+1
+  sw <- NULL
+  for(c in (sw-1):0){
+    t  <- ts_lag(x,c)
+    t <- t[sw:length(t)]
+    sw <- cbind(sw,t,deparse.level = 0)
+  }
+  return(sw)  
 }
