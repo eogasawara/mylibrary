@@ -9,101 +9,87 @@ clustering <- function() {
 }
 
 # kmeans
-cluster_kmeans <- function(data, k = NULL) {
-  obj <- clustering(data)
+cluster_kmeans <- function(k) {
+  obj <- clustering()
   obj$k <- k
   
   class(obj) <- append("cluster_kmeans", class(obj))
   return(obj)
 }
 
-prepare.cluster_kmeans <- function(obj) {
-  loadlibrary("cluster")
-  if (is.null(obj$k)) {
-    obj <- optimize(obj)
-  }
-  k <- obj$k
-  cluster <- kmeans(x = obj$data, centers = k)
-  dist <- 0
-  for (i in 1:k) {
-    idx <- i==cluster$cluster
-    center <- cluster$centers[i,]
-    dist <- dist + sum(rowSums((obj$data[idx,] - center)^2))
-  }
-  obj$dist <- dist
-  obj$cluster <- cluster
-  return(obj)
-}
-
-action.cluster_kmeans <- function(obj) {
-  return(obj$cluster$cluster)
-}
-
-optimize.cluster_kmeans <- function(obj, kmax=20, do_plot=FALSE) {
+optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
   loadlibrary("factoextra")  
   
-  t <- fviz_nbclust(obj$data, kmeans, k.max = kmax, method = "wss")
+  t <- fviz_nbclust(data, kmeans, k.max = kmax, method = "wss")
   
-  myfit <- fit_curvature_max(t$data$y)
-  myfit <- prepare(myfit)
-  res <- action(myfit)
+  y <- t$data$y
+  myfit <- fit_curvature_max(y)
+  res <- action(myfit, y)
   if (do_plot)
-    plot(myfit)
-  obj$k <- myfit$xfit
-  
+    plot(myfit, y, res)
+  obj$k <- res$x
+
   return(obj)
 }
+
+action.cluster_kmeans <- function(obj, data) {
+  loadlibrary("cluster")
+  k <- obj$k
+  cluster <- kmeans(x = data, centers = k)
+  dist <- 0
+  for (i in 1:k) {
+    idx <- i == cluster$cluster
+    center <- cluster$centers[i,]
+    dist <- dist + sum(rowSums((data[idx,] - center)^2))
+  }
+  
+  cluster <- cluster$cluster
+  attr(cluster, "dist") <- dist
+  return(cluster)
+}
+
   
 # pam
-cluster_pam <- function(data, k = NULL) {
-  obj <- clustering(data)
+cluster_pam <- function(k) {
+  obj <- clustering()
   obj$k <- k
   
   class(obj) <- append("cluster_pam", class(obj))
   return(obj)
 }
 
-prepare.cluster_pam <- function(obj) {
-  loadlibrary("cluster")
-  if (is.null(obj$k)) {
-    obj <- optimize(obj)
-  }
-  k <- obj$k
+optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
+  loadlibrary("factoextra")  
+  t <- fviz_nbclust(data, pam, k.max = kmax, method = "wss")
+  
+  y <- t$data$y
+  myfit <- fit_curvature_max(y)
+  res <- action(myfit, y)
+  if (do_plot)
+    plot(myfit, y, res)
+  obj$k <- res$x
+  
+  return(obj)
+}
 
-  cluster <- pam(obj$data, k)
+action.cluster_pam <- function(obj, data) {
+  loadlibrary("cluster")
+  cluster <- pam(data, obj$k)
   dist <- 0
-  for (i in 1:k) {
+  for (i in 1:obj$k) {
     idx <- i==cluster$clustering
     center <- cluster$medoids[i,]
-    dist <- dist + sum(rowSums((obj$data[idx,] - center)^2))
+    dist <- dist + sum(rowSums((data[idx,] - center)^2))
   }
   
-  obj$dist <- dist
-  obj$cluster <- cluster
-  return(obj)
-}
-
-action.cluster_pam <- function(obj) {
-  return(obj$cluster$clustering)
-}
-
-optimize.cluster_pam <- function(obj, kmax=20, do_plot=FALSE) {
-  loadlibrary("factoextra")  
-  t <- fviz_nbclust(obj$data, pam, k.max = kmax, method = "wss")
-  
-  myfit <- fit_curvature_max(t$data$y)
-  myfit <- prepare(myfit)
-  res <- action(myfit)
-  if (do_plot)
-    plot(myfit)
-  obj$k <- myfit$xfit
-  
-  return(obj)
+  cluster <- cluster$cluster
+  attr(cluster, "dist") <- dist
+  return(cluster)
 }
 
 # dbscan
-cluster_dbscan <- function(data, eps=NULL, MinPts) {
-  obj <- clustering(data)
+cluster_dbscan <- function(eps, MinPts) {
+  obj <- clustering()
   obj$eps <- eps
   obj$MinPts <- MinPts
   
@@ -111,40 +97,33 @@ cluster_dbscan <- function(data, eps=NULL, MinPts) {
   return(obj)
 }
 
-prepare.cluster_dbscan <- function(obj) {
+action.cluster_dbscan <- function(obj, data) {
   loadlibrary("dbscan")
-  if (is.null(obj$eps))
-      obj <- optimize(obj)
-
-  cluster <- fpc::dbscan(obj$data, eps = obj$eps, MinPts = obj$MinPts)
   
-  obj$cluster <- cluster
-  return(obj)
+  cluster <- fpc::dbscan(data, eps = obj$eps, MinPts = obj$MinPts)
+  
+  cluster <- cluster$cluster
+  attr(cluster, "dist") <- 0
+  return(cluster)
 }
 
-action.cluster_dbscan <- function(obj) {
-  return(obj$cluster$cluster)
-}
-
-
-optimize.cluster_dbscan <- function(obj, do_plot=FALSE) {
-  t <- sort(dbscan::kNNdist(obj$data, k = obj$MinPts))
+optimize.cluster_dbscan <- function(obj, data, do_plot=FALSE) {
+  t <- sort(dbscan::kNNdist(data, k = obj$MinPts))
   
-  myfit <- fit_curvature_max(t)
-  myfit <- prepare(myfit)
-  res <- action(myfit)
+  y <- t
+  myfit <- fit_curvature_max(y)
+  res <- action(myfit, y)
   if (do_plot)
-    plot(myfit)
-  obj$eps <- myfit$y
+    plot(myfit, y, res)
+  obj$eps <- res$y
   
   return(obj)
 }
-
 
 #cluster_evaluation
 
 cluster_evaluation <- function(cluster, attribute) {
-  obj <- list(data=cluster, attribute=attribute)
+  obj <- list(data=as.factor(cluster), attribute=as.factor(attribute))
   attr(obj, "class") <- "cluster_evaluation"  
 
   loadlibrary("dplyr")
