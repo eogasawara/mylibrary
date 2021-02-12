@@ -8,7 +8,7 @@ explore_smoothing <- function(obj, data, attribute) {
   print(table(sl.bi))
   
   entro <- cluster_evaluation(as.factor(names(sl.bi)), attribute)
-  print(res)
+  print(entro$metrics$entropy)
 }
 
 optimize_smoothing <- function(obj, data) {
