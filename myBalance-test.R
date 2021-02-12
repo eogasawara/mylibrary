@@ -5,17 +5,19 @@ data(iris)
 head(iris)
 table(iris$Species)
 
-myiris <- iris[c(1:20,51:100, 110:120),]
-table(myiris$Species)
+# iris dataset
+iris_data <- dal_data(iris[c(1:20,51:100, 110:120),])
+table(iris_data$data$Species)
 
-bo <- balance_oversampling(myiris, "Species")
-bo <- balance(bo)
 
-bs <- balance_subsampling(myiris, "Species")
-bs <- balance(bs)
+teste_balance <- function(obj, obj_data)  {
+  print(class(obj)[1])
+  obj_data <- balance(obj, obj_data)
+  print(table(obj_data$data$Species))
+}
 
-tbl <- rbind(table(myiris$Species), table(bo$data$Species), table(bs$data$Species))
-rownames(tbl) <- c('unbalanced', 'oversampling', 'subsampling')
-head(tbl)
+teste_balance(balance_oversampling("Species"), iris_data)
+teste_balance(balance_subsampling("Species"), iris_data)
+print(table(iris_data$data$Species))
 
 

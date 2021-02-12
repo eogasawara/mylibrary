@@ -1,31 +1,34 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
 
-#class oversampling
-loadlibrary("DMwR")
+#balance
 
-balance_dataset <- function(data, attribute) {
-  obj <- list(data=data, attribute=attribute)
-  class(obj) <- append("balance_dataset", class(obj))    
+balance_dataset <- function(attribute) {
+  obj <- list(attribute=attribute)
+  attr(obj, "class") <- "balance_dataset"  
   return(obj)
 }
 
-balance <- function(obj) {
+balance <- function(obj, obj_data) {
   UseMethod("balance")
 }
 
-balance.default <- function(obj) {
-  return(obj)
+balance.default <- function(obj, obj_data) {
+  return(list())
 }
 
-balance_oversampling <- function(data, attribute) {
-  obj <- balance_dataset(data, attribute)
+#balance_oversampling
+
+balance_oversampling <- function(attribute) {
+  obj <- balance_dataset(attribute)
   class(obj) <- append("balance_oversampling", class(obj))    
   return(obj)
 }
 
-balance.balance_oversampling <- function(obj) {
-  data <- obj$data
+balance.balance_oversampling <- function(obj, obj_data) {
+  loadlibrary("DMwR")
+  
+  data <- obj_data$data
   attribute <- obj$attribute
   
   x <- sort((table(data[,attribute]))) 
@@ -48,18 +51,19 @@ balance.balance_oversampling <- function(obj) {
   curdata = data[data[,attribute]==mainclass,]
   newdata = rbind(newdata, curdata)
   newdata[,attribute] <- as.factor(newdata[,attribute])
-  obj$data <- newdata
-  return(obj)
+  obj_data$data <- newdata
+  return(obj_data)
 }
 
-balance_subsampling <- function(data, attribute) {
-  obj <- balance_dataset(data, attribute)
+# balance_subsampling
+balance_subsampling <- function(attribute) {
+  obj <- balance_dataset(attribute)
   class(obj) <- append("balance_subsampling", class(obj))    
   return(obj)
 }
 
-balance.balance_subsampling <- function(obj) {
-  data <- obj$data
+balance.balance_subsampling <- function(obj, obj_data) {
+  data <- obj_data$data
   attribute <- obj$attribute
   x <- sort((table(data[,attribute]))) 
   qminor = as.integer(x[1])
@@ -70,6 +74,6 @@ balance.balance_subsampling <- function(obj) {
     curdata = curdata[idx,]
     newdata = rbind(newdata, curdata)
   }
-  obj$data <- newdata
-  return(obj)
+  obj_data$data <- newdata
+  return(obj_data)
 }
