@@ -13,7 +13,7 @@ test_norm <- function(data, norm) {
 }
 
 
-head(iris)
+print(head(iris))
 
 test_norm(iris, minmax())
 
