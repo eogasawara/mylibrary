@@ -1,15 +1,14 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRelation.R")
 
-outliers <- function(data, alpha = 1.5) {
-  obj <- rel_transform(data)
+outliers <- function(alpha = 1.5) {
+  obj <- dal_transform()
   obj$alpha <- alpha
   class(obj) <- append("outliers", class(obj))    
   return(obj)
 }
 
-prepare.outliers <- function(obj) {
-  data <- obj$data
+prepare.outliers <- function(obj, data) {
   if(is.matrix(data) || is.data.frame(data)) {
     idx = rep(FALSE, nrow(data))
     org <- nrow(data)
@@ -41,12 +40,12 @@ prepare.outliers <- function(obj) {
   return(obj)
 }
 
-action.outliers <- function(obj)
+action.outliers <- function(obj, data)
 {
-  if(is.matrix(obj$data))
-    return(adjust.matrix(obj$data[!obj$idx,]))
-  else if (is.data.frame(obj$data))
-    return(adjust.data.frame(obj$data[!obj$idx,]))
+  if(is.matrix(data))
+    return(adjust.matrix(data[!obj$idx,]))
+  else if (is.data.frame(data))
+    return(adjust.data.frame(data[!obj$idx,]))
   else 
-    return(obj$data[!obj$idx])
+    return(data[!obj$idx])
 }
