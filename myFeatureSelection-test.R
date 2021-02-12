@@ -1,20 +1,20 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFeatureSelection.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFeatureSelection.R")
 data(iris)
 
-select_features <- function(myfeature) {
-  myfeature <- prepare(myfeature)
+select_features <- function(myfeature, data) {
+  myfeature <- prepare(myfeature, data)
   print(myfeature$features)
-  data <- action(myfeature)
-  return(data)
+  data <- action(myfeature, data)
+  print(head(data))
 }
 
-select_features(feature_selection_lasso(iris, "Species"))
+select_features(feature_selection_lasso("Species"), iris)
 
-select_features(feature_selection_fss(iris, "Species"))
+select_features(feature_selection_fss("Species"), iris)
 
-select_features(feature_selection_ig(iris, "Species"))
+select_features(feature_selection_ig("Species"), iris)
 
-select_features(feature_selection_relief(iris, "Species"))
+select_features(feature_selection_relief("Species"), iris)
 
 

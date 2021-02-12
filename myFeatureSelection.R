@@ -3,31 +3,31 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassifi
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # feature selection
-feature_selection <- function(data, attribute) {
-  data[,attribute] = as.factor(data[,attribute])
-  obj <- rel_transform(data)
+feature_selection <- function(attribute) {
+  obj <- dal_transform()
   obj$attribute <- attribute
   class(obj) <- append("feature_selection", class(obj))    
   return(obj)
 }
 
-action.feature_selection <- function(obj) {
-  data = obj$data[,c(obj$features, obj$attribute)]
+action.feature_selection <- function(obj, data) {
+  data = data[,c(obj$features, obj$attribute)]
   return(data)
 }
 
 #Lasso
-feature_selection_lasso <- function(data, attribute) {
-  obj <- feature_selection(data, attribute)
+feature_selection_lasso <- function(attribute) {
+  obj <- feature_selection(attribute)
   class(obj) <- append("feature_selection_lasso", class(obj))    
   return(obj)
 }
 
-prepare.feature_selection_lasso <- function(obj) {
-  loadlibrary("glmnet")
-  data = data.frame(obj$data)
+prepare.feature_selection_lasso <- function(obj, data) {
+  data = data.frame(data)
   if (!is.numeric(data[,obj$attribute]))
     data[,obj$attribute] =  as.numeric(data[,obj$attribute])
+  
+  loadlibrary("glmnet")
   nums = unlist(lapply(data, is.numeric))
   data = data[ , nums]
   
@@ -49,17 +49,18 @@ prepare.feature_selection_lasso <- function(obj) {
 
 # forward stepwise selection
 
-feature_selection_fss <- function(data, attribute) {
-  obj <- feature_selection(data, attribute)
+feature_selection_fss <- function(attribute) {
+  obj <- feature_selection(attribute)
   class(obj) <- append("feature_selection_fss", class(obj))    
   return(obj)
 }
 
-prepare.feature_selection_fss <- function(obj) {
+prepare.feature_selection_fss <- function(obj, data) {
   loadlibrary("leaps")  
-  data = data.frame(obj$data)
+  data = data.frame(data)
   if (!is.numeric(data[,obj$attribute]))
     data[,obj$attribute] =  as.numeric(data[,obj$attribute])
+  
   nums = unlist(lapply(data, is.numeric))
   data = data[ , nums]
   
@@ -81,16 +82,17 @@ prepare.feature_selection_fss <- function(obj) {
 
 # information gain
 
-feature_selection_ig <- function(data, attribute) {
-  obj <- feature_selection(data, attribute)
+feature_selection_ig <- function(attribute) {
+  obj <- feature_selection(attribute)
   class(obj) <- append("feature_selection_ig", class(obj))    
   return(obj)
 }
 
-prepare.feature_selection_ig <- function(obj) {
+prepare.feature_selection_ig <- function(obj, data) {
   loadlibrary("FSelector")
   loadlibrary("doBy")
-  data <- data.frame(obj$data)
+  data <- data.frame(data)
+  data[,obj$attribute] = as.factor(data[, obj$attribute])
   
   class_formula <- formula(paste(obj$attribute, "  ~ ."))
   weights <- information.gain(class_formula, data)
@@ -99,9 +101,9 @@ prepare.feature_selection_ig <- function(obj) {
   tab <- orderBy(~-attr_importance, data=tab)
   tab$i <- row(tab)
   tab$import_acum <- cumsum(tab$attr_importance)
-  myfit <- fit_curvature_min(tab$import_acum)
-  myfit <- prepare(myfit)  
-  tab <- tab[tab$import_acum <= myfit$y, ]
+  myfit <- fit_curvature_min()
+  res <- action(myfit, tab$import_acum)
+  tab <- tab[tab$import_acum <= res$y, ]
   vec <- rownames(tab)
   
   obj$features <- vec
@@ -111,17 +113,18 @@ prepare.feature_selection_ig <- function(obj) {
 
 # relief
 
-feature_selection_relief <- function(data, attribute) {
-  obj <- feature_selection(data, attribute)
+feature_selection_relief <- function(attribute) {
+  obj <- feature_selection(attribute)
   class(obj) <- append("feature_selection_relief", class(obj))    
   return(obj)
 }
 
-prepare.feature_selection_relief <- function(obj) {
+prepare.feature_selection_relief <- function(obj, data) {
   loadlibrary("FSelector")
   loadlibrary("doBy")
 
-  data <- data.frame(obj$data)
+  data <- data.frame(data)
+  data[,obj$attribute] = as.factor(data[, obj$attribute])
   
   class_formula <- formula(paste(obj$attribute, "  ~ ."))
   weights <- relief(class_formula, data)
@@ -130,9 +133,9 @@ prepare.feature_selection_relief <- function(obj) {
   tab <- orderBy(~-attr_importance, data=tab)
   tab$i <- row(tab)
   tab$import_acum <- cumsum(tab$attr_importance)
-  myfit <- fit_curvature_min(tab$import_acum)
-  myfit <- prepare(myfit)  
-  tab <- tab[tab$import_acum <= myfit$y, ]
+  myfit <- fit_curvature_min()
+  res <- action(myfit, tab$import_acum)
+  tab <- tab[tab$import_acum <= res$y, ]
   vec <- rownames(tab)
   
   obj$features <- vec
