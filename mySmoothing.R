@@ -3,12 +3,12 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransfor
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # smoothing
-smoothing <- function() {
+smoothing <- function(n) {
   obj <- dal_transform()
+  obj$n <- n
   class(obj) <- append("smoothing", class(obj))    
   return(obj)
 }
-
 
 prepare.smoothing <- function(obj, data) {
   v <- data
@@ -40,26 +40,24 @@ optimize.smoothing <- function(obj, data, do_plot=FALSE) {
   for (i in 1:n)
   {
     obj$n <- i
-    obj <- prepare(obj)
-    vm <- action(obj)
+    obj <- prepare(obj, data)
+    vm <- action(obj, data)
     mse <- mean((data - vm)^2, na.rm = TRUE) 
     row <- c(mse , i)
     opt <- rbind(opt, row)
   }
   colnames(opt)<-c("mean","num") 
-  curv <- fit_curvature_max(opt$mean)
-  curv <- prepare(curv)
-  res <- action(curv)
+  curv <- fit_curvature_max()
+  res <- action(curv, opt$mean)
   obj$n <- res$x
   if (do_plot)
-    plot(curv)
+    plot(curv, y=opt$mean, res)
   return(obj)
 }
 
 # smoothing by interval
 smoothing_inter <- function(n) {
-  obj <- smoothing()
-  obj$n <- n
+  obj <- smoothing(n)
   class(obj) <- append("smoothing_inter", class(obj))    
   return(obj)  
 }
@@ -75,14 +73,13 @@ prepare.smoothing_inter <- function(obj, data) {
     bimin = min(v)
   }
   obj$interval <- seq(from = bimin, to = bimax, by = (bimax-bimin)/n)
-  obj <- prepare.smoothing(obj)
+  obj <- prepare.smoothing(obj, data)
   return(obj)
 }
 
 # smoothing by freq
 smoothing_freq <- function(n) {
-  obj <- smoothing()
-  obj$n <- n
+  obj <- smoothing(n)
   class(obj) <- append("smoothing_freq", class(obj))    
   return(obj)  
 }
@@ -92,14 +89,13 @@ prepare.smoothing_freq <- function(obj, data) {
   n <- obj$n
   p <- seq(from = 0, to = 1, by = 1/n)
   obj$interval <- quantile(v, p)
-  obj <- prepare.smoothing(obj)
+  obj <- prepare.smoothing(obj, data)
   return(obj)
 }
 
 # smoothing by cluster
 smoothing_cluster <- function(n) {
-  obj <- smoothing()
-  obj$n <- n
+  obj <- smoothing(n)
   class(obj) <- append("smoothing_cluster", class(obj))    
   return(obj)  
 }
@@ -111,7 +107,7 @@ prepare.smoothing_cluster <- function(obj, data) {
   s <- sort(km$centers)
   s <- stats::filter(s,rep(1/2,2), sides=2)[1:(n-1)]
   obj$interval <- c(min(v), s, max(v))
-  obj <- prepare.smoothing(obj)
+  obj <- prepare.smoothing(obj, data)
   return(obj)
 }
 
