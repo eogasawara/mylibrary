@@ -1,8 +1,7 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 
-
-if (FALSE) {
+if (TRUE) {
   test_norm <- function(data, norm) {
     print(class(norm)[1])
     norm <- prepare(norm, data)
@@ -91,11 +90,11 @@ if (TRUE) {
   }
   
   if (TRUE) {
-    test_sw(x, 0, ts_gminmax(scale=FALSE))
-    test_sw(x, 10, ts_gminmax(scale=FALSE))
-    test_sw(x, 0, ts_gminmax_diff(scale=FALSE))
-    test_sw(x, 10, ts_gminmax_diff(scale=FALSE))
+    #test_sw(x, 0, ts_gminmax(scale=FALSE))
+    #test_sw(x, 10, ts_gminmax(scale=FALSE))
+    #test_sw(x, 0, ts_gminmax_diff(scale=FALSE))
+    #test_sw(x, 10, ts_gminmax_diff(scale=FALSE))
     test_sw(x, 10, ts_swminmax(scale=TRUE))
-    test_sw(x, 10, ts_an(scale=TRUE))
+    #test_sw(x, 10, ts_an(scale=TRUE))
   }
 }

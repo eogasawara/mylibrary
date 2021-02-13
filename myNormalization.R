@@ -170,7 +170,7 @@ prepare.ts_gminmax <- function(obj, data) {
 
 action.ts_gminmax <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
-    x <- adjust.matrix((x-obj$gmin)/(obj$gmax-obj$gmin))
+    x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
     return(x)
   }
   else {
@@ -181,7 +181,7 @@ action.ts_gminmax <- function(obj, data, x=NULL) {
 
 deaction.ts_gminmax <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
-    x <- adjust.matrix(x * (obj$gmax-obj$gmin) + obj$gmin)
+    x <- x * (obj$gmax-obj$gmin) + obj$gmin
     return(x)
   }
   else {
@@ -198,7 +198,7 @@ ts_gminmax_diff <- function(scale = FALSE) {
 }
 
 prepare.ts_gminmax_diff <- function(obj, data) {
-  data <- adjust.matrix(data[2:nrow(data),]-data[1:(nrow(data)-1),])
+  data <- data[2:nrow(data),]-data[1:(nrow(data)-1),]
   obj <- prepare.ts_gminmax(obj, data)
   return(obj)
 }
@@ -208,11 +208,11 @@ action.ts_gminmax_diff <- function(obj, data, x=NULL) {
     ref <- attr(data, "ref")
     sw <- attr(data, "sw")
     if (sw == 1) {
-      x <- adjust.matrix(x[2:nrow(x),])-ref
+      x <- x[2:nrow(x),]-ref
       x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
     }
     else {
-      x <- adjust.matrix(x-ref[,ncol(ref)])
+      x <- x-ref[,ncol(ref)]
       x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
     }
     return(x)
@@ -221,13 +221,13 @@ action.ts_gminmax_diff <- function(obj, data, x=NULL) {
     ref <- NULL
     sw <- ncol(data) 
     if (sw == 1) {
-      ref <- adjust.matrix(data[1:(nrow(data)-1),])
-      data <- adjust.matrix(data[2:nrow(data),] - ref)
+      ref <- data[1:(nrow(data)-1),]
+      data <- data[2:nrow(data),] - ref
       data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
     }
     else {
-      ref <- adjust.matrix(data[,1:(ncol(data)-1)])
-      data <- adjust.matrix(data[,2:ncol(data)]-ref)
+      ref <- data[,1:(ncol(data)-1)]
+      data <- data[,2:ncol(data)]-ref
       data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
     }
     attr(data, "ref") <- ref
@@ -242,10 +242,10 @@ deaction.ts_gminmax_diff <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     x <- x * (obj$gmax-obj$gmin) + obj$gmin
     if (sw == 1) {
-      x <- adjust.matrix(x[2:nrow(x),])+ref
+      x <- x[2:nrow(x),]+ref
     }
     else {
-      x <- adjust.matrix(x+ref[,ncol(ref)])
+      x <- x+ref[,ncol(ref)]
     }
     return(x)
   }
@@ -305,7 +305,7 @@ action.ts_swminmax <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     i_min <- attr(data, "i_min")
     i_max <- attr(data, "i_max")
-    x <- adjust.matrix(obj$scale_factor*(x-i_min)/(i_max-i_min) + obj$scale_offset)
+    x <- obj$scale_factor*(x-i_min)/(i_max-i_min) + obj$scale_offset
     return(x)
   }
   else {
@@ -322,7 +322,7 @@ deaction.ts_swminmax <- function(obj, data, x=NULL) {
   i_min <- attr(data, "i_min")
   i_max <- attr(data, "i_max")
   if (!is.null(x)) {
-    x <- adjust.matrix((x - obj$scale_offset) * (i_max - i_min) / obj$scale_factor + i_min)
+    x <- (x - obj$scale_offset) * (i_max - i_min) / obj$scale_factor + i_min
     return(x)
   }
   else {
@@ -380,7 +380,7 @@ action.ts_an <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     an <- attr(data, "an")
     x <- x / an
-    x <- adjust.matrix((x - obj$gmin) / (obj$gmax-obj$gmin))
+    x <- (x - obj$gmin) / (obj$gmax-obj$gmin)
     return(x)
   }
   else {
@@ -395,7 +395,7 @@ action.ts_an <- function(obj, data, x=NULL) {
 deaction.ts_an <- function(obj, data, x=NULL) {
   an <- attr(data, "an")
   if (!is.null(x)) {
-    x <- adjust.matrix(x * (obj$gmax-obj$gmin) + obj$gmin)
+    x <- x * (obj$gmax-obj$gmin) + obj$gmin
     x <- x * an
     return(x)
   }
