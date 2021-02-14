@@ -46,9 +46,8 @@ if (TRUE) {
   #train_test(x, model=ts_nnet(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
   #train_test(x, model=ts_svm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
   #train_test(x, model=ts_rf(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  train_test(x, model=ts_elm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  #train_test(x, model=ts_mlp(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  #train_test(x, model=ts_elm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
   #train_test(x, model=ts_tensor_cnn(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  #train_test(x, model=ts_tensor_lstm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=ts_tensor_lstm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
 }
 

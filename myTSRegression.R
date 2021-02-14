@@ -292,14 +292,157 @@ ts_invoke_prepare.ts_elm <- function(obj, x, y) {
   
   obj$mdl <- elm_train(x, y, nhid = max(obj$nhid), actfun = 'purelin', init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
   
-  #tuned <- tune(randomForest, x, y, ranges=list(mtry=obj$mtry, ntree=obj$ntree))
-  #obj$mdl <- tuned$best.model 
-  
   return(obj)
 }
 
 ts_invoke_action.ts_elm <- function(obj, x) {
   prediction <- elm_predict(obj$mdl, x)
+  return(prediction)
+}
+
+
+#class ts_tensor_cnn
+
+ts_tensor_cnn <- function(preprocess, input_size, epochs = 2000) {
+  obj <- tsreg_sw(preprocess, input_size)
+  
+  obj$epochs <- epochs
+
+  class(obj) <- append("ts_tensor_cnn", class(obj))    
+  return(obj)
+}
+
+ts_invoke_prepare.ts_tensor_cnn <- function(obj, x, y) {
+  build_model <- function(train_df) {
+    set.seed(1)
+    
+    spec <- feature_spec(train_df, t0 ~ . ) %>% 
+      step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
+      fit()
+    
+    input <- layer_input_from_dataset(train_df %>% select(-t0))
+    
+    output <- input %>% 
+      layer_dense_features(dense_features(spec)) %>% 
+      layer_dense(units = 64, activation = "relu") %>%
+      layer_dense(units = 64, activation = "relu") %>%
+      layer_dense(units = 1) 
+    
+    model <- keras_model(input, output)
+    
+    model %>% 
+      compile(
+        loss = "mse",
+        optimizer = optimizer_rmsprop(),
+        metrics = list("mean_absolute_error")
+      )
+    
+    return(model)
+  }
+  loadlibrary("dplyr")
+  loadlibrary("tfdatasets")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+  
+  obj$mdl <- NULL
+  
+  xy <- data.frame(x)
+  xy$t0 <- y
+  
+  model <- build_model(xy)
+  
+  print_dot_callback <- callback_lambda(
+    on_epoch_end = function(epoch, logs) {
+      if (epoch %% 800 == 0) cat("\n")
+      if (epoch %% 10 == 0) cat(".")
+    }
+  )    
+  
+  history <- model %>% fit(
+    x = xy %>% select(-t0),
+    y = xy$t0,
+    epochs = obj$epochs,
+    validation_split = 0.2,
+    verbose = 0,
+    callbacks = list(print_dot_callback)
+  )  
+  cat("\n")
+  
+  obj$mdl <- model
+  
+  return(obj)
+}
+
+ts_invoke_action.ts_tensor_cnn <- function(obj, x) {
+  x <- data.frame(x)
+  prediction <- (obj$mdl %>% predict(x))  
+  return(prediction)
+}
+
+#class ts_tensor_lstm
+
+ts_tensor_lstm <- function(preprocess, input_size, epochs = 2000) {
+  obj <- tsreg_sw(preprocess, input_size)
+  
+  obj$epochs <- epochs
+  
+  class(obj) <- append("ts_tensor_lstm", class(obj))    
+  return(obj)
+}
+
+ts_invoke_prepare.ts_tensor_lstm <- function(obj, x, y) {
+  obj$mdl <- NULL
+  
+  print_dot_callback <- callback_lambda(
+    on_epoch_end = function(epoch, logs) {
+      if (epoch %% 800 == 0) cat("\n")
+      if (epoch %% 10 == 0) cat(".")
+    }
+  )    
+  
+  set.seed(1)
+  batch.size <- 1
+  size <- ncol(x)
+  
+  x <- array(as.vector(x), dim=(c(dim(x),1)))
+  
+  model <- keras_model_sequential()
+  model %>%
+    layer_lstm(units = 100,
+               input_shape = c(size, 1),
+               batch_size = batch.size,
+               return_sequences = TRUE,
+               stateful = TRUE) %>%
+    layer_dropout(rate = 0.5) %>%
+    layer_lstm(units = 50,
+               return_sequences = FALSE,
+               stateful = TRUE) %>%
+    layer_dropout(rate = 0.5) %>%
+    layer_dense(units = 1)
+  model %>%
+    compile(loss = 'mae', optimizer = 'adam')
+  
+  
+  model %>% fit(x = x,
+                y = y,
+                batch_size = batch.size,
+                epochs = obj$epochs,
+                verbose = 0,
+                shuffle = FALSE,
+                callbacks = list(print_dot_callback)
+  )
+  model %>% reset_states()
+  cat("\n")
+  
+  obj$mdl <- model
+  
+  return(obj)
+}
+
+ts_invoke_action.ts_tensor_lstm <- function(obj, x) {
+  x <- array(as.vector(x), dim=(c(dim(x),1)))
+  batch.size <- 1
+  prediction <- obj$mdl %>% predict(x, batch_size = batch.size) %>% .[,1]
   return(prediction)
 }
 
@@ -319,7 +462,6 @@ tsregression_evaluation <- function(values, prediction) {
   attr(obj, "class") <- "tsregression_evaluation"  
   return(obj)
 }
-
 
 plot.tsregression <- function(obj, y, yadj, ypre) {
   loadlibrary("TSPred")
