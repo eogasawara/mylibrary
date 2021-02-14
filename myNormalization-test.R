@@ -60,11 +60,12 @@ if (TRUE) {
     print("sample data")
     print(head(samp$train))
     
-    norm <- prepare(norm, samp$train)
-    
     proj <- ts_projection(samp$train)
-    
+
+    norm <- prepare(norm, proj$input)
+
     ninput <- action(norm, proj$input)
+    
     print("normalized input")
     print(head(ninput))
     
@@ -92,7 +93,6 @@ if (TRUE) {
   if (TRUE) {
     test_sw(x, 0, ts_gminmax())
     test_sw(x, 10, ts_gminmax())
-    test_sw(x, 0, ts_gminmax_diff())
     test_sw(x, 10, ts_gminmax_diff())
     test_sw(x, 10, ts_swminmax())
     test_sw(x, 10, ts_an())

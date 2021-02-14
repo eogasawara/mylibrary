@@ -90,7 +90,7 @@ prepare.zscore <- function(obj, data) {
     zscore["nsd",j] <- nsd
   }
   obj$norm.set <- zscore
-
+  
   return(obj)  
 }
 
@@ -123,7 +123,7 @@ deaction.zscore <- function(obj, data) {
 # ts_normalize (base class)
 ts_normalize <- function() {
   obj <- normalize()
-
+  
   class(obj) <- append("ts_normalize", class(obj))    
   return(obj)
 }
@@ -142,7 +142,7 @@ prepare.ts_gminmax <- function(obj, data) {
   
   obj$gmin <- min(data)
   obj$gmax <- max(data)
-
+  
   return(obj)
 }
 
@@ -176,7 +176,7 @@ ts_gminmax_diff <- function() {
 }
 
 prepare.ts_gminmax_diff <- function(obj, data) {
-  data <- data[2:nrow(data),]-data[1:(nrow(data)-1),]
+  data <- data[,2:ncol(data)]-data[,1:(ncol(data)-1)]
   obj <- prepare.ts_gminmax(obj, data)
   return(obj)
 }
@@ -185,58 +185,42 @@ action.ts_gminmax_diff <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     ref <- attr(data, "ref")
     sw <- attr(data, "sw")
-    if (sw == 1) {
-      x <- x[2:nrow(x),]-ref
-      x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
-    }
-    else {
-      x <- x-ref[,ncol(ref)]
-      x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
-    }
+    x <- x-ref
+    x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
     return(x)
   }
   else {
-    ref <- NULL
-    sw <- ncol(data) 
-    if (sw == 1) {
-      ref <- data[1:(nrow(data)-1),]
-      data <- data[2:nrow(data),] - ref
-      data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
-    }
-    else {
-      ref <- data[,1:(ncol(data)-1)]
-      data <- data[,2:ncol(data)]-ref
-      data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
-    }
+    ref <- data[,ncol(data)]
+    cnames <- colnames(data)
+    for (i in (ncol(data)-1):1)
+      data[,i+1] <- data[, i+1] - data[,i]
+    data <- data[,2:ncol(data)]
+    data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
     attr(data, "ref") <- ref
-    attr(data, "sw") <- sw
+    attr(data, "sw") <- ncol(data)
+    attr(data, "cnames") <- cnames
     return(data)
   }
 }
 
 deaction.ts_gminmax_diff <- function(obj, data, x=NULL) {
+  cnames <- attr(data, "cnames")
   ref <- attr(data, "ref")
   sw <- attr(data, "sw")
   if (!is.null(x)) {
     x <- x * (obj$gmax-obj$gmin) + obj$gmin
-    if (sw == 1) {
-      x <- x[2:nrow(x),]+ref
-    }
-    else {
-      x <- x+ref[,ncol(ref)]
-    }
+    x <- x + ref
     return(x)
   }
   else {
     data <- data * (obj$gmax-obj$gmin) + obj$gmin
-    if (sw == 1) {
-      data <- rbind(ref[1, ], data + ref)
-    }
-    else {
-      data <- cbind(ref[,1], (data + ref))
-    }
+    data <- cbind(data, ref[,1])
+    for (i in (ncol(data)-1):1)
+      data[,i] <- data[, i+1] - data[,i]
+    colnames(data) <- cnames
     attr(data, "ref") <- ref
-    attr(data, "sw") <- sw
+    attr(data, "sw") <- ncol(data)
+    attr(data, "cnames") <- cnames
     return(data)
   }
 }
@@ -298,7 +282,7 @@ prepare.ts_an <- function(obj, data) {
   input <- data[,1:(ncol(data)-1)]
   an <- apply(input, 1, mean)
   data <- data / an
-
+  
   out <- outliers()
   out <- prepare(out, data)
   data <- action(out, data)
