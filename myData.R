@@ -91,7 +91,7 @@ ts_projection <- function(ts) {
   
   if (ncol(ts) == 1) {
     input <- ts
-    output <- NULL
+    output <- ts
   }
   else {
     input <- ts[,1:ncol(ts)-1]
