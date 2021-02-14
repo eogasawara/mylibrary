@@ -227,6 +227,82 @@ ts_invoke_prepare.ts_nnet <- function(obj, x, y) {
 }
 
 
+#class ts_svm
+
+ts_svm <- function(preprocess, input_size, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
+  obj <- tsreg_sw(preprocess, input_size)
+
+  obj$kernel <- kernel
+  obj$epsilon <- epsilon
+  obj$cost <- cost
+  
+  class(obj) <- append("ts_svm", class(obj))  
+  return(obj)
+}
+
+ts_invoke_prepare.ts_svm <- function(obj, x, y) {
+  loadlibrary("e1071")
+  
+  tuned <- tune(svm, x, y, ranges=list(epsilon=seq(0,1,0.1), cost=1:100))
+  obj$mdl <- tuned$best.model
+  return(obj)
+}
+
+#class ts_rf
+
+ts_rf <- function(preprocess, input_size, mtry = NULL, ntree = seq(50, 500, 50)) {
+  obj <- tsreg_sw(preprocess, input_size)
+  
+  if (is.null(mtry))
+    mtry <- unique(1:ceiling(input_size/3))
+  obj$mtry <- mtry
+  obj$ntree <- ntree
+  
+  class(obj) <- append("ts_rf", class(obj))    
+  return(obj)
+}
+
+ts_invoke_prepare.ts_rf <- function(obj, x, y) {
+  loadlibrary("e1071")
+  loadlibrary("randomForest")
+  
+  tuned <- tune(randomForest, x, y, ranges=list(mtry=obj$mtry, ntree=obj$ntree))
+  obj$mdl <- tuned$best.model 
+
+  return(obj)
+}
+
+
+#class ts_elm
+
+ts_elm <- function(preprocess, input_size, nhid=NULL) {
+  obj <- tsreg_sw(preprocess, input_size)
+  
+  if (is.null(nhid))
+    nhid <- unique(1:ceiling(input_size/3))
+  obj$nhid <- nhid
+
+  class(obj) <- append("ts_elm", class(obj))    
+  return(obj)
+}
+
+ts_invoke_prepare.ts_elm <- function(obj, x, y) {
+  loadlibrary("e1071")
+  loadlibrary("elmNNRcpp")
+  
+  obj$mdl <- elm_train(x, y, nhid = max(obj$nhid), actfun = 'purelin', init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
+  
+  #tuned <- tune(randomForest, x, y, ranges=list(mtry=obj$mtry, ntree=obj$ntree))
+  #obj$mdl <- tuned$best.model 
+  
+  return(obj)
+}
+
+ts_invoke_action.ts_elm <- function(obj, x) {
+  prediction <- elm_predict(obj$mdl, x)
+  return(prediction)
+}
+
 # utility functions
 
 # regression_evaluation
