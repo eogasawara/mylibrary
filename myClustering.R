@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
+source("myFitting.R")
 
 # clustering
 clustering <- function() {

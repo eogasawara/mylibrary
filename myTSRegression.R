@@ -1,10 +1,9 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
+source("myNormalization.R")
 
 # regression
 tsregression <- function() {
   obj <- dal_transform()
-
+  
   class(obj) <- append("tsregression", class(obj))    
   return(obj)
 }
@@ -15,38 +14,33 @@ prepare.tsregression <- function(obj, x, y) {
   return(obj)
 }
 
-#class ts_dir
-
-tsreg_dir <- function() {
-  obj <- tsregression()
-  class(obj) <- append("tsreg_dir", class(obj))  
-  return(obj)
+action.tsregression <- function(obj, x) {
+  return(x[,ncol(x)])
 }
-
-
-action.tsreg_dir <- function(obj, x=NULL, steps_ahead=1) {
-}
-
 
 #class ts_arima
 
 ts_arima <- function() {
-  obj <- tsreg_dir()
+  obj <- tsregression()
+  
   class(obj) <- append("ts_arima", class(obj))  
   return(obj)
 }
 
 prepare.ts_arima <- function(obj, x, y = NULL) {
-  loadlibrary("forecast")  
   obj <- prepare.tsregression(obj, x, y)
+  
+  loadlibrary("forecast")  
   obj$mdl <- auto.arima(x, allowdrift = TRUE, allowmean = TRUE) 
   return(obj)
 }
 
 action.ts_arima <- function(obj, x, y = NULL, steps_ahead=NULL) {
   loadlibrary("forecast")  
-  if (!is.null(x) && (length(obj$mdl$x) == length(x)) && (sum(obj$mdl$x-x) == 0))
+  if (!is.null(x) && (length(obj$mdl$x) == length(x)) && (sum(obj$mdl$x-x) == 0)){
+    #get adjusted data
     pred <- obj$mdl$x - obj$mdl$residuals    
+  }
   else {
     if (is.null(steps_ahead))
       steps_ahead <- length(x)
@@ -59,19 +53,22 @@ action.ts_arima <- function(obj, x, y = NULL, steps_ahead=NULL) {
 #class ts_emlp_dir
 
 tsreg_emlp_dir <- function(input_size, difforder=0, hd=NULL) {
-  obj <- tsreg_dir()
-  class(obj) <- append("tsreg_emlp_dir", class(obj))  
+  obj <- tsregression()
+  
   obj$input_size <- input_size
   obj$difforder <- difforder
   if (is.null(hd))
     hd <- ceiling(input_size/3)
   obj$hd <- hd
+  
+  class(obj) <- append("tsreg_emlp_dir", class(obj)) 
   return(obj)  
 }
 
 prepare.tsreg_emlp_dir <- function(obj, x, y = NULL) {
-  loadlibrary("nnfor")  
   obj <- prepare.tsregression(obj, x, y)
+  
+  loadlibrary("nnfor")  
   x <- ts(x)
   obj$mdl <- nnfor::mlp(x, hd = obj$hd, lags=1:obj$input_size, sel.lag=rep(FALSE, obj$input_size), difforder=obj$difforder)
   return(obj)
@@ -81,6 +78,7 @@ prepare.tsreg_emlp_dir <- function(obj, x, y = NULL) {
 action.tsreg_emlp_dir <- function(obj, x, y = NULL, steps_ahead=NULL) {
   loadlibrary("nnfor") 
   if (!is.null(x) && (length(obj$mdl$y) == length(x)) && (sum(obj$mdl$y-x) == 0)) {
+    #get adjusted data
     prev <- length(x)-length(obj$mdl$fitted)    
     pred <- c(obj$mdl$y[1:prev], obj$mdl$fitted)
   }
@@ -96,19 +94,22 @@ action.tsreg_emlp_dir <- function(obj, x, y = NULL, steps_ahead=NULL) {
 #class tsreg_eelm_dir
 
 tsreg_eelm_dir <- function(input_size, difforder=0, hd=NULL) {
-  obj <- tsreg_dir()
-  class(obj) <- append("tsreg_eelm_dir", class(obj))  
+  obj <- tsregression()
+
   obj$input_size <- input_size
   obj$difforder <- difforder
   if (is.null(hd))
     hd <- ceiling(input_size/3)
   obj$hd <- hd
+  
+  class(obj) <- append("tsreg_eelm_dir", class(obj))  
   return(obj)  
 }
 
 prepare.tsreg_eelm_dir <- function(obj, x, y = NULL) {
-  loadlibrary("nnfor")  
   obj <- prepare.tsregression(obj, x, y)
+  
+  loadlibrary("nnfor")  
   x <- ts(x)
   obj$mdl <- nnfor::elm(x, hd = obj$hd, lags=1:obj$input_size, sel.lag=rep(FALSE, obj$input_size), difforder=obj$difforder)
   return(obj)
@@ -117,6 +118,7 @@ prepare.tsreg_eelm_dir <- function(obj, x, y = NULL) {
 action.tsreg_eelm_dir <- function(obj, x, y = NULL, steps_ahead=NULL) {
   loadlibrary("nnfor") 
   if (!is.null(x) && (length(obj$mdl$y) == length(x)) && (sum(obj$mdl$y-x) == 0)) {
+    #get adjusted data
     prev <- length(x)-length(obj$mdl$fitted)    
     pred <- c(obj$mdl$y[1:prev], obj$mdl$fitted)
   }
@@ -132,101 +134,107 @@ action.tsreg_eelm_dir <- function(obj, x, y = NULL, steps_ahead=NULL) {
 # setup for sliding window
 
 ts_invoke_prepare <- function(obj, x, y = NULL) {
-  UseMethod("ts_invoke_train")
+  UseMethod("ts_invoke_prepare")
 }
 
-ts_invoke_action <- function(obj, x, steps_ahead=1) {
-  UseMethod("ts_invoke_train")
+ts_invoke_action <- function(obj, x) {
+  UseMethod("ts_invoke_action")
 }
 
 #class tsreg_sw
 
 tsreg_sw <- function(preprocess, input_size) {
-  obj <- tsreg_dir()
-  class(obj) <- append("tsreg_sw", class(obj))  
+  obj <- tsregression()
+
   obj$preprocess <- preprocess
   obj$input_size <- input_size
+  
+  class(obj) <- append("tsreg_sw", class(obj))  
   return(obj)
+}
+
+ts_as_matrix <- function(data, input_size) {
+  data <- data[,(ncol(data)-input_size+1):ncol(data)]
+  return(data)
 }
 
 prepare.tsreg_sw <- function(obj, x, y) {
+  obj <- prepare.tsregression(obj, x, y)
+  
   set.seed(1)
   
-  obj$preprocess <- ts_normalize(obj$preprocess, x)
+  obj$preprocess <- prepare(obj$preprocess, x)
   
-  input <- ts_normalize(obj$preprocess, io$input)
+  x <- action(obj$preprocess, x)
   
-  ouput <- ts_normalize(obj$preprocess, io$output, input$arguments)
+  y <- action(obj$preprocess, x, y)
   
-  obj <- ts_invoke_train(obj, ts_as_matrix(input$x, obj$input_size), as.matrix(ouput$x), arguments)
-
+  obj <- ts_invoke_prepare(obj, ts_as_matrix(x, obj$input_size), y)
+  
+  obj <- register_log(obj)    
   return(obj)
 }
 
-ts_predict.tsreg_sw <- function(obj, X, steps_ahead=1) {
-  prediction <- NULL
+action.tsreg_sw <- function(obj, x, steps_ahead=1) {
   if (steps_ahead == 1) {
-    input <- ts_normalize(obj$preprocess, X)
-    pred <- ts_invoke_predict(obj, ts_as_matrix(input$x, obj$input_size))
-    pred <- as.vector(pred)
-    pred <- ts_denormalize(obj$preprocess, pred, input$arguments)
-    prediction <- pred$x
+    x <- action(obj$preprocess, x)
+    y <- ts_invoke_action(obj, ts_as_matrix(x, obj$input_size))
+    y <- deaction(obj$preprocess, x, y)
+    return(y)
   }
   else {
-    X <- data.frame(X)[1,]
+    prediction <- NULL
+    x <- x[1,]
     for (i in 1:steps_ahead) {
-      input <- ts_normalize(obj$preprocess, X)
-      pred <- ts_invoke_predict(obj, ts_as_matrix(input$x, obj$input_size))
-      pred <- as.vector(pred)
-      pred <- ts_denormalize(obj$preprocess, pred, input$arguments)
-      X[1,] <- c(X[1,2:ncol(X)], pred$x)
-      prediction <- c(prediction, pred$x)
+      x <- action(obj$preprocess, x)
+      y <- ts_invoke_action(obj, ts_as_matrix(x, obj$input_size))
+      x <- deaction(obj$preprocess, x)
+      y <- deaction(obj$preprocess, x, y)
+      x <- cbind(x[,2:ncol(X)], y)
+      prediction <- c(prediction, y)
     }
+    return(prediction)
   }
   return(prediction)
 }
 
-ts_test.tsreg_sw <- function(obj, test, steps_ahead=1) {
-  io <- ts_sw_project(test)
-  
-  prediction <- ts_predict(obj, io$input, steps_ahead)
-  
-  obj$test_pred <- prediction
-  obj$test_value <- io$output
-  
-  obj$test_smape <- TSPred::sMAPE(obj$test_value, obj$test_pred)  
-  obj$test_mse <- TSPred::MSE(obj$test_value, obj$test_pred)  
-  
-  return(obj)
+ts_invoke_action.tsreg_sw <- function(obj, x) {
+  prediction <- predict(obj$mdl, x)  
+  return(prediction)
 }
 
 #class ts_nnet
 
-ts_nnet <- function(preprocess, input_size) {
+ts_nnet <- function(preprocess, input_size, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
   obj <- tsreg_sw(preprocess, input_size)
-  obj$maxit <- 50000
+  
+  if (is.null(neurons))
+    neurons <- unique(1:ceiling(input_size/3))
+  obj$neurons <- neurons
+  obj$decay <- decay
+  obj$maxit <- maxit
+  
   class(obj) <- append("ts_nnet", class(obj))  
   return(obj)
 }
 
-ts_invoke_train.ts_nnet <- function(obj, X, Y, arguments = NULL) {
-  tuned <- tune(nnet, X, Y, maxit=obj$maxit, trace=FALSE, ranges=list(decay=seq(0, 1, 0.01), size=(1:ncol(X))))
+ts_invoke_prepare.ts_nnet <- function(obj, x, y) {
+  loadlibrary("e1071")
+  loadlibrary("nnet")  
+  tuned <- tune(nnet, x, y, maxit=obj$maxit, trace=FALSE, ranges=list(decay=obj$decay, size=obj$neurons, linout=TRUE))
   obj$mdl <- tuned$best.model
   return(obj)
 }
 
 
-
-
 # utility functions
-
 
 # regression_evaluation
 tsregression_evaluation <- function(values, prediction) {
   obj <- list(values=values, prediction=prediction)
   
   loadlibrary("TSPred")  
-
+  
   obj$smape <- TSPred::sMAPE(values, prediction)  
   obj$mse <- TSPred::MSE(values, prediction)  
   

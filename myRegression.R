@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
+source("myTransform.R")
 
 #loadlibrary("kernlab")
 #loadlibrary("rattle")

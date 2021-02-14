@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPCA.R")
+source("myPCA.R")
 
 mypca <- dt_pca("Species")
 mypca <- prepare(mypca, iris)
@@ -8,7 +8,7 @@ iris.pca <- action(mypca, iris)
 print(head(iris.pca))
 print(head(mypca$pca.transf))
 
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
+source("myGraphic.R")
 loadlibrary("RColorBrewer")
 loadlibrary("dplyr")
 col.set <- brewer.pal(11, 'Spectral')

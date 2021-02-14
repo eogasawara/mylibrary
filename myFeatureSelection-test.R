@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFeatureSelection.R")
+source("myFeatureSelection.R")
 data(iris)
 
 select_features <- function(myfeature, data) {

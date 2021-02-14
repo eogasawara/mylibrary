@@ -1,5 +1,5 @@
 # version 0.9
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
+source("myGraphic.R")
 
 loadlibrary("MASS")
 data(iris)

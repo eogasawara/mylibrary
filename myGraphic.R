@@ -1,5 +1,5 @@
 # version 0.9
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
+source("myData.R")
 
 loadlibrary("ggplot2")
 loadlibrary("scales")

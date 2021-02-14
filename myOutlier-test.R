@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myOutlier.R")
+source("myOutlier.R")
 
 head(iris)
 nrow(iris)

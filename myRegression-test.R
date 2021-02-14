@@ -1,6 +1,6 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+source("myRegression.R")
+source("mySample.R")
 
 loadlibrary("MASS")
 

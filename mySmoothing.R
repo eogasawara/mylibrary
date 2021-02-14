@@ -1,6 +1,6 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
+source("myTransform.R")
+source("myFitting.R")
 
 # smoothing
 smoothing <- function(n) {

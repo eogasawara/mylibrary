@@ -1,6 +1,6 @@
 # version 1.0 
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myOutlier.R")
+source("myData.R")
+source("myOutlier.R")
 
 # normalize normalization
 normalize <- function() {

@@ -1,4 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
+source("myTransform.R")
 # version 1.0
 # curvature
 

@@ -1,6 +1,6 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+source("myClassification.R")
+source("mySample.R")
 
 data(iris)
 head(iris)
