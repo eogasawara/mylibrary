@@ -90,11 +90,11 @@ if (TRUE) {
   }
   
   if (TRUE) {
-    test_sw(x, 0, ts_gminmax(scale=FALSE))
-    test_sw(x, 10, ts_gminmax(scale=FALSE))
-    test_sw(x, 0, ts_gminmax_diff(scale=FALSE))
-    test_sw(x, 10, ts_gminmax_diff(scale=FALSE))
-    test_sw(x, 10, ts_swminmax(scale=TRUE))
-    test_sw(x, 10, ts_an(scale=TRUE))
+    test_sw(x, 0, ts_gminmax())
+    test_sw(x, 10, ts_gminmax())
+    test_sw(x, 0, ts_gminmax_diff())
+    test_sw(x, 10, ts_gminmax_diff())
+    test_sw(x, 10, ts_swminmax())
+    test_sw(x, 10, ts_an())
   }
 }

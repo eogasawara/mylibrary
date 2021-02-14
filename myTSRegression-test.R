@@ -11,17 +11,25 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
   
   samp <- ts_sample(ts, test_size)
 
-  model <- ts_train(model, samp$train)
+  io_train <- ts_projection(samp$train)
+
+  model <- prepare(model, x=io_train$input, y=io_train$output)
   
-  io <- ts_projection(samp$test)
+  adjust <- action(model, io_train$input)
+  ev_adjust <- ts_regression_evaluation(io_train$output, adjust)
+  print(head(ev_adjust$metrics))
+
+  io_test <- ts_projection(samp$test)
   
-  prediction <- ts_predict(model, io$input)
+  prediction <- action(model, io_test$input)
+  ev_prediction <- ts_regression_evaluation(io_test$output, prediction)
+  print(head(ev_prediction$metrics))
   
-  model <- ts_test(model, samp$test, steps_ahead = steps_ahead)
+  #model <- ts_test(model, samp$test, steps_ahead = steps_ahead)
   
-  print(sprintf("%s %.2f%%", class(model)[1], 100*model$test_smape))
+  print(sprintf("%s %.2f", class(model)[1], 100*model$test_smape))
   
-  ts_plot_series(c(model$train_value, model$test_value), model$train_pred, model$test_pred, class(model)[1])
+  plot(model, y=c(io_train$output, io_test$output), yadj=adjust, ypre=prediction)
   
   return(model)
 }
@@ -30,10 +38,10 @@ if (TRUE) {
   x <- load_series("sin")
   
   #train_test(x, model=ts_arima(), 0, 5, steps_ahead = 5)
-  #train_test(x, model=ts_eelm_dir(4), 0, 5, steps_ahead = 5)
-  #train_test(x, model=ts_emlp_dir(4), 0, 5, steps_ahead = 5)
-
-  #train_test(x, model=ts_nnet(ts_gminmax(), input_size=4), 10, 5, steps_ahead = 5)
+  #train_test(x, model=tsreg_emlp_dir(4), 0, 5, steps_ahead = 5)
+  #train_test(x, model=tsreg_eelm_dir(4), 0, 5, steps_ahead = 5)
+  
+  train_test(x, model=ts_nnet(ts_gminmax(), input_size=4), 10, 5, steps_ahead = 5)
   #train_test(x, model=ts_svm(ts_gminmax(), input_size=4), 10, 5, steps_ahead = 5)
   #train_test(x, model=ts_rf(ts_gminmax(), input_size=4), 10, 5, steps_ahead = 5)
   #train_test(x, model=ts_elm(ts_gminmax(), input_size=4), 10, 5, steps_ahead = 5)
