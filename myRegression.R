@@ -20,37 +20,15 @@ prepare.regression <- function(obj, data) {
   return(obj)
 }
 
-# regression_multiple 
-regression_multiple <- function(attribute) {
-  obj <- regression(attribute)
-
-  class(obj) <- append("regression_multiple", class(obj))    
-  return(obj)
-}
-
-prepare.regression_multiple <- function(obj, data) {
-  #optimize it using lasso + anova
-  obj <- prepare.regression(obj, data)  
-  
-  obj <- register_log(obj)
-  return(obj)
-}
-
-action.regression_multiple  <- function(obj, data) {
-  #pick code for multiple regression
-  prediction <- rep(0, nrow(data))
-  return(prediction)
-}
-
 # decision_tree
-regression_decision_tree <- function(attribute) {
+reg_dtree <- function(attribute) {
   obj <- regression(attribute)
 
-  class(obj) <- append("regression_decision_tree", class(obj))    
+  class(obj) <- append("reg_dtree", class(obj))    
   return(obj)
 }
 
-prepare.regression_decision_tree <- function(obj, data) {
+prepare.reg_dtree <- function(obj, data) {
   obj <- prepare.regression(obj, data)  
   
   loadlibrary("tree")
@@ -62,14 +40,14 @@ prepare.regression_decision_tree <- function(obj, data) {
   return(obj)
 }
 
-action.regression_decision_tree <- function(obj, data) {
+action.reg_dtree <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors, type="vector")  
   return(prediction)
 }
 
 # random_forest
-regression_random_forest <- function(attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
+reg_rf <- function(attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
   obj <- regression(attribute)
   
   if (is.null(mtry))
@@ -77,11 +55,11 @@ regression_random_forest <- function(attribute, mtry = NULL, ntree = seq(50, 500
   obj$mtry <- mtry
   obj$ntree <- ntree
 
-  class(obj) <- append("regression_random_forest", class(obj))    
+  class(obj) <- append("reg_rf", class(obj))    
   return(obj)
 }
 
-prepare.regression_random_forest <- function(obj, data) {
+prepare.reg_rf <- function(obj, data) {
   obj <- prepare.regression(obj, data)  
 
   loadlibrary("e1071")
@@ -96,14 +74,14 @@ prepare.regression_random_forest <- function(obj, data) {
   return(obj)
 }
 
-action.regression_random_forest  <- function(obj, data) {
+action.reg_rf  <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors)  
   return(prediction)
 }
 
 # mlp_nnet
-regression_mlp_nnet <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
+reg_mlp <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
   obj <- regression(attribute)
   obj$maxit <- maxit
   if (is.null(neurons))
@@ -111,11 +89,11 @@ regression_mlp_nnet <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.02), 
   obj$neurons <- neurons
   obj$decay <- decay
   
-  class(obj) <- append("regression_mlp_nnet", class(obj))    
+  class(obj) <- append("reg_mlp", class(obj))    
   return(obj)
 }
 
-prepare.regression_mlp_nnet <- function(obj, data) {
+prepare.reg_mlp <- function(obj, data) {
   obj <- prepare.regression(obj, data)  
   
   loadlibrary("e1071")
@@ -130,14 +108,14 @@ prepare.regression_mlp_nnet <- function(obj, data) {
   return(obj)
 }
 
-action.regression_mlp_nnet  <- function(obj, data) {
+action.reg_mlp  <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors)  
   return(prediction)
 }
 
-# regression_svm 
-regression_svm <- function(attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
+# reg_svm 
+reg_svm <- function(attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   #analisar: https://rpubs.com/Kushan/296706  
   obj <- regression(attribute)
@@ -145,11 +123,11 @@ regression_svm <- function(attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), k
   obj$epsilon <- epsilon
   obj$cost <- cost
   
-  class(obj) <- append("regression_svm", class(obj))    
+  class(obj) <- append("reg_svm", class(obj))    
   return(obj)
 }
 
-prepare.regression_svm <- function(obj, data) {
+prepare.reg_svm <- function(obj, data) {
   obj <- prepare.regression(obj, data)  
   
   loadlibrary("e1071")
@@ -162,29 +140,29 @@ prepare.regression_svm <- function(obj, data) {
   return(obj)
 }
 
-action.regression_svm  <- function(obj, data) {
+action.reg_svm  <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors) 
   return(prediction)
 }
 
-# regression_knn 
-regression_knn <- function(attribute, k=1:20) {
+# reg_knn 
+reg_knn <- function(attribute, k=1:20) {
   obj <- regression(attribute)
   obj$k <- k
 
-  class(obj) <- append("regression_knn", class(obj))    
+  class(obj) <- append("reg_knn", class(obj))    
   return(obj)
 }
 
-prepare.regression_knn <- function(obj, data) {
+prepare.reg_knn <- function(obj, data) {
   obj <- prepare.regression(obj, data)  
 
   obj <- register_log(obj)
   return(obj)
 }
 
-action.regression_knn  <- function(obj, data) {
+action.reg_knn  <- function(obj, data) {
   #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html  
   prediction <- rep(0, nrow(data))
   return(prediction)

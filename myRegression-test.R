@@ -34,9 +34,9 @@ train_test <- function(model, boston_train, boston_test) {
   print(test_eval$metrics)
 }
 
-train_test(regression_decision_tree("medv"), boston_train, boston_test)
-train_test(regression_random_forest("medv", mtry=5, ntree=375), boston_train, boston_test)
-train_test(regression_mlp_nnet("medv", neurons=5, decay=0.08), boston_train, boston_test)
-train_test(regression_svm("medv", epsilon=0.1, cost=20.000), boston_train, boston_test)
-train_test(regression_knn("medv"), boston_train, boston_test)
+train_test(reg_dtree("medv"), boston_train, boston_test)
+train_test(reg_rf("medv", mtry=5, ntree=375), boston_train, boston_test)
+train_test(reg_mlp("medv", neurons=5, decay=0.08), boston_train, boston_test)
+train_test(reg_svm("medv", epsilon=0.1, cost=20.000), boston_train, boston_test)
+train_test(reg_knn("medv"), boston_train, boston_test)
 
