@@ -14,15 +14,20 @@ if (TRUE) {
   
   
   print(head(iris))
-  
   test_norm(iris, minmax())
-  
   test_norm(iris, zscore())
-  
   test_norm(iris, zscore(nmean=0.5, nsd=0.5/2.698))
 }
 
 if (TRUE) {
+  load_series <- function(name) {
+    link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
+    x <- get(load(link))
+    return(x)  
+  }
+  
+  x <- load_series("sin")
+
   test_sw <- function(x, sw, norm) {
     ts <- ts_data(x, sw)
     print("org data")
@@ -33,9 +38,9 @@ if (TRUE) {
     print(head(samp$train))
     
     proj <- ts_projection(samp$train)
-
+    
     norm <- prepare(norm, proj$input)
-
+    
     ninput <- action(norm, proj$input)
     
     print("normalized input")
@@ -62,11 +67,9 @@ if (TRUE) {
     plot(1:length(y), y)
   }
   
-  if (TRUE) {
-    test_sw(x, 0, ts_gminmax())
-    test_sw(x, 10, ts_gminmax())
-    test_sw(x, 10, ts_gminmax_diff())
-    test_sw(x, 10, ts_swminmax())
-    test_sw(x, 10, ts_an())
-  }
+  test_sw(x, 0, ts_gminmax())
+  test_sw(x, 10, ts_gminmax())
+  test_sw(x, 10, ts_gminmax_diff())
+  test_sw(x, 10, ts_swminmax())
+  test_sw(x, 10, ts_an())
 }
