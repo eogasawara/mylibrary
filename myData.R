@@ -89,11 +89,7 @@ ts_projection <- function(ts) {
   input <- ts
   output <- ts
   
-  if (ncol(ts) == 1) {
-    input <- ts
-    output <- ts
-  }
-  else {
+  if (is.matrix(ts) || is.data.frame(ts)) {
     if (nrow(ts) > 1) {
       input <- ts[,1:(ncol(ts)-1)]
       output <- ts[,ncol(ts)]

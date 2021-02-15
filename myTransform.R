@@ -65,13 +65,13 @@ register_log <- function(obj, msg, ref) {
 }
 
 register_log.default <- function(obj, msg = "") {
-  obj$log_time <- sprintf("%.3f", difftime(Sys.time(), obj$log_time, units = "min"))
-  ref <- deparse(sys.calls()[[sys.nframe()-2]])
-  if (is.null(ref))
-    ref <- class(obj)
+  obj$log_time <- as.numeric(difftime(Sys.time(), obj$log_time, units = "min"))
+  ref <- as.list(sys.call(-2))[[1]]
   if (is.null(ref))
     ref <- ""
-  obj$log_msg <- sprintf("%s,%s,%s", ref, obj$log_time, msg)
+  else
+    ref <- as.character(ref)
+  obj$log_msg <- sprintf("%s,%s,%.3f,%s", as.character(class(obj)[1]), ref, obj$log_time, msg)
   message(obj$log_msg)
   return(obj)
 }

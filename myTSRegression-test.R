@@ -1,8 +1,7 @@
-#source("myTSRegression.R")
+source("myTSRegression.R")
 
 load_series <- function(name) {
-  #link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
-  link <- sprintf("./data/time-series/%s.RData", name)
+  link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
   x <- get(load(link))
   return(x)  
 }
@@ -26,28 +25,22 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
   ev_prediction <- tsregression_evaluation(io_test$output, prediction)
   print(head(ev_prediction$metrics))
   
-  print(sprintf("%s %.2f", class(model)[1], 100*model$test_smape))
+  print(sprintf("%s %.2f", class(model)[1], 100*ev_prediction$metrics$smape))
   
   plot(model, y=c(io_train$output, io_test$output), yadj=adjust, ypre=prediction)
   
   return(model)
 }
 
-if (TRUE) {
-  x <- load_series("sin")
-  sahead <- 1
-  tsize <- 1
-  swsize <- 10
-  preproc <- ts_gminmax()
-  #train_test(x, model=ts_arima(), 0, test_size = tsize, steps_ahead = sahead)
-  #train_test(x, model=tsreg_emlp_dir(4), 0, test_size = tsize, steps_ahead = sahead)
-  #train_test(x, model=tsreg_eelm_dir(4), 0, test_size = tsize, steps_ahead = sahead)
-  
-  #train_test(x, model=ts_nnet(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  #train_test(x, model=ts_svm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  #train_test(x, model=ts_rf(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  #train_test(x, model=ts_elm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  #train_test(x, model=ts_tensor_cnn(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  train_test(x, model=ts_tensor_lstm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-}
-
+x <- load_series("sin")
+sahead <- 1
+tsize <- 1
+swsize <- 10
+preproc <- ts_gminmax()
+train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_nnet(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_svm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_rf(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_elm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_cnn(preproc, input_size=4, epochs = 100), sw = swsize, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_lstm(preproc, input_size=4, epochs = 100), sw = swsize, test_size = tsize, steps_ahead = sahead)
