@@ -45,4 +45,5 @@ train_test(class_rf("Species"), iris_train, iris_test)
 train_test(class_mlp("Species"), iris_train, iris_test)
 train_test(class_svm("Species"), iris_train, iris_test)
 train_test(class_knn("Species"), iris_train, iris_test)
+train_test(class_cnn("Species"), iris_train, iris_test)
 
