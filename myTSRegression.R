@@ -333,14 +333,15 @@ ts_invoke_prepare.tsreg_lstm <- function(obj, x, y) {
   model %>%
     compile(loss = 'mae', optimizer = 'adam')
 
-  model %>% fit(x = x,
+  history <- model %>% fit(x = x,
                 y = y,
                 batch_size = batch.size,
                 epochs = obj$epochs,
                 verbose = 0,
                 shuffle = FALSE,
                 callbacks = list(print_dot_callback))
-  
+
+  plot(history)
   model %>% reset_states()
   cat("\n")
   

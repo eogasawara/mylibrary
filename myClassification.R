@@ -235,6 +235,73 @@ action.class_knn  <- function(obj, data) {
   return(prediction)
 }
 
+# class_cnn 
+class_cnn <- function(attribute, neurons=64, epochs = 1000) {
+  obj <- classification(attribute)
+  obj$neurons <- neurons
+  obj$epochs <- epochs
+  
+  class(obj) <- append("class_cnn", class(obj))    
+  return(obj)
+}
+
+prepare.class_cnn <- function(obj, data) {
+  obj <- prepare.classification(obj, data)
+  
+  loadlibrary("dplyr")
+  loadlibrary("tfdatasets")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+
+  data[,obj$attribute] <- as.factor(data[,obj$attribute])  
+  onehot = to_categorical(as.numeric(data[,obj$attribute]) - 1)
+  obj$predictors <- setdiff(colnames(data), obj$attribute) 
+  data[,obj$attribute] <- NULL
+  input <- as.matrix(data)
+  target <- as.matrix(onehot)
+  data <- cbind(input, target)
+  
+  model <- keras_model_sequential()
+  
+  model %>%
+    layer_dense(units = ncol(target.training), activation = 'softmax',
+                input_shape = ncol(data.training))
+  summary(model)
+  
+  sgd <- optimizer_sgd(lr = 0.01)
+  
+  model %>% compile(
+    loss = 'categorical_crossentropy',
+    optimizer = sgd,
+    metrics = 'accuracy'
+  )
+  
+  history <- model %>% fit(
+    x = data.training,
+    y = target.training,
+    epochs = 500,
+    batch_size = 5,
+    validation_split = 0.2,
+    verbose = 0,
+    callbacks = list(print_dot_callback)
+  )
+  
+  plot(history)  
+  
+
+  msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
+  obj <- register_log(obj, msg)
+  return(obj)
+}
+
+action.class_svm  <- function(obj, data) {
+  predictors = data[,obj$predictors]   
+  prediction <- predict(obj$model, predictors, probability = TRUE) 
+  prediction <- attr(prediction, "probabilities")
+  return(prediction)
+}
+
+
 
 #classif_evaluation
 

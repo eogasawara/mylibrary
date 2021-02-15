@@ -226,6 +226,7 @@ prepare.reg_cnn <- function(obj, data) {
     verbose = 0,
     callbacks = list(print_dot_callback)
   )  
+  plot(history)
   cat("\n")
   
   obj$mdl <- model
