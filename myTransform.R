@@ -1,5 +1,5 @@
 # version 1.0
-source("myData.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
 
 dal_transform <- function() {
   obj <- list()

@@ -1,5 +1,5 @@
 # version 1.0
-source("myTransform.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 
 outliers <- function(alpha = 1.5) {
   obj <- dal_transform()

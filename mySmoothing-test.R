@@ -1,6 +1,6 @@
 # version 1.0
-source("mySmoothing.R")
-source("myClustering.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySmoothing.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
 
 explore_smoothing <- function(obj, data, attribute) {
   obj <- prepare(obj, data)

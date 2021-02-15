@@ -1,6 +1,6 @@
 # version 1.0
-source("myClassification.R")
-source("myFitting.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 # feature selection
 feature_selection <- function(attribute) {

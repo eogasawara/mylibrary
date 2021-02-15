@@ -1,5 +1,5 @@
 # version 1.0
-source("myClustering.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
 data(iris)
 
 eval <- cluster_evaluation(rep(1, nrow(iris)), iris$Species)

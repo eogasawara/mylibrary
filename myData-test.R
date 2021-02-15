@@ -1,9 +1,8 @@
 # version 1.0
-#source("myData.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
 
 load_series <- function(name) {
-  #link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
-  link <- sprintf("./data/time-series/%s.RData", name)
+  link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
   x <- get(load(link))
   return(x)  
 }

@@ -1,5 +1,5 @@
 # version 1.0
-source("myNormalization.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 
 if (TRUE) {
   test_norm <- function(data, norm) {

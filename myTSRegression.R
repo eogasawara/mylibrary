@@ -1,4 +1,4 @@
-source("myNormalization.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 
 # regression
 

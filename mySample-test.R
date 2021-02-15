@@ -1,5 +1,5 @@
 # version 1.0
-source("mySample.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
 head(iris)

@@ -1,5 +1,5 @@
 # version 1.0
-source("myBalance.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBalance.R")
 
 data(iris)
 head(iris)

@@ -1,5 +1,5 @@
 # version 1.0
-source("myTransform.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 
 # classif
 classification <- function(attribute) {
