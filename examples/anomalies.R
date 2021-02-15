@@ -1,4 +1,6 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTimeseries.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myOutlier.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
@@ -6,37 +8,28 @@ load_series <- function(name) {
   return(x)  
 }
 
-loadlibrary("cluster")
-loadlibrary("fpc")
 
-ts.anomalies.boxplot <- function(data, alpha=1.5)
+ts.anomalies.boxplot <- function(data)
 {
-  data <- data.frame(data)
-  org <- nrow(data)
-  cond <- rep(FALSE, org)
-  if (org >= 30) {
-    #data <- na.omit(data)
-    i <- ncol(data)
-    q <- quantile(data[,i], na.rm=TRUE)
-    IQR <- q[4] - q[2]
-    lq1 <- q[2] - alpha*IQR
-    hq3 <- q[4] + alpha*IQR
-    cond <- data[,i] < lq1 | data[,i] > hq3
-  }
-  return (cond)
+  obj <- outliers()
+  obj <- prepare(obj, data)
+  data <- action(obj, data)
+  idx <- attr(data, "idx")
+  return (idx)
 }
 
-ts.anomalies.an <- function(x, k, alpha=1.5) {
-  sx <- ts_sw(x,k)
-  ma <- apply(sx, 1, mean)
-  sxd <- sx - ma
-  iF <- ts.anomalies.boxplot(sxd,alpha)
+
+ts.anomalies.an <- function(x, k) {
+  ts <- ts_data(x, k)
+  ma <- apply(ts, 1, mean)
+  sxd <- ts - ma
+  iF <- ts.anomalies.boxplot(sxd)
   iF <- c(rep(NA, k-1), iF)
   
-  sx <- ts_sw(rev(x),k)
-  ma <- apply(sx, 1, mean)
-  sxd <- sx - ma
-  iB <- ts.anomalies.boxplot(sxd,alpha)
+  ts <- ts_data(rev(x), k)
+  ma <- apply(ts, 1, mean)
+  sxd <- ts - ma
+  iB <- ts.anomalies.boxplot(sxd)
   iB <- c(rep(NA, k-1), iB)
   iB <- rev(iB)
   
@@ -47,61 +40,60 @@ ts.anomalies.an <- function(x, k, alpha=1.5) {
   return(i)
 }
 
-ts.anomalies.kmeans <- function(x, alpha=1.5) {
-  sx <- ts_sw(x, 3)
+ts.anomalies.kmeans <- function(x, k=3) {
+  loadlibrary("cluster")
+  sx <- ts_data(x, k)
   pos <- rep(FALSE, nrow(sx))
-  sx <- na.omit(data.frame(sx))
   clu <- kmeans(x = sx, centers = 1)
   clud  <- rowSums(sx - clu$centers[clu$cluster,])^2
-  bp <- ts.anomalies.boxplot(clud,alpha)
-  pos[as.integer(rownames(sx))[bp]] <- TRUE
-  return(pos)
+  bp <- ts.anomalies.boxplot(clud)
+  bp <- c(rep(FALSE, k-1), bp)
+  return(bp)
 }
 
-
-ts.anomalies.dbscan <- function(x)
+ts.anomalies.dbscan <- function(x, k=3)
 {
-  sx <- ts_sw(x, 3)
-  pos <- rep(FALSE, nrow(sx))
-  sx <- na.omit(data.frame(sx))
-  eps <- mean(abs(sx$t0 - sx$t1))
+  loadlibrary("fpc")
+  sx <- ts_data(x, k)
+  
+  eps <- mean(abs(sx[,ncol(sx)] - sx[,ncol(sx)-1]))
   MinPts <- 3 * 2
   
   clu <- fpc::dbscan(sx, eps = eps, MinPts = MinPts)
   bp <- clu$cluster == 0
-  pos[as.integer(rownames(sx))[bp]] <- TRUE
-  return(pos)
+  bp <- c(rep(FALSE, k-1), bp)
+  return(bp)
 }
 
-ts.anomalies.nnet <- function(x, sw_size, input_size)
+
+ts.anomalies.nnet <- function(x, k, input_size)
 {
-  sw <- ts_sw(x, sw_size)
-  preprocess <- ts_gminmax()
-  model <- ts_nnet(preprocess, input_size=input_size)
-  model <- ts_train(model, sw)
-  y <- (model$train_value-model$train_pred)^2
-  y <- data.frame(y)
-  bp <- c(rep(FALSE,sw_size-1), ts.anomalies.boxplot(y))
+  ts <- ts_data(x, k)
+  io <- ts_projection(ts)
+  model <- tsreg_mlp(ts_gminmax(), input_size=input_size)  
+  model <- prepare(model, x=io$input, y=io$output)
+  adjust <- action(model, io$input)
+  bp <- ts.anomalies.boxplot((io$output-adjust)^2)
+  bp <- c(rep(FALSE, k-1), bp)
   return(bp)
 }
 
 x <- load_series("exemplo")
+plot(x)
+
 
 teste1 <- function(x) {
   plot(x)
-  t <- ts.anomalies.an(x, 12, alpha=3)
+  t <- ts.anomalies.an(x, 12)
   print((1:length(x))[t])
   
-  t <- ts.anomalies.kmeans(x, alpha=3)
+  t <- ts.anomalies.kmeans(x)
   print((1:length(x))[t])
   
   t <- ts.anomalies.dbscan(x)
   print((1:length(x))[t])
   
-  t <- ts.anomalies.nnet(x, sw_size=12, input_size = 5)
+  t <- ts.anomalies.nnet(x, 12, 5)
   print((1:length(x))[t])
 }
-
-teste1(x)
-
 

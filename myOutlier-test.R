@@ -7,11 +7,11 @@ nrow(iris)
 #outlier of a dataset
 analyze_outliers <- function(obj, data) {
   obj <- prepare(obj, iris)
-  ouliers <- action(obj, iris)
-  idx <- attr(outliers, "idx")
+  data <- action(obj, iris)
+  idx <- attr(data, "idx")
   print(table(idx))
-  print(head(ouliers))
-  print(nrow(ouliers))
+  print(head(data))
+  print(nrow(data))
 }
 
 analyze_outliers(outliers(), iris)
