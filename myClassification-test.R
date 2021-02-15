@@ -38,11 +38,11 @@ train_test <- function(model, iris_train, iris_test) {
   plot(roc_curve(test_eval))
 }
 
-train_test(classif_zero_rule("Species"), iris_train, iris_test)
-train_test(classif_decision_tree("Species"), iris_train, iris_test)
-train_test(classif_naive_bayes("Species"), iris_train, iris_test)
-train_test(classif_random_forest("Species"), iris_train, iris_test)
-train_test(classif_mlp_nnet("Species"), iris_train, iris_test)
-train_test(classif_svm("Species"), iris_train, iris_test)
-train_test(classif_knn("Species"), iris_train, iris_test)
+train_test(class_majority("Species"), iris_train, iris_test)
+train_test(class_dtree("Species"), iris_train, iris_test)
+train_test(class_nb("Species"), iris_train, iris_test)
+train_test(class_rf("Species"), iris_train, iris_test)
+train_test(class_mlp("Species"), iris_train, iris_test)
+train_test(class_svm("Species"), iris_train, iris_test)
+train_test(class_knn("Species"), iris_train, iris_test)
 

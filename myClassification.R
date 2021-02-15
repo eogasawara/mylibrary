@@ -17,14 +17,14 @@ prepare.classification <- function(obj, data) {
 }
 
 # zero_rule
-classif_zero_rule <- function(attribute) {
+class_majority <- function(attribute) {
   obj <- classification(attribute)
   
-  class(obj) <- append("classif_zero_rule", class(obj))    
+  class(obj) <- append("class_majority", class(obj))    
   return(obj)
 }
 
-prepare.classif_zero_rule <- function(obj, data) {
+prepare.class_majority <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   loadlibrary("RSNNS")
@@ -38,7 +38,7 @@ prepare.classif_zero_rule <- function(obj, data) {
   return(obj)
 }
 
-action.classif_zero_rule <- function(obj, data) {
+action.class_majority <- function(obj, data) {
   loadlibrary("Matrix")  
   rows <- nrow(data)
   cols <- length(obj$model$cols)
@@ -50,14 +50,14 @@ action.classif_zero_rule <- function(obj, data) {
 }
 
 # decision_tree
-classif_decision_tree <- function(attribute) {
+class_dtree <- function(attribute) {
   obj <- classification(attribute)
   
-  class(obj) <- append("classif_decision_tree", class(obj))    
+  class(obj) <- append("class_dtree", class(obj))    
   return(obj)
 }
 
-prepare.classif_decision_tree <- function(obj, data) {
+prepare.class_dtree <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   loadlibrary("tree")
@@ -69,21 +69,21 @@ prepare.classif_decision_tree <- function(obj, data) {
   return(obj)
 }
 
-action.classif_decision_tree <- function(obj, data) {
+action.class_dtree <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors, type="vector")  
   return(prediction)
 }
 
 # naive_bayes
-classif_naive_bayes <- function(attribute) {
+class_nb <- function(attribute) {
   obj <- classification(attribute)
   
-  class(obj) <- append("classif_naive_bayes", class(obj))    
+  class(obj) <- append("class_nb", class(obj))    
   return(obj)
 }
 
-prepare.classif_naive_bayes <- function(obj, data) {
+prepare.class_nb <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   loadlibrary("e1071")
@@ -95,22 +95,22 @@ prepare.classif_naive_bayes <- function(obj, data) {
   return(obj)
 }
 
-action.classif_naive_bayes  <- function(obj, data) {
+action.class_nb  <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors, type="raw")  
   return(prediction)
 }
 
 # random_forest
-classif_random_forest <- function(attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
+class_rf <- function(attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
   obj <- classification(attribute)
   obj$ntree <- ntree
   
-  class(obj) <- append("classif_random_forest", class(obj))    
+  class(obj) <- append("class_rf", class(obj))    
   return(obj)
 }
 
-prepare.classif_random_forest <- function(obj, data) {
+prepare.class_rf <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   if (is.null(obj$mtry))
@@ -127,24 +127,24 @@ prepare.classif_random_forest <- function(obj, data) {
   return(obj)
 }
 
-action.classif_random_forest  <- function(obj, data) {
+action.class_rf  <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors, type="prob")  
   return(prediction)
 }
 
 # mlp_nnet
-classif_mlp_nnet <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
+class_mlp <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
   obj <- classification(attribute)
   obj$maxit <- maxit
   obj$neurons <- neurons
   obj$decay <- decay
   
-  class(obj) <- append("classif_mlp_nnet", class(obj))    
+  class(obj) <- append("class_mlp", class(obj))    
   return(obj)
 }
 
-prepare.classif_mlp_nnet <- function(obj, data) {
+prepare.class_mlp <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   if (is.null(obj$neurons))
@@ -163,14 +163,14 @@ prepare.classif_mlp_nnet <- function(obj, data) {
   return(obj)
 }
 
-action.classif_mlp_nnet  <- function(obj, data) {
+action.class_mlp  <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors, type="raw")  
   return(prediction)
 }
 
-# classif_svm 
-classif_svm <- function(attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
+# class_svm 
+class_svm <- function(attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   #analisar: https://rpubs.com/Kushan/296706  
   obj <- classification(attribute)
@@ -178,11 +178,11 @@ classif_svm <- function(attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kern
   obj$epsilon <- epsilon
   obj$cost <- cost
   
-  class(obj) <- append("classif_svm", class(obj))    
+  class(obj) <- append("class_svm", class(obj))    
   return(obj)
 }
 
-prepare.classif_svm <- function(obj, data) {
+prepare.class_svm <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   loadlibrary("e1071")
@@ -196,22 +196,22 @@ prepare.classif_svm <- function(obj, data) {
   return(obj)
 }
 
-action.classif_svm  <- function(obj, data) {
+action.class_svm  <- function(obj, data) {
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors, probability = TRUE) 
   prediction <- attr(prediction, "probabilities")
   return(prediction)
 }
 
-# classif_knn 
-classif_knn <- function(attribute, k=1:20) {
+# class_knn 
+class_knn <- function(attribute, k=1:20) {
   obj <- classification(attribute)
   obj$k <- k
-  class(obj) <- append("classif_knn", class(obj))    
+  class(obj) <- append("class_knn", class(obj))    
   return(obj)
 }
 
-prepare.classif_knn <- function(obj, data) {
+prepare.class_knn <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   loadlibrary("e1071")
@@ -228,7 +228,7 @@ prepare.classif_knn <- function(obj, data) {
   return(obj)
 }
 
-action.classif_knn  <- function(obj, data) {
+action.class_knn  <- function(obj, data) {
   loadlibrary("class")
   prediction = knn(train=obj$model$predictors, test=data[,obj$predictors], cl=obj$model$predictand, prob=TRUE)
   prediction = decodeClassLabels(prediction)  

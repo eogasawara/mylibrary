@@ -125,9 +125,9 @@ ts_invoke_action.tsreg_sw <- function(obj, x) {
   return(prediction)
 }
 
-#class tsreg_nnet
+#class tsreg_mlp
 
-tsreg_nnet <- function(preprocess, input_size, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
+tsreg_mlp <- function(preprocess, input_size, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
   obj <- tsreg_sw(preprocess, input_size)
   
   if (is.null(neurons))
@@ -136,11 +136,11 @@ tsreg_nnet <- function(preprocess, input_size, neurons=NULL, decay=seq(0, 1, 0.0
   obj$decay <- decay
   obj$maxit <- maxit
   
-  class(obj) <- append("tsreg_nnet", class(obj))  
+  class(obj) <- append("tsreg_mlp", class(obj))  
   return(obj)
 }
 
-ts_invoke_prepare.tsreg_nnet <- function(obj, x, y) {
+ts_invoke_prepare.tsreg_mlp <- function(obj, x, y) {
   loadlibrary("e1071")
   loadlibrary("nnet")  
   tuned <- tune(nnet, x, y, maxit=obj$maxit, trace=FALSE, ranges=list(decay=obj$decay, size=obj$neurons, linout=TRUE))
