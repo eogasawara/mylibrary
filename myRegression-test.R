@@ -3,7 +3,6 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegressi
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
-
 print(t(sapply(Boston, class)))
 head(Boston)
 #dataset catalog

@@ -5,6 +5,11 @@ load_series <- function(name) {
   x <- get(load(link))
   return(x)  
 }
+x <- load_series("sin")
+sahead <- 1
+tsize <- 1
+swsize <- 10
+preproc <- ts_gminmax()
 
 train_test <- function(x, model, sw, test_size, steps_ahead) {
   ts <- ts_data(x, sw)
@@ -32,15 +37,12 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
   return(model)
 }
 
-x <- load_series("sin")
-sahead <- 1
-tsize <- 1
-swsize <- 10
-preproc <- ts_gminmax()
+
+
 train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
-train_test(x, model=tsreg_mlp(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-train_test(x, model=tsreg_svm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
-train_test(x, model=tsreg_rf(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_mlp(preproc, input_size=4, neurons=5, decay=0.08), sw = swsize, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_svm(preproc, input_size=4, epsilon=0.1, cost=20.000), sw = swsize, test_size = tsize, steps_ahead = sahead)
+train_test(x, model=tsreg_rf(preproc, input_size=4, mtry=5, ntree=375), sw = swsize, test_size = tsize, steps_ahead = sahead)
 train_test(x, model=tsreg_elm(preproc, input_size=4), sw = swsize, test_size = tsize, steps_ahead = sahead)
 train_test(x, model=tsreg_cnn(preproc, input_size=4, epochs = 100), sw = swsize, test_size = tsize, steps_ahead = sahead)
 train_test(x, model=tsreg_lstm(preproc, input_size=4, epochs = 100), sw = swsize, test_size = tsize, steps_ahead = sahead)
