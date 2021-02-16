@@ -14,7 +14,10 @@ process_samples <- function(sr, iris) {
   
   # distribution of test
   print(table(tt$test$Species))
-  
+}
+
+
+process_folds <- function(sr, iris) {
   # preparing dataset into four folds
   folds <- k_fold(sr, iris, 4)
   
@@ -31,5 +34,9 @@ process_samples <- function(sr, iris) {
 
 
 process_samples(sample_random(), iris)
+
+process_folds(sample_random(), iris)
+
 process_samples(sample_stratified("Species"), iris)
 
+process_folds(sample_stratified("Species"), iris)
