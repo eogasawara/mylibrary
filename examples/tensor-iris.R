@@ -28,11 +28,6 @@ model %>%
               input_shape = ncol(iris.training))
 summary(model)
 
-library(igraph)
-g = graph_from_literal(Sepal.Length:Sepal.Width:Petal.Length:Petal.Width---Species,simplify = TRUE)
-layout <- layout_in_circle(g, order = order(degree(g)))
-plot(g,layout = layout,vertex.color = c(2,2,2,2,3))
-
 sgd <- optimizer_sgd(lr = 0.01)
 
 model %>% compile(

@@ -247,12 +247,13 @@ class_cnn <- function(attribute, neurons=64, epochs = 1000) {
 
 prepare.class_cnn <- function(obj, data) {
   obj <- prepare.classification(obj, data)
+  obj$levels <- levels(data[,obj$attribute])
   
   loadlibrary("dplyr")
   loadlibrary("tfdatasets")
   loadlibrary("tensorflow")
   loadlibrary("keras")  
-
+  
   data[,obj$attribute] <- as.factor(data[,obj$attribute])  
   onehot = to_categorical(as.numeric(data[,obj$attribute]) - 1)
   obj$predictors <- setdiff(colnames(data), obj$attribute) 
@@ -264,8 +265,8 @@ prepare.class_cnn <- function(obj, data) {
   model <- keras_model_sequential()
   
   model %>%
-    layer_dense(units = ncol(target.training), activation = 'softmax',
-                input_shape = ncol(data.training))
+    layer_dense(units = ncol(target), activation = 'softmax',
+                input_shape = ncol(input))
   summary(model)
   
   sgd <- optimizer_sgd(lr = 0.01)
@@ -277,25 +278,28 @@ prepare.class_cnn <- function(obj, data) {
   )
   
   history <- model %>% fit(
-    x = data.training,
-    y = target.training,
+    x = input,
+    y = target,
     epochs = obj$epochs,
     batch_size = 5,
     validation_split = 0.2,
-    verbose = 0,
-    callbacks = list(print_dot_callback)
+    verbose = 0
   )
   plot(history)  
-
+  
   obj$mdl <- model
-
-  msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
-  obj <- register_log(obj, msg)
+  
+  obj <- register_log(obj)
   return(obj)
 }
 
 action.class_cnn  <- function(obj, data) {
+  data <- data[,obj$predictors]
+  data <- as.matrix(data)
   prediction <- obj$mdl %>% predict_classes(data)
+  prediction <- factor(prediction)
+  levels(prediction) <- obj$levels
+  prediction <- decodeClassLabels(prediction)
   return(prediction)
 }
 

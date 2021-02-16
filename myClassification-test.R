@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
@@ -41,9 +41,9 @@ train_test <- function(model, iris_train, iris_test) {
 train_test(class_majority("Species"), iris_train, iris_test)
 train_test(class_dtree("Species"), iris_train, iris_test)
 train_test(class_nb("Species"), iris_train, iris_test)
-train_test(class_rf("Species"), iris_train, iris_test)
-train_test(class_mlp("Species"), iris_train, iris_test)
-train_test(class_svm("Species"), iris_train, iris_test)
+train_test(class_rf("Species",  mtry=2, ntree=50), iris_train, iris_test)
+train_test(class_mlp("Species", neurons=2,decay=0.04), iris_train, iris_test)
+train_test(class_svm("Species", epsilon=0.0,cost=5.000), iris_train, iris_test)
 train_test(class_knn("Species"), iris_train, iris_test)
-train_test(class_cnn("Species"), iris_train, iris_test)
+train_test(class_cnn("Species", epochs = 100), iris_train, iris_test)
 
