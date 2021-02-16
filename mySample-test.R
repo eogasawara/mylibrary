@@ -17,6 +17,13 @@ process_samples <- function(sr, iris) {
 }
 
 
+# iris dataset
+
+
+process_samples(sample_random(), iris)
+
+process_samples(sample_stratified("Species"), iris)
+
 process_folds <- function(sr, iris) {
   # preparing dataset into four folds
   folds <- k_fold(sr, iris, 4)
@@ -30,13 +37,6 @@ process_folds <- function(sr, iris) {
   print(tbl)
 }
 
-# iris dataset
-
-
-process_samples(sample_random(), iris)
-
 process_folds(sample_random(), iris)
-
-process_samples(sample_stratified("Species"), iris)
 
 process_folds(sample_stratified("Species"), iris)

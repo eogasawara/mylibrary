@@ -279,25 +279,23 @@ prepare.class_cnn <- function(obj, data) {
   history <- model %>% fit(
     x = data.training,
     y = target.training,
-    epochs = 500,
+    epochs = obj$epochs,
     batch_size = 5,
     validation_split = 0.2,
     verbose = 0,
     callbacks = list(print_dot_callback)
   )
-  
   plot(history)  
-  
+
+  obj$mdl <- model
 
   msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
   obj <- register_log(obj, msg)
   return(obj)
 }
 
-action.class_svm  <- function(obj, data) {
-  predictors = data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, probability = TRUE) 
-  prediction <- attr(prediction, "probabilities")
+action.class_cnn  <- function(obj, data) {
+  prediction <- obj$mdl %>% predict_classes(data)
   return(prediction)
 }
 
