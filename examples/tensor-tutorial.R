@@ -1,15 +1,19 @@
 #https://tensorflow.rstudio.com/tutorials/beginners/
 #https://www.r-bloggers.com/2018/11/lstm-with-keras-tensorflow/
-#install.packages("tensorflow")
-#install.packages("keras")
-#install.packages("tfdatasets")
-#library(tensorflow)
-#install_tensorflow()
+install.packages("tensorflow")
+install.packages("keras")
+install.packages("tfdatasets")
+
+library(tensorflow)
+library(keras)
+
+install_tensorflow()
+#install_tensorflow(version = "gpu")
 
 startup <- function() {
   library(tensorflow)
   library(keras)
-  install_tensorflow()
+
   tf$constant("Hellow Tensorflow")
 
   library(tfdatasets)
@@ -48,7 +52,7 @@ startup <- function() {
     evaluate(mnist$test$x, mnist$test$y, verbose = 0)
   
   
-  model_dir <- "C:/Users/eduar/OneDrive/Git/research/events/models"
+  model_dir <- "/tmp/models"
 
   save_model_tf(object = model, filepath = sprintf("%s/%s", model_dir, "model"))
 
