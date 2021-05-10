@@ -3,7 +3,7 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
 
 loadlibrary("ggplot2")
 loadlibrary("scales")
-loadlibrary("ggpubr")
+#loadlibrary("ggpubr")
 loadlibrary("reshape")
 
 plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
