@@ -34,6 +34,27 @@ plot.series <- function(series, label_series = "", label_x = "", label_y = "", c
   return(grf)
 }
 
+
+plot.series2nd <- function(series, label_x = "x", label_y = "y", label_z = "z", colors = c("blue", "red")) {
+  a            <- range(series$y)
+  b            <- range(series$z)
+  scale_factor <- diff(a)/diff(b)
+  series$z <- ((series$z - b[1]) * scale_factor) + a[1]
+  trans <- ~ ((. - a[1]) / scale_factor) + b[1]  
+  
+  grf <- ggplot(series) 
+  grf <- grf + theme_bw(base_size = 10) 
+  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
+  grf <- grf + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
+  grf <- grf + geom_point(aes(x, y), col=colors[1], size=1.5) + geom_line(aes(x, y), col=colors[1]) 
+  grf <- grf + geom_point(aes(x, z), col=colors[2], size=1.5) + geom_line(aes(x, z), col=colors[2])
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)  
+  grf <- grf + scale_y_continuous(sec.axis = sec_axis(trans=trans, name=label_z)) 
+  return(grf)
+}
+
+
 plot.bar <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL, group=FALSE, alpha=1) {
   if (group) {
     grf <- ggplot(series, aes(x, value, fill=variable)) + geom_bar(stat = "identity",position = "dodge", alpha=alpha)
