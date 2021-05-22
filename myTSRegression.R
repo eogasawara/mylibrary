@@ -1,6 +1,6 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 
-# regression
+# regression 
 
 tsregression <- function() {
   obj <- dal_transform()

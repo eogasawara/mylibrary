@@ -1,4 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
@@ -36,8 +36,6 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
   
   return(model)
 }
-
-
 
 train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
 train_test(x, model=tsreg_mlp(preproc, input_size=4, neurons=5, decay=0.08), sw = swsize, test_size = tsize, steps_ahead = sahead)

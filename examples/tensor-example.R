@@ -9,15 +9,16 @@
 #2: install_tensorflow()
 
 #for windows
-#1: library(reticulate)
-#2: reticulate::install_miniconda()
-#3: library(tensorflow)
-#4: install_tensorflow()
+# read r-jupyter-tensorflow-windows.txt
 
 startup <- function() {
   library(tensorflow)
   library(keras)
   tf$constant("Hellow Tensorflow")
+  
+  library(IRkernel)
+  IRkernel::installspec()
+  IRkernel::installspec(user=FALSE)
   
   
 
