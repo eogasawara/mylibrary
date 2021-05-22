@@ -94,9 +94,11 @@ ts_projection <- function(ts) {
     if (nrow(ts) > 1) {
       input <- ts[,1:(ncol(ts)-1)]
       output <- ts[,ncol(ts)]
+      colnames(output) <- colnames(ts)[ncol(ts)]
     }
     else {
       input <- ts_data(ts[,1:(ncol(ts)-1)], ncol(ts)-1)
+      colnames(input) <- colnames(ts)[1:(ncol(ts)-1)]
       output <- ts_data(ts[,ncol(ts)], 1)
     }
   }
