@@ -16,12 +16,6 @@ startup <- function() {
   library(keras)
   tf$constant("Hellow Tensorflow")
   
-  library(IRkernel)
-  IRkernel::installspec()
-  IRkernel::installspec(user=FALSE)
-  
-  
-
   library(tfdatasets)
   
   mnist <- dataset_mnist()

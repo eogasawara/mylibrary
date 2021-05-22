@@ -244,7 +244,7 @@ ts_invoke_prepare.tsreg_cnn <- function(obj, x, y) {
   )    
   
   loadlibrary("dplyr")
-  loadlibrary("tfdatasets")
+#  loadlibrary("tfdatasets")
   loadlibrary("tensorflow")
   loadlibrary("keras")  
   
@@ -311,6 +311,11 @@ ts_invoke_prepare.tsreg_lstm <- function(obj, x, y) {
     }
   )    
   
+  loadlibrary("dplyr")
+  #  loadlibrary("tfdatasets")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+
   set.seed(1)
   batch.size <- 1
   size <- ncol(x)
