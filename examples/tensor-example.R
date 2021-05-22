@@ -3,13 +3,23 @@
 #install.packages("tensorflow")
 #install.packages("keras")
 #install.packages("tfdatasets")
-#library(tensorflow)
-#install_tensorflow()
+
+#for linux
+#1: library(tensorflow)
+#2: install_tensorflow()
+
+#for windows
+#1: library(reticulate)
+#2: reticulate::install_miniconda()
+#3: library(tensorflow)
+#4: install_tensorflow()
 
 startup <- function() {
   library(tensorflow)
   library(keras)
   tf$constant("Hellow Tensorflow")
+  
+  
 
   library(tfdatasets)
   
