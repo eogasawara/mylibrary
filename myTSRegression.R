@@ -76,8 +76,9 @@ tsreg_sw <- function(preprocess, input_size) {
 }
 
 ts_as_matrix <- function(data, input_size) {
-  data <- data[,(ncol(data)-input_size+1):ncol(data)]
-  return(data)
+  result <- data[,(ncol(data)-input_size+1):ncol(data)]
+  colnames(result) <- colnames(data)[(ncol(data)-input_size+1):ncol(data)]
+  return(result)
 }
 
 prepare.tsreg_sw <- function(obj, x, y) {
