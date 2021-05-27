@@ -1,4 +1,4 @@
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
 
 #library(gridExtra)
 
