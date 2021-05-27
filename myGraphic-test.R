@@ -1,4 +1,4 @@
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic2.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
 
 #library(gridExtra)
 
@@ -91,7 +91,7 @@ if (TRUE) {
 
 if (TRUE) {
   series <- mtcars %>% group_by(cyl) %>% summarize(hp = mean(hp))
-  grf <- plot_lollipop(series, colors=col_set[1])
+  grf <- plot.lollipop(series, colors=col_set[1])
   plot(grf)
 }
 
@@ -103,8 +103,8 @@ if (TRUE) {
 
 
 if (TRUE) {
-  grf <- plot.pieplot(flightdata %>% group_by(Quarters) %>% summarize(Flights=mean(Flights), colors=col_4)
-                      plot(grf)
+  grf <- plot.pieplot(flightdata %>% group_by(Quarters) %>% summarize(Flights=mean(Flights)), colors=col_4)
+  plot(grf)
 }
 
 if (TRUE) {

@@ -190,7 +190,7 @@ plot.pieplot <- function(data, label_x = "", label_y = "", colors = NULL, textco
       mutate(label = paste(round(value / sum(value) * 100, 0), "%"))
     return(series)
   }
-  series <- prepare.pieplot(series)
+  series <- prepare.pieplot(data)
   
   # Basic piechart
   grf <- ggplot(series, aes(x="", y=prop, fill=x)) + geom_bar(width = 1, stat = "identity", color=bordercolor)
