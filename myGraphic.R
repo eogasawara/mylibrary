@@ -1,140 +1,166 @@
-# version 0.9
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
+# version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
 
 loadlibrary("ggplot2")
-loadlibrary("scales")
-#loadlibrary("ggpubr")
+loadlibrary("dplyr")
 loadlibrary("reshape")
+loadlibrary("RColorBrewer")
 
-plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
+plot.size <-function(width, height) {
+  options(repr.plot.width=width, repr.plot.height=height)    
+}
+
+plot.scatter <- function(data, label_x = "", label_y = "", colors = NULL) {
+  series <- melt(as.data.frame(data), id.vars = c(1))
+  cnames <- colnames(data)[-1]
+  colnames(series)[1] <- "x"
   grf <- ggplot(data=series, aes(x = x, y = value, colour=variable, group=variable)) + geom_point(size=1)
   if (!is.null(colors)) {
     grf <- grf + scale_color_manual(values=colors)
   }
-  grf <- grf + labs(color=label_series)
+  grf <- grf + labs(color=cnames)
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   grf <- grf + theme_bw(base_size = 10)
   grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
-  grf <- grf + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
+  grf <- grf + theme(legend.title = element_blank()) + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
   return(grf)
 }
 
-plot.series <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
+plot.series <- function(data, label_x = "", label_y = "", colors = NULL) {
+  series <- melt(as.data.frame(data), id.vars = c(1))
+  cnames <- colnames(data)[-1]
+  colnames(series)[1] <- "x"
   grf <- ggplot(data=series, aes(x = x, y = value, colour=variable, group=variable)) + geom_point(size=1.5) + geom_line(size=1)
   if (!is.null(colors)) {
     grf <- grf + scale_color_manual(values=colors)
   }
-  grf <- grf + labs(color=label_series)
+  grf <- grf + labs(color=cnames)
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   grf <- grf + theme_bw(base_size = 10)
   grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
-  grf <- grf + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
+  grf <- grf + theme(legend.title = element_blank()) + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
   return(grf)
 }
 
-
-plot.series2nd <- function(series, label_x = "x", label_y = "y", label_z = "z", colors = c("blue", "red")) {
-  a            <- range(series$y)
-  b            <- range(series$z)
+plot.series2nd <- function(data, label_x = "", label_y = "", label_z = "", colors = c("blue", "red")) {
+  loadlibrary("scales")
+  
+  series <- data[,1:3]
+  cnames <- colnames(series)[-1]
+  colnames(series) <- c("x", "y", "z")
+  a <- range(series$y)
+  b <- range(series$z)
   scale_factor <- diff(a)/diff(b)
   series$z <- ((series$z - b[1]) * scale_factor) + a[1]
   trans <- ~ ((. - a[1]) / scale_factor) + b[1]  
   
-  grf <- ggplot(series) 
+  if (label_y =="")
+    cnames[1] <- label_y
+  if (label_z =="")
+    cnames[2] <- label_z
+  
+  grf <- ggplot(data=series) 
+  grf <- grf + geom_point(aes(x, y), col=colors[1], size=1.5)
+  grf <- grf + geom_point(aes(x, z), col=colors[2], size=1.5)
+  if(is.factor(series$x)) {
+    grf <- grf + geom_line(aes(as.integer(x), y), col=colors[1]) 
+    grf <- grf + geom_line(aes(as.integer(x), z), col=colors[2])    
+  }
+  else {
+    grf <- grf + geom_line(aes(x, y), col=colors[1]) 
+    grf <- grf + geom_line(aes(x, z), col=colors[2])    
+  }
   grf <- grf + theme_bw(base_size = 10) 
-  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
-  grf <- grf + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
-  grf <- grf + geom_point(aes(x, y), col=colors[1], size=1.5) + geom_line(aes(x, y), col=colors[1]) 
-  grf <- grf + geom_point(aes(x, z), col=colors[2], size=1.5) + geom_line(aes(x, z), col=colors[2])
+  grf <- grf + labs(color=cnames)
   grf <- grf + xlab(label_x)
-  grf <- grf + ylab(label_y)  
-  grf <- grf + scale_y_continuous(sec.axis = sec_axis(trans=trans, name=label_z)) 
+  grf <- grf + ylab(cnames[1])  
+  grf <- grf + scale_y_continuous(sec.axis = sec_axis(trans=trans, name=cnames[2])) 
+  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
+  grf <- grf + theme(legend.title = element_blank()) + theme(legend.position = "bottom")
   return(grf)
 }
 
-
-plot.bar <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL, group=FALSE, alpha=1) {
-  if (group) {
-    grf <- ggplot(series, aes(x, value, fill=variable)) + geom_bar(stat = "identity",position = "dodge", alpha=alpha)
-    if (!is.null(colors)) {
-      grf <- grf + scale_fill_manual(label_series, values = colors)
-    }
+plot.bar <- function(data, label_x = "", label_y = "", colors = NULL, alpha=1) {
+  grouped <- ncol(data) > 2
+  cnames <- colnames(data)[-1]
+  series <- melt(as.data.frame(data), id.vars = c(1))
+  colnames(series)[1] <- "x"
+  if (!is.factor(series$x))
+    series$x <- as.factor(series$x)
+  
+  if (grouped) {
+      grf <- ggplot(series, aes(x, value, fill=variable))
+      grf <- grf + geom_bar(stat = "identity",position = "dodge", alpha=alpha)
+      if (!is.null(colors)) {
+        grf <- grf + scale_fill_manual(cnames, values = colors)
+      }
   }
-  else {  
-    grf <- ggplot(series, aes(variable, value))
+  else {
+    grf <- ggplot(data=series, aes(x, value))
     if (!is.null(colors)) {
-      grf <- grf + geom_bar(stat = "identity",fill=colors, alpha=alpha)
+      grf <- grf + geom_bar(stat = "identity", fill=colors, alpha=alpha)
     }
     else {  
       grf <- grf + geom_bar(stat = "identity", alpha=alpha)
     }    
   }
   grf <- grf + theme_bw(base_size = 10)
-  grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
-  if("x" %in% colnames(series))
-    grf <- grf + scale_x_discrete(limits = unique(series$x))
+  grf <- grf + theme(panel.grid.minor = element_blank())
+  grf <- grf + theme(legend.title = element_blank()) + theme(legend.position = "bottom")
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   return(grf)
 }
 
-plot.radar <- function(series, label_series = "", label_x = "", label_y = "", color = NULL)  {
-  grf <- ggplot(data=series, aes(x=x, y=value, group=1))
-  grf <- grf + geom_point(size=2, color=color)
-  grf <- grf + geom_polygon(size = 1, alpha= 0.1, color=color)
-  grf <- grf + theme_light()
-  grf <- grf + coord_polar()
-  return(grf)
-}
-
-
-plot.stackedbar <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
+plot.stackedbar <- function(data, label_x = "", label_y = "", colors = NULL, alpha=1) {
+  cnames <- colnames(data)[-1]
+  series <- melt(as.data.frame(data), id.vars = c(1))
+  colnames(series)[1] <- "x"
+  if (!is.factor(series$x))
+    series$x <- as.factor(series$x)
+  
   grf <- ggplot(series, aes(x=x, y=value, fill=variable)) + geom_bar(stat="identity", colour="white")
   if (!is.null(colors)) {
-    grf <- grf + scale_fill_manual(label_series, values = colors)
+    grf <- grf + scale_fill_manual(cnames, values = colors)
   }
   grf <- grf + theme_bw(base_size = 10)
-  grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
+  grf <- grf + theme(panel.grid.minor = element_blank())
+  grf <- grf + theme(legend.title = element_blank()) + theme(legend.position = "bottom")
   grf <- grf + scale_x_discrete(limits = unique(series$x))
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   return(grf)
 }
 
-prepare.pieplot <- function(series) {
-  series <- series[order(series$variable),]
-  myorder <- length(series$variable):1
-  mylevels <- series$variable[myorder]
-  series$colors <- series$colors[myorder]
-  series <- mutate(series, variable = factor(variable, levels = mylevels),
-                   cumulative = cumsum(value),
-                   midpoint = cumulative - value / 2,
-                   label = paste(round(value / sum(value) * 100, 0), "%"))
-  return(series)
-}
-
-plot.pieplot <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
-  grf <- ggplot(series, aes(x="", y=value, fill=variable)) + geom_bar(width = 1, stat = "identity")
-  grf <- grf + theme_minimal(base_size = 10)
-  grf <- grf + coord_polar("y", start=0) 
-  grf <- grf + geom_text(aes(x = 1.3, y = midpoint, label = label))
-  grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
-  grf <- grf + xlab(label_x)
-  grf <- grf + ylab(label_y)
-  grf <- grf + theme(axis.text.x=element_blank(),axis.ticks = element_blank(), panel.grid = element_blank())
-  if (!is.null(colors))
-    grf <- grf + scale_fill_manual(label_series, values = colors)
+plot.radar <- function(data, label_x = "", label_y = "", colors = NULL)  {
+  cnames <- colnames(data)[-1]
+  series <- melt(as.data.frame(data), id.vars = c(1))
+  colnames(series)[1] <- "x"
+  if (!is.factor(series$x))
+    series$x <- as.factor(series$x)
+  
+  grf <- ggplot(data=series, aes(x=x, y=value, group=1))
+  grf <- grf + geom_point(size=2, color=colors)
+  grf <- grf + geom_polygon(size = 1, alpha= 0.1, color=colors)
+  grf <- grf + theme_light()
+  grf <- grf + coord_polar()
   return(grf)
 }
 
-plot_lollipop <- function(series, color, xlabel = "", ylabel = "", size_text=3, size_ball=8, alpha_ball=0.2, min_value=0, max_value_gap=1, flip = TRUE) {
+plot.lollipop <- function(data, colors, xlabel = "", ylabel = "", size_text=3, size_ball=8, alpha_ball=0.2, min_value=0, max_value_gap=1, flip = TRUE) {
+  cnames <- colnames(data)[-1]
+  series <- melt(as.data.frame(data), id.vars = c(1))
+  colnames(series)[1] <- "x"
+  if (!is.factor(series$x))
+    series$x <- as.factor(series$x)
   series$value <- round(series$value)
-  grf <- ggplot(data=series, aes(x=variable, y=value, label=value)) +
-    geom_segment(aes(x=variable, xend=variable, y=min_value, yend=(value-max_value_gap)), color=color, size=1) +
+  
+  grf <- ggplot(data=series, aes(x=x, y=value, label=value)) +
+    geom_segment(aes(x=x, xend=x, y=min_value, yend=(value-max_value_gap)), color=colors, size=1) +
     geom_text(color="black", size=size_text) +
-    geom_point(color=color, size=size_ball, alpha=alpha_ball) +
+    geom_point(color=colors, size=size_ball, alpha=alpha_ball) +
     theme_light() +
     theme(
       panel.grid.major.y = element_blank(),
@@ -144,46 +170,107 @@ plot_lollipop <- function(series, color, xlabel = "", ylabel = "", size_text=3, 
     ylab(xlabel) + xlab(xlabel)   
   if (flip)
     grf <- grf + coord_flip()
-	
+  
   return(grf)
 }
 
-plot_dotchar <- function(series, color, colorline = "lightgray", xlabel = "", ylabel = "", legend.title = "", sorting="ascending") {
+plot.pieplot <- function(data, label_x = "", label_y = "", colors = NULL, textcolor="white", bordercolor="black") {
+  prepare.pieplot <- function(series) {
+    colnames(series) <- c("x", "value")
+    if (!is.factor(series$x)) {
+      series$x <- as.factor(series$x)
+    }
+    
+    series$colors <- colors
+    
+    series <- series %>% 
+      arrange(desc(x)) %>%
+      mutate(prop = value / sum(series$value) *100) %>%
+      mutate(ypos = cumsum(prop)- 0.5*prop) %>%
+      mutate(label = paste(round(value / sum(value) * 100, 0), "%"))
+    return(series)
+  }
+  series <- prepare.pieplot(series)
+  
+  # Basic piechart
+  grf <- ggplot(series, aes(x="", y=prop, fill=x)) + geom_bar(width = 1, stat = "identity", color=bordercolor)
+  grf <- grf + theme_minimal(base_size = 10)
+  grf <- grf + coord_polar("y", start=0) 
+  grf <- grf + geom_text(aes(y = ypos, label = label), size=6, color=textcolor) 
+  if (!is.null(colors))
+    grf <- grf + scale_fill_manual(series$x, values = colors)
+  grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)
+  grf <- grf + theme(axis.text.x=element_blank(), legend.title = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
+  return(grf)
+}
+
+
+plot.dotchar <- function(data, colors, colorline = "lightgray", xlabel = "", ylabel = "", sorting="ascending") {
+  loadlibrary("ggpubr")
+  cnames <- colnames(data)[-1]
+  series <- data
+  colnames(series)[1] <- "x"
+  if (!is.factor(series$x))
+    series$x <- as.factor(series$x)
+  series <- melt(as.data.frame(series), id.vars = c(1))
+  
   grf <- ggdotchart(series, x = "x", y = "value",
                     color = "variable", size = 3,
                     add = "segment",
                     sorting = sorting,
                     add.params = list(color = colorline, size = 1.5),
                     position = position_dodge(0.3),
-                    palette = color,
+                    palette = colors,
                     ggtheme = theme_pubclean(), xlab = xlabel, ylab=ylabel)
-  grf <- ggpar(grf,legend.title = legend.title)
+  grf <- ggpar(grf,legend.title = "")
+  grf <- grf + theme(legend.position = "bottom")
   return(grf)
 }
 
-
-plot_ballon <- function(series, color) {
-  grf <- ggballoonplot(series, x = 'x', y = 'variable', size = 'radius', fill = 'value')
-  grf <- grf + gradient_fill(color)
-  grf <- grf + guides(size = FALSE)                         
-  return(grf)
-} 
-
-
-plot.hist <-  function(series, label_series = "", label_x = "", label_y = "", color = 'white', alpha=0.25) {
+plot.hist <-  function(data, label_x = "", label_y = "", color = 'white', alpha=0.25) {
+  cnames <- colnames(data)[1]
+  series <- melt(as.data.frame(data))
+  series <- series %>% filter(variable %in% cnames)
   tmp <- hist(series$value, plot = FALSE)
   grf <- ggplot(series, aes(x=value))
   grf <- grf + geom_histogram(breaks=tmp$breaks,fill=color, alpha = alpha, colour="black")
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   grf <- grf + theme_bw(base_size = 10)
-  grf <- grf + scale_fill_manual(name = label_series, values = color)
+  grf <- grf + scale_fill_manual(name = cnames, values = color)
   grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
   return(grf)
 }
 
-plot.density <-  function(series, label_series = "", label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.25) {
-  if("variable" %in% colnames(series)) {
+plot.boxplot <- function(data, label_x = "", label_y = "", colors = NULL, barwith=0.25) {
+  cnames <- colnames(data)
+  series <- melt(as.data.frame(data))
+  grf <- ggplot(aes(y = value, x = variable), data = series)
+  if (!is.null(colors)) {
+    grf <- grf + geom_boxplot(fill = colors, width=barwith)
+  }
+  else {
+    grf <- grf + geom_boxplot(width=barwith)
+  }
+  grf <- grf + labs(color=cnames)
+  if (!is.null(colors)) {
+    grf <- grf + scale_fill_manual(cnames, values = colors)
+  }
+  grf <- grf + theme_bw(base_size = 10)
+  grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)
+  return(grf)
+}
+
+
+plot.density <-  function(data, label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.25) {
+  grouped <- ncol(data) > 1
+  cnames <- colnames(data)
+  series <- melt(as.data.frame(data))
+  if (grouped) {
     grf <- ggplot(series, aes(x=value,fill=variable))
     if (is.null(bin)) 
       grf <- grf + geom_density(alpha = alpha)
@@ -209,76 +296,36 @@ plot.density <-  function(series, label_series = "", label_x = "", label_y = "",
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   if (!is.null(colors)) 
-    grf <- grf + scale_fill_manual(name = label_series, values = colors)
-  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
+    grf <- grf + scale_fill_manual(name = cnames, values = colors)
+  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
+  grf <- grf + theme(legend.title = element_blank(), legend.position = "bottom")
   return(grf)
 }
 
-plot.boxplot <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL, barwith=0.25) {
-  grf <- ggplot(aes(y = value, x = variable), data = series)
-  if (!is.null(colors)) {
-    grf <- grf + geom_boxplot(fill = colors, width=barwith)
-  }
-  else {
-    grf <- grf + geom_boxplot(width=barwith)
-  }
-  grf <- grf + labs(color=label_series)
-  if (!is.null(colors)) {
-    grf <- grf + scale_fill_manual(label_series, values = colors)
-  }
-  grf <- grf + theme_bw(base_size = 10)
-  grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
-  grf <- grf + xlab(label_x)
-  grf <- grf + ylab(label_y)
-  return(grf)
+###
+
+plot.correlation <- function(data, colors="") {
+  if (colors == "")
+    colors <- brewer.pal(n=8, name="RdYlBu")
+  loadlibrary("corrplot")  
+  series <-cor(data)
+  corrplot(series, type="upper", order="hclust", col=colors)
 }
 
-plot_size <-function(width, height) {
-  options(repr.plot.width=width, repr.plot.height=height)    
-}
 
-show_row <- function(x) {
-  x <- data.frame(t(x))
-  colnames(x) <- NULL
-  return(head(x))
-}
 
-exp_table <- function (data, cnames = NULL, proj=NULL, n=6) {
-  data <- data.frame(data)
-  if (!is.null(proj))
-    data = data[,-proj]
-  if (!is.null(cnames))
-    colnames(data) = cnames
-  if (n > 0) {
-    return(head(data, n))
-  }
-  return(data)
-}
-
-exp_norm_dist <- function(value, label_x = "", label_y = "",  color)  {
-  data <- data.frame(value = value)
+plot.norm_dist <- function(vect, label_x = "", label_y = "",  colors)  {
+  data <- data.frame(value = vect)  
   grf <- ggplot(data, aes(sample = value)) + 
-    stat_qq(color=color) + xlab(label_x) + ylab(label_y) +
+    stat_qq(color=colors) + xlab(label_x) + ylab(label_y) +
     theme_bw(base_size = 10) +
-    stat_qq_line(color=color) 
+    stat_qq_line(color=colors) 
   return (grf)
 }
 
 
-exp_correlation <- function(data, color) {
-  cor_mat <- cor(data)
-  cor_mat <- melt(cor_mat)
-  colnames(cor_mat) <- c("x", "variable", "value")
-  cor_mat$variable <- factor(cor_mat$variable, levels=sort(colnames(data)))
-  cor_mat$x <- factor(cor_mat$x, levels=sort(colnames(data),decreasing=TRUE))
-  cor_mat$radius <- abs(cor_mat$value)
-  
-  grf <- plot_ballon(cor_mat, color = color)   
-  return(grf)
-}
-
-
-exp_pair_plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
+plot.pair_plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
+  loadlibrary("WVPlots")
   grf <- PairPlot(data, cnames, title, group_var = clabel, palette=NULL) + theme_bw(base_size = 10)
   if (is.null(clabel)) 
     grf <- grf + geom_point(color=colors)
@@ -287,7 +334,8 @@ exp_pair_plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
   return (grf)
 }
 
-exp_advpair_plot <- function(data, cnames, title = NULL, clabel= NULL, colors) {
+plot.advpair_plot <- function(data, cnames, title = NULL, clabel= NULL, colors) {
+  loadlibrary("GGally")  
   if (!is.null(clabel)) {
     data$clabel <- data[,clabel]
     cnames <- c(cnames, 'clabel')
@@ -312,4 +360,3 @@ exp_advpair_plot <- function(data, cnames, title = NULL, clabel= NULL, colors) {
   }
   return(grf)
 }
-
