@@ -1,20 +1,5 @@
 # version 1.0
-# debug: setwd("C:/Users/eduar/OneDrive/Git/mylibrary")
-myrepos <- "http://cran.fiocruz.br"
-
-
-setrepos <- function(repos=repos) {
-  myrepos <- repos 
-}
-
-loadlibrary <- function(x) 
-{
-  if (!require(x,character.only = TRUE))
-  {
-    install.packages(x, repos=myrepos, dep=TRUE)
-    require(x)
-  }
-}
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
 
 #https://stackoverflow.com/questions/7532845/matrix-losing-class-attribute-in-r
 
