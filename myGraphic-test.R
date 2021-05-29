@@ -11,107 +11,102 @@ font <- theme(text = element_text(size=16))
 
 head(mtcars)
 
-# The dataset to be plotted   
-series <- mtcars %>% select(wt, mpg, disp)
-head(series)
+# example1: dataset to be plotted   
+example1 <- mtcars %>% select(wt, mpg, disp)
+head(example1)
 
 # The function returns a preset graphic that can be enhanced. 
-grf <- plot.scatter(series, label_x = "wt", colors=colors[1:2])
+grf <- plot.scatter(example1, label_x = "wt", colors=colors[1:2])
 # Increasing the font size of the graphics
 grf <- grf + font
 # Actual plot
 plot(grf)
 
-grf <- plot.series(series, label_x = "wt", colors=colors[1:2]) + font
+grf <- plot.series(example1, label_x = "wt", colors=colors[1:2]) + font
 plot(grf)
 
-series <- mtcars %>% select(wt, mpg, disp)
-grf <- plot.series2nd(series, label_x = "wt", colors=colors[1:2]) + font
+grf <- plot.series2nd(example1, label_x = "wt", colors=colors[1:2]) + font
 plot(grf)
 
-# The dataset to be plotted  
-series <- mtcars %>% group_by(cyl) %>% summarize(hp = mean(hp))
-head(series)
+# example2: dataset to be plotted  
+example2 <- mtcars %>% group_by(cyl) %>% summarize(hp = mean(hp))
+head(example2)
 
-grf <- plot.bar(series, colors=col_set[1]) + font
+grf <- plot.bar(example2, colors=colors[1]) + font
 plot(grf)
 
 # Sometimes the bars can be plotted vertically. Use function coord_flip() for that.
 grf <- grf + coord_flip()
 plot(grf)
 
-grf <- plot.lollipop(series, colors=col_set[1]) + font
+grf <- plot.lollipop(example2, colors=colors[1]) + font
 plot(grf)
 
-series <- mtcars %>% group_by(cyl) %>% summarize(mean = mean(hp), sd=sd(hp))
-head(series)
+# example3: dataset to be plotted  
+example3 <- mtcars %>% group_by(cyl) %>% summarize(mean = mean(hp), sd=sd(hp))
+head(example3)
 
-grf <- plot.bar(series, colors=colors[1], alpha=0.5) + font
+grf <- plot.bar(example3, colors=colors[1], alpha=0.5) + font
 grf <- grf + geom_errorbar(aes(x=cyl, ymin=mean-sd, ymax=mean+sd), width=0.2, colour=colors[2], alpha=0.9, size=1.1) 
 plot(grf)
 
-series <- mtcars %>% group_by(cyl) %>% summarize(hp = mean(hp), mpg = mean(mpg))
-head(series)
-
-grf <- plot.groupedbar(series, colors=colors[1:2]) + font
+grf <- plot.groupedbar(example3, colors=colors[1:2]) + font
 plot(grf)
 
-grf <- plot.stackedbar(series, colors=colors[1:2]) + font
-grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
+  grf <- plot.stackedbar(example3, colors=colors[1:2]) + font
+  grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
+  plot(grf)
+
+  grf <- plot.dotchar(example3, colors=colors[1:2]) + font
+  grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
+  plot(grf)
+
+grf <- plot.pieplot(example2, colors=colors[1:nrow(example2)]) + font
 plot(grf)
 
-grf <- plot.dotchar(series, colors=colors[1:2]) + font
-grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
-plot(grf)
-
-# Dataset used
-series <- mtcars %>% group_by(cyl) %>% summarize(hp = mean(hp))
-head(series)
-
-grf <- plot.pieplot(series, colors=colors[1:nrow(series)]) + font
-plot(grf)
-
-series <- mtcars %>% group_by(cyl) %>% summarize(hp = mean(hp))
-head(series)
-
-grf <- plot.radar(series, colors=colors[1]) + font
+grf <- plot.radar(example2, colors=colors[1]) + font
 grf <- grf + ylim(0, NA)
 plot(grf)
-
-series <- mtcars %>% group_by(cyl) %>% summarize(hp = mean(hp), mpg = mean(mpg))
-head(series)
 
 # Correlation matrix
 cor(mtcars)
 
-plot.correlation(mtcars)
+  plot.correlation(mtcars)
 
-stdata <- data.frame(exponential = rexp(100000, rate = 1), 
+# example4: dataset to be plotted  
+example4 <- data.frame(exponential = rexp(100000, rate = 1), 
                      uniform = runif(100000, min = 2.5, max = 3.5), 
                      normal = rnorm(100000, mean=5), 
                      poisson = rpois(100000, lambda = 2))
-head(stdata)
+head(example4)
 
-grfe <- plot.hist(stdata %>% select(exponential), label_x = "exponential", color=colors[1]) + font
-grfu <- plot.hist(stdata %>% select(uniform), label_x = "uniform", color=colors[1]) + font  
-grfn <- plot.hist(stdata %>% select(normal), label_x = "normal", color=colors[1]) + font 
-grfp <- plot.hist(stdata %>% select(poisson), label_x = "poisson", color=colors[1]) + font
+grfe <- plot.hist(example4 %>% select(exponential), label_x = "exponential", color=colors[1]) + font
+grfu <- plot.hist(example4 %>% select(uniform), label_x = "uniform", color=colors[1]) + font  
+grfn <- plot.hist(example4 %>% select(normal), label_x = "normal", color=colors[1]) + font 
+grfp <- plot.hist(example4 %>% select(poisson), label_x = "poisson", color=colors[1]) + font
+
 loadlibrary("gridExtra") 
-grid.arrange(grfe, grfu, grfn, grfp,ncol=2)
+grid.arrange(grfe, grfu, grfn, grfp, ncol=2)
 
-grfe <- plot.density(stdata %>% select(exponential), label_x = "exponential", color=colors[1]) + font  
-grfu <- plot.density(stdata %>% select(uniform), label_x = "uniform", color=colors[2]) + font  
-grfn <- plot.density(stdata %>% select(normal), label_x = "normal", color=colors[3]) + font  
-grid.arrange(grfe, grfu, grfn, ncol=3) 
+grfe <- plot.density(example4 %>% select(exponential), 
+                     label_x = "exponential", color=colors[1]) + font  
+grfu <- plot.density(example4 %>% select(uniform), 
+                     label_x = "uniform", color=colors[2]) + font  
+grfn <- plot.density(example4 %>% select(normal), 
+                     label_x = "normal", color=colors[3]) + font  
 
-grf <- plot.density(stdata %>% select(exponential, uniform, normal), colors=colors[1:3]) + font
+loadlibrary("gridExtra") 
+grid.arrange(grfe, grfu, grfn, ncol=3)
+
+grf <- plot.density(example4 %>% select(exponential, uniform, normal), 
+                    colors=colors[1:3]) + font
 plot(grf)
 
 grf <- plot.boxplot(stdata, colors=colors[1:4]) + font
 plot(grf)  
 
-grf <- plot.norm_dist(rexp(1000, rate=1), colors=col_3[1]) + font
-plot(grf)
+  grf <- plot.norm_dist(rexp(1000, rate=1), colors=col_3[1]) + font
+  plot(grf)
 
 pdf("examples/plot.pdf", width=4, height=3)
 plot(grf)
