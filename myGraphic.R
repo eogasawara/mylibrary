@@ -83,28 +83,32 @@ plot.series2nd <- function(data, label_x = "", label_y = "", label_z = "", color
 }
 
 plot.bar <- function(data, label_x = "", label_y = "", colors = NULL, alpha=1) {
-  grouped <- ncol(data) > 2
-  cnames <- colnames(data)[-1]
-  series <- melt(as.data.frame(data), id.vars = c(1))
-  colnames(series)[1] <- "x"
-  if (!is.factor(series$x))
-    series$x <- as.factor(series$x)
-  
-  if (grouped) {
-      grf <- ggplot(series, aes(x, value, fill=variable))
-      grf <- grf + geom_bar(stat = "identity",position = "dodge", alpha=alpha)
-      if (!is.null(colors)) {
-        grf <- grf + scale_fill_manual(cnames, values = colors)
-      }
+  series <- as.data.frame(data)
+  if (!is.factor(series[,1]))
+    series[,1] <- as.factor(series[,1])
+  grf <- ggplot(series, aes_string(x=colnames(series)[1], y=colnames(series)[2]))
+  if (!is.null(colors)) {
+    grf <- grf + geom_bar(stat = "identity", fill=colors, alpha=alpha)
   }
-  else {
-    grf <- ggplot(data=series, aes(x, value))
-    if (!is.null(colors)) {
-      grf <- grf + geom_bar(stat = "identity", fill=colors, alpha=alpha)
-    }
-    else {  
-      grf <- grf + geom_bar(stat = "identity", alpha=alpha)
-    }    
+  else {  
+    grf <- grf + geom_bar(stat = "identity", alpha=alpha)
+  }    
+  grf <- grf + theme_bw(base_size = 10)
+  grf <- grf + theme(panel.grid.minor = element_blank())
+  grf <- grf + theme(legend.title = element_blank()) + theme(legend.position = "bottom")
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)
+  return(grf)
+}
+
+plot.bar.group <- function(data, label_x = "", label_y = "", colors = NULL, alpha=1) {
+  series <- as.data.frame(data)
+  if (!is.factor(series[,1]))
+    series[,1] <- as.factor(series[,1])
+  grf <- ggplot(series, aes_string(x=colnames(series)[1], y=colnames(series)[3], fill=colnames(series)[2]))
+  grf <- grf + geom_bar(stat = "identity",position = "dodge", alpha=alpha)
+  if (!is.null(colors)) {
+    grf <- grf + scale_fill_manual(colnames(series)[2], values = colors)
   }
   grf <- grf + theme_bw(base_size = 10)
   grf <- grf + theme(panel.grid.minor = element_blank())
