@@ -142,13 +142,11 @@ plot.stackedbar <- function(data, label_x = "", label_y = "", colors = NULL, alp
 }
 
 plot.radar <- function(data, label_x = "", label_y = "", colors = NULL)  {
-  cnames <- colnames(data)[-1]
-  series <- melt(as.data.frame(data), id.vars = c(1))
-  colnames(series)[1] <- "x"
-  if (!is.factor(series$x))
-    series$x <- as.factor(series$x)
-  
-  grf <- ggplot(data=series, aes(x=x, y=value, group=1))
+  series <- as.data.frame(data)
+  if (!is.factor(series[,1]))
+    series[,1] <- as.factor(series[,1])
+  series$group <- 1
+  grf <- ggplot(series, aes_string(x=colnames(series)[1], y=colnames(series)[2], group="group"))
   grf <- grf + geom_point(size=2, color=colors)
   grf <- grf + geom_polygon(size = 1, alpha= 0.1, color=colors)
   grf <- grf + theme_light()
