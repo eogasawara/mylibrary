@@ -1,5 +1,10 @@
+# The easiest way to get ggplot2 is to install the whole tidyverse:
+# install.packages("tidyverse")
+# Alternatively, install just ggplot2:
+# install.packages("ggplot2")
+
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
-#suppressPackageStartupMessages()
+#Use suppressPackageStartupMessages(source(filename)) to avoid warning messages
 
 col_set <- brewer.pal(11, 'Spectral')
 colors <- col_set[c(11,10,9,8)]
@@ -11,6 +16,8 @@ plot.size(10, 5)
 font <- theme(text = element_text(size=16))
 
 head(mtcars)
+
+?mtcars
 
 # example1: dataset to be plotted   
 example1 <- mtcars %>% select(wt, mpg, disp)
@@ -36,19 +43,28 @@ head(example2)
 grf <- plot.bar(example2, colors=colors[1]) + font
 plot(grf)
 
-# Sometimes the bars can be plotted vertically. Use function coord_flip() for that.
+# Sometimes the bars can be plotted vertically. 
+#Use function coord_flip() for that.
 grf <- grf + coord_flip()
 plot(grf)
 
 grf <- plot.lollipop(example2, colors=colors[1]) + font
 plot(grf)
 
+grf <- plot.pieplot(example2, colors=colors[1:nrow(example2)]) + font
+plot(grf)
+
+grf <- plot.radar(example2, colors=colors[1]) + font
+grf <- grf + ylim(0, NA)
+plot(grf)
+
 # example3: dataset to be plotted  
 example3 <- mtcars %>% group_by(cyl) %>% summarize(mean = mean(hp), sd=sd(hp))
 head(example3)
 
-grf <- plot.bar(example3, colors=colors[1], alpha=0.5) + font
-grf <- grf + geom_errorbar(aes(x=cyl, ymin=mean-sd, ymax=mean+sd), width=0.2, colour=colors[2], alpha=0.9, size=1.1) 
+grf <- plot.bar(example3, colors=colors[1], alpha=1) + font
+grf <- grf + geom_errorbar(aes(x=cyl, ymin=mean-sd, ymax=mean+sd), 
+                           width=0.2, colour="darkgray", alpha=0.8, size=1.1) 
 plot(grf)
 
 grf <- plot.groupedbar(example3, colors=colors[1:2]) + font
@@ -60,13 +76,6 @@ plot(grf)
 
 grf <- plot.dotchar(example3, colors=colors[1:2]) + font
 grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
-plot(grf)
-
-grf <- plot.pieplot(example2, colors=colors[1:nrow(example2)]) + font
-plot(grf)
-
-grf <- plot.radar(example2, colors=colors[1]) + font
-grf <- grf + ylim(0, NA)
 plot(grf)
 
 # Correlation matrix
@@ -81,10 +90,18 @@ example4 <- data.frame(exponential = rexp(100000, rate = 1),
                        poisson = rpois(100000, lambda = 2))
 head(example4)
 
-grfe <- plot.hist(example4 %>% select(exponential), label_x = "exponential", color=colors[1]) + font
-grfu <- plot.hist(example4 %>% select(uniform), label_x = "uniform", color=colors[1]) + font  
-grfn <- plot.hist(example4 %>% select(normal), label_x = "normal", color=colors[1]) + font 
-grfp <- plot.hist(example4 %>% select(poisson), label_x = "poisson", color=colors[1]) + font
+grf <- plot.hist(example4 %>% select(exponential), 
+                 label_x = "exponential", color=colors[1]) + font
+plot(grf)
+
+grfe <- plot.hist(example4 %>% select(exponential), 
+                  label_x = "exponential", color=colors[1]) + font
+grfu <- plot.hist(example4 %>% select(uniform), 
+                  label_x = "uniform", color=colors[1]) + font  
+grfn <- plot.hist(example4 %>% select(normal), 
+                  label_x = "normal", color=colors[1]) + font 
+grfp <- plot.hist(example4 %>% select(poisson), 
+                  label_x = "poisson", color=colors[1]) + font
 
 loadlibrary("gridExtra") 
 grid.arrange(grfe, grfu, grfn, grfp, ncol=2)
@@ -106,7 +123,7 @@ plot(grf)
 grf <- plot.boxplot(example4, colors=colors[1:4]) + font
 plot(grf)  
 
-grf <- plot.norm_dist(rexp(1000, rate=1), colors=col_3[1]) + font
+grf <- plot.norm_dist(rexp(1000, rate=1), colors=colors[1]) + font
 plot(grf)
 
 pdf("examples/plot.pdf", width=4, height=3)
