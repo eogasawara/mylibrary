@@ -65,12 +65,12 @@ plot.series2nd <- function(data, label_x = "", label_y = "", label_z = "", color
   grf <- grf + geom_point(aes(x, y), col=colors[1], size=1.5)
   grf <- grf + geom_point(aes(x, z), col=colors[2], size=1.5)
   if(is.factor(series$x)) {
-    grf <- grf + geom_line(aes(as.integer(x), y), col=colors[1]) 
-    grf <- grf + geom_line(aes(as.integer(x), z), col=colors[2])    
+    grf <- grf + geom_line(aes(as.integer(x), y), col=colors[1], size=1) 
+    grf <- grf + geom_line(aes(as.integer(x), z), col=colors[2], size=1)    
   }
   else {
-    grf <- grf + geom_line(aes(x, y), col=colors[1]) 
-    grf <- grf + geom_line(aes(x, z), col=colors[2])    
+    grf <- grf + geom_line(aes(x, y), col=colors[1], size=1) 
+    grf <- grf + geom_line(aes(x, z), col=colors[2], size=1)    
   }
   grf <- grf + theme_bw(base_size = 10) 
   grf <- grf + labs(color=cnames)

@@ -1,12 +1,13 @@
-suppressPackageStartupMessages(source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R"))
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
+#suppressPackageStartupMessages()
 
 col_set <- brewer.pal(11, 'Spectral')
-colors <- col_set[c(3,5,7,9)]
+colors <- col_set[c(11,10,9,8)]
 
 # This function is used only to set graphics size in this notebook. Ignore it for the moment.
 plot.size(10, 5)
 
-# setting the font size for charts
+# setting the font size for all charts
 font <- theme(text = element_text(size=16))
 
 head(mtcars)
@@ -53,13 +54,13 @@ plot(grf)
 grf <- plot.groupedbar(example3, colors=colors[1:2]) + font
 plot(grf)
 
-  grf <- plot.stackedbar(example3, colors=colors[1:2]) + font
-  grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
-  plot(grf)
+grf <- plot.stackedbar(example3, colors=colors[1:2]) + font
+grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
+plot(grf)
 
-  grf <- plot.dotchar(example3, colors=colors[1:2]) + font
-  grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
-  plot(grf)
+grf <- plot.dotchar(example3, colors=colors[1:2]) + font
+grf <- grf + theme(axis.text.x = element_text(angle=90, hjust=1))
+plot(grf)
 
 grf <- plot.pieplot(example2, colors=colors[1:nrow(example2)]) + font
 plot(grf)
@@ -71,13 +72,13 @@ plot(grf)
 # Correlation matrix
 cor(mtcars)
 
-  plot.correlation(mtcars)
+plot.correlation(mtcars)
 
 # example4: dataset to be plotted  
 example4 <- data.frame(exponential = rexp(100000, rate = 1), 
-                     uniform = runif(100000, min = 2.5, max = 3.5), 
-                     normal = rnorm(100000, mean=5), 
-                     poisson = rpois(100000, lambda = 2))
+                       uniform = runif(100000, min = 2.5, max = 3.5), 
+                       normal = rnorm(100000, mean=5), 
+                       poisson = rpois(100000, lambda = 2))
 head(example4)
 
 grfe <- plot.hist(example4 %>% select(exponential), label_x = "exponential", color=colors[1]) + font
@@ -102,11 +103,11 @@ grf <- plot.density(example4 %>% select(exponential, uniform, normal),
                     colors=colors[1:3]) + font
 plot(grf)
 
-grf <- plot.boxplot(stdata, colors=colors[1:4]) + font
+grf <- plot.boxplot(example4, colors=colors[1:4]) + font
 plot(grf)  
 
-  grf <- plot.norm_dist(rexp(1000, rate=1), colors=col_3[1]) + font
-  plot(grf)
+grf <- plot.norm_dist(rexp(1000, rate=1), colors=col_3[1]) + font
+plot(grf)
 
 pdf("examples/plot.pdf", width=4, height=3)
 plot(grf)
