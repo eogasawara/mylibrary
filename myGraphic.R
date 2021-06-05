@@ -27,6 +27,22 @@ plot.scatter <- function(data, label_x = "", label_y = "", colors = NULL) {
   return(grf)
 }
 
+plot.scatter.class <- function(data, class_label, label_x = "", label_y = "", colors = NULL) {
+  colnames(data) <- c("x", "y", "variable")
+  data$variable <- as.factor(data$variable)
+  grf <- ggplot(data=data, aes(x = x, y = y, colour=variable, group=variable)) + geom_point(size=1)
+  if (!is.null(colors)) {
+    grf <- grf + scale_color_manual(values=colors)
+  }
+  grf <- grf + labs(color=levels(data$variable))
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)
+  grf <- grf + theme_bw(base_size = 10)
+  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
+  grf <- grf + theme(legend.title = element_blank()) + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
+  return(grf)
+}
+
 plot.series <- function(data, label_x = "", label_y = "", colors = NULL) {
   series <- melt(as.data.frame(data), id.vars = c(1))
   cnames <- colnames(data)[-1]
@@ -373,7 +389,7 @@ plot.norm_dist <- function(vect, label_x = "", label_y = "",  colors)  {
 }
 
 
-plot.pair_plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
+plot.pair.plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
   loadlibrary("WVPlots")
   grf <- PairPlot(data, cnames, title, group_var = clabel, palette=NULL) + theme_bw(base_size = 10)
   if (is.null(clabel)) 
@@ -383,7 +399,7 @@ plot.pair_plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
   return (grf)
 }
 
-plot.advpair_plot <- function(data, cnames, title = NULL, clabel= NULL, colors) {
+plot.pair.plot.adv <- function(data, cnames, title = NULL, clabel= NULL, colors) {
   loadlibrary("GGally")  
   if (!is.null(clabel)) {
     data$clabel <- data[,clabel]
