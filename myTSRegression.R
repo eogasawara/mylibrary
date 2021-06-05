@@ -226,7 +226,11 @@ ts_invoke_action.tsreg_elm <- function(obj, x) {
 
 #class tsreg_cnn
 
-tsreg_cnn <- function(preprocess, input_size, neurons=64, epochs = 1000) {
+tsreg_cnn <- function(preprocess, input_size, neurons=64, epochs = 100) {
+  loadlibrary("dplyr")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+  
   obj <- tsreg_sw(preprocess, input_size)
   obj$neurons <- neurons
   obj$epochs <- epochs
@@ -242,11 +246,6 @@ ts_invoke_prepare.tsreg_cnn <- function(obj, x, y) {
       if (epoch %% 10 == 0) cat(".")
     }
   )    
-  
-  loadlibrary("dplyr")
-#  loadlibrary("tfdatasets")
-  loadlibrary("tensorflow")
-  loadlibrary("keras")  
   
   xy <- data.frame(x)
   xy$t0 <- y
@@ -294,7 +293,7 @@ ts_invoke_action.tsreg_cnn <- function(obj, x) {
 
 #class tsreg_lstm
 
-tsreg_lstm <- function(preprocess, input_size, epochs = 1000) {
+tsreg_lstm <- function(preprocess, input_size, epochs = 100) {
   obj <- tsreg_sw(preprocess, input_size)
   
   obj$epochs <- epochs
@@ -304,18 +303,16 @@ tsreg_lstm <- function(preprocess, input_size, epochs = 1000) {
 }
 
 ts_invoke_prepare.tsreg_lstm <- function(obj, x, y) {
+  loadlibrary("dplyr")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+
   print_dot_callback <- callback_lambda(
     on_epoch_end = function(epoch, logs) {
       if (epoch %% 800 == 0) cat("\n")
       if (epoch %% 10 == 0) cat(".")
     }
   )    
-  
-  loadlibrary("dplyr")
-  #  loadlibrary("tfdatasets")
-  loadlibrary("tensorflow")
-  loadlibrary("keras")  
-
   set.seed(1)
   batch.size <- 1
   size <- ncol(x)

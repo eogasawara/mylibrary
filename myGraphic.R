@@ -271,6 +271,30 @@ plot.boxplot <- function(data, label_x = "", label_y = "", colors = NULL, barwit
 }
 
 
+plot.boxplot.class <- function(data, class_label, label_x = "", label_y = "", colors = NULL) {
+  data <- melt(data, id=class_label)
+  colnames(data)[1] <- "x"
+  if (!is.factor(data$x))
+    data$x <- as.factor(data$x)
+  grf <- ggplot(data=data, aes(y = value, x = x))
+  if (!is.null(colors)) {
+    grf <- grf + geom_boxplot(fill=colors)
+  }
+  else {
+    grf <- grf + geom_boxplot()
+  }
+  grf <- grf + labs(color=levels(data$x))
+  if (!is.null(colors)) {
+    grf <- grf + scale_fill_manual(levels(data$x), values = colors)
+  }
+  grf <- grf + theme_bw(base_size = 10)
+  grf <- grf + theme(panel.grid.minor = element_blank()) + theme(legend.position = "bottom")
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)
+  return(grf)
+}
+
+
 plot.density <-  function(data, label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.25) {
   grouped <- ncol(data) > 1
   cnames <- colnames(data)
@@ -302,6 +326,26 @@ plot.density <-  function(data, label_x = "", label_y = "", colors = NULL, bin =
   grf <- grf + ylab(label_y)
   if (!is.null(colors)) 
     grf <- grf + scale_fill_manual(name = cnames, values = colors)
+  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
+  grf <- grf + theme(legend.title = element_blank(), legend.position = "bottom")
+  return(grf)
+}
+
+plot.density.class <-  function(data, class_label, label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.5) {
+  data <- melt(data, id=class_label)
+  colnames(data)[1] <- "x"
+  if (!is.factor(data$x))
+    data$x <- as.factor(data$x)
+  grf <- ggplot(data=data, aes(x = value, fill = x))
+  if (is.null(bin)) 
+    grf <- grf + geom_density(alpha = alpha)
+  else 
+    grf <- grf + geom_density(binwidth = bin, alpha = alpha)
+  grf <- grf + theme_bw(base_size = 10)
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)
+  if (!is.null(colors)) 
+    grf <- grf + scale_fill_manual(name = levels(data$x), values = colors)
   grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
   grf <- grf + theme(legend.title = element_blank(), legend.position = "bottom")
   return(grf)
