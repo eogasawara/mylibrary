@@ -389,7 +389,7 @@ plot.norm_dist <- function(vect, label_x = "", label_y = "",  colors)  {
 }
 
 
-plot.pair.plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
+plot.pair <- function(data, cnames, title = NULL, clabel = NULL, colors) {
   loadlibrary("WVPlots")
   grf <- PairPlot(data, cnames, title, group_var = clabel, palette=NULL) + theme_bw(base_size = 10)
   if (is.null(clabel)) 
@@ -399,7 +399,7 @@ plot.pair.plot <- function(data, cnames, title = NULL, clabel = NULL, colors) {
   return (grf)
 }
 
-plot.pair.plot.adv <- function(data, cnames, title = NULL, clabel= NULL, colors) {
+plot.pair.adv <- function(data, cnames, title = NULL, clabel= NULL, colors) {
   loadlibrary("GGally")  
   if (!is.null(clabel)) {
     data$clabel <- data[,clabel]
