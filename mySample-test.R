@@ -1,10 +1,5 @@
 # version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
-
-data(iris)
-head(iris)
-
-iris <- as.matrix(iris)
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 
 process_samples <- function(sr, iris) {
@@ -21,6 +16,11 @@ process_samples <- function(sr, iris) {
 
 # iris dataset
 
+data(iris)
+head(iris)
+
+# it works with both data.frame and matrix. You can comment the next line for data.frame
+iris <- as.matrix(iris)
 
 process_samples(sample_random(), iris)
 
