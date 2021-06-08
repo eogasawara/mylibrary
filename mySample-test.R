@@ -1,8 +1,10 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
 head(iris)
+
+iris <- as.matrix(iris)
 
 
 process_samples <- function(sr, iris) {
@@ -10,10 +12,10 @@ process_samples <- function(sr, iris) {
   tt <- train_test(sr, iris)
   
   # distribution of train
-  print(table(tt$train$Species))
+  print(table(tt$train[,"Species"]))
   
   # distribution of test
-  print(table(tt$test$Species))
+  print(table(tt$test[,"Species"]))
 }
 
 
@@ -31,7 +33,7 @@ process_folds <- function(sr, iris) {
   # distribution of folds
   tbl <- NULL
   for (f in folds) {
-    tbl <- rbind(tbl, table(f$Species))
+    tbl <- rbind(tbl, table(f[,"Species"]))
   }
   rownames(tbl) <- rep(class(sr)[1], 4)
   print(tbl)
