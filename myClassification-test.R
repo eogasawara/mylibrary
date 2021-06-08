@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
@@ -11,7 +11,6 @@ sr <- sample_random()
 sr <- train_test(sr, iris)
 iris_train = sr$train
 iris_test = sr$test
-
 tbl <- rbind(table(iris$Species), table(iris_train$Species), table(iris_test$Species))
 rownames(tbl) <- c("dataset", "training", "test")
 head(tbl)
@@ -46,4 +45,3 @@ train_test(class_mlp("Species", neurons=2,decay=0.04), iris_train, iris_test)
 train_test(class_svm("Species", epsilon=0.0,cost=5.000), iris_train, iris_test)
 train_test(class_knn("Species"), iris_train, iris_test)
 train_test(class_cnn("Species", epochs = 100), iris_train, iris_test)
-

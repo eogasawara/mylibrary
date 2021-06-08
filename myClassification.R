@@ -96,17 +96,17 @@ prepare.class_nb <- function(obj, data) {
 }
 
 action.class_nb  <- function(obj, data) {
-  predictors = data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, type="raw")  
+  predictors = data[,obj$predictors]
+  prediction <- predict(obj$model, predictors, type="raw")
   return(prediction)
 }
 
 # random_forest
-class_rf <- function(attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
+class_rf <- function(attribute, mtry = NULL, ntree = seq(5, 50, 5)) {
   obj <- classification(attribute)
   obj$ntree <- ntree
-  
-  class(obj) <- append("class_rf", class(obj))    
+  obj$mtry <- mtry
+  class(obj) <- append("class_rf", class(obj))
   return(obj)
 }
 
@@ -114,13 +114,12 @@ prepare.class_rf <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   if (is.null(obj$mtry))
-    obj$mtry <- unique(2:round(sqrt(ncol(data)))) 
+    obj$mtry <- unique(2:round(sqrt(ncol(data))))
   
   loadlibrary("randomForest")
   
-  regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.randomForest(regression, data=data, mtry=obj$mtry, ntree=obj$ntree)
-  obj$model <- tuned$best.model 
+  tuned <- tune.randomForest(x=as.data.frame(data[, !colnames(data) %in% c(obj$attribute)]), y=factor(data[, obj$attribute]), mtry=obj$mtry, ntree=obj$ntree)
+  obj$model <- tuned$best.model
   
   msg <- sprintf("mtry=%d,ntree=%d", obj$model$mtry, obj$model$ntree)
   obj <- register_log(obj, msg)
@@ -134,7 +133,7 @@ action.class_rf  <- function(obj, data) {
 }
 
 # mlp_nnet
-class_mlp <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
+class_mlp <- function(attribute, neurons=c(2, 4, 6), decay=seq(0, 1, 0.2), maxit=1000) {
   obj <- classification(attribute)
   obj$maxit <- maxit
   obj$neurons <- neurons
@@ -155,7 +154,7 @@ prepare.class_mlp <- function(obj, data) {
   loadlibrary("e1071")
   
   regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.nnet(regression, data=data, trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons)
+  tuned <- tune.nnet(regression, data=as.data.frame(data), trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons, MaxNWts=5000)
   obj$model <- tuned$best.model  
   
   msg <- sprintf("neurons=%d,decay=%.2f", tuned$best.parameters$size, tuned$best.parameters$decay)
@@ -164,7 +163,7 @@ prepare.class_mlp <- function(obj, data) {
 }
 
 action.class_mlp  <- function(obj, data) {
-  predictors = data[,obj$predictors]   
+  predictors = data[,obj$predictors]  
   prediction <- predict(obj$model, predictors, type="raw")  
   return(prediction)
 }
@@ -204,7 +203,7 @@ action.class_svm  <- function(obj, data) {
 }
 
 # class_knn 
-class_knn <- function(attribute, k=1:20) {
+class_knn <- function(attribute, k=seq(1, 20, 4)) {
   obj <- classification(attribute)
   obj$k <- k
   class(obj) <- append("class_knn", class(obj))    
@@ -217,9 +216,9 @@ prepare.class_knn <- function(obj, data) {
   loadlibrary("e1071")
   loadlibrary("class")
   
-  predictors = data[,obj$predictors] 
+  predictors = data[,obj$predictors]
   predictand = data[,obj$attribute]
-  tuned <- tune.knn(x = predictors, y = predictand, k = obj$k)  
+  tuned <- tune.knn(x=as.data.frame(data[, !colnames(data) %in% c(obj$attribute)]), y=factor(data[, obj$attribute]), k = obj$k)  
   obj$model <- list(predictors=predictors, predictand=predictand)
   obj$k <- tuned$k
   
@@ -236,7 +235,7 @@ action.class_knn  <- function(obj, data) {
 }
 
 # class_cnn 
-class_cnn <- function(attribute, neurons=64, epochs = 1000) {
+class_cnn <- function(attribute, neurons=64, epochs = 100) {
   obj <- classification(attribute)
   obj$neurons <- neurons
   obj$epochs <- epochs
@@ -247,6 +246,7 @@ class_cnn <- function(attribute, neurons=64, epochs = 1000) {
 
 prepare.class_cnn <- function(obj, data) {
   obj <- prepare.classification(obj, data)
+  data = as.data.frame(data)
   obj$levels <- levels(data[,obj$attribute])
   
   loadlibrary("dplyr")
@@ -256,7 +256,7 @@ prepare.class_cnn <- function(obj, data) {
   
   data[,obj$attribute] <- as.factor(data[,obj$attribute])  
   onehot = to_categorical(as.numeric(data[,obj$attribute]) - 1)
-  obj$predictors <- setdiff(colnames(data), obj$attribute) 
+  obj$predictors <- setdiff(colnames(data), obj$attribute)
   data[,obj$attribute] <- NULL
   input <- as.matrix(data)
   target <- as.matrix(onehot)
