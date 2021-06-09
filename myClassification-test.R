@@ -5,13 +5,17 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R
 data(iris)
 head(iris)
 
+slevels <- levels(iris$Species)
+
+iris <- cbind(as.matrix(iris[,1:4]), Species=iris$Species)
+
 # preparing dataset for random sampling
 set.seed(1)
 sr <- sample_random()
 sr <- train_test(sr, iris)
 iris_train = sr$train
 iris_test = sr$test
-tbl <- rbind(table(iris$Species), table(iris_train$Species), table(iris_test$Species))
+tbl <- rbind(table(iris[,"Species"]), table(iris_train[,"Species"]), table(iris_test[,"Species"]))
 rownames(tbl) <- c("dataset", "training", "test")
 head(tbl)
 
@@ -37,11 +41,14 @@ train_test <- function(model, iris_train, iris_test) {
   plot(roc_curve(test_eval))
 }
 
-train_test(class_majority("Species"), iris_train, iris_test)
-train_test(class_dtree("Species"), iris_train, iris_test)
-train_test(class_nb("Species"), iris_train, iris_test)
-train_test(class_rf("Species",  mtry=2, ntree=50), iris_train, iris_test)
-train_test(class_mlp("Species", neurons=2,decay=0.04), iris_train, iris_test)
-train_test(class_svm("Species", epsilon=0.0,cost=5.000), iris_train, iris_test)
-train_test(class_knn("Species"), iris_train, iris_test)
-train_test(class_cnn("Species", epochs = 100), iris_train, iris_test)
+
+if (TRUE) {
+  train_test(class_majority("Species", slevels), iris_train, iris_test)
+  train_test(class_dtree("Species", slevels), iris_train, iris_test)
+  train_test(class_nb("Species", slevels), iris_train, iris_test)
+  train_test(class_rf("Species", slevels, mtry=2, ntree=50), iris_train, iris_test)
+  train_test(class_mlp("Species", slevels, neurons=2,decay=0.04), iris_train, iris_test)
+  train_test(class_svm("Species", slevels, epsilon=0.0,cost=5.000), iris_train, iris_test)
+  train_test(class_knn("Species", slevels), iris_train, iris_test)
+  train_test(class_cnn("Species", slevels, epochs = 200), iris_train, iris_test)
+}
