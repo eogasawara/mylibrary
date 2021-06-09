@@ -7,10 +7,10 @@ setrepos <- function(repos=repos) {
 
 loadlibrary <- function(packagename) 
 {
-  if (!require(packagename,character.only = TRUE))
+  if (!require(packagename, character.only = TRUE))
   {
     install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
-    require(packagename,character.only = TRUE)
+    require(packagename, character.only = TRUE)
   }
 }
 

@@ -29,8 +29,8 @@ reg_dtree <- function(attribute) {
 }
 
 prepare.reg_dtree <- function(obj, data) {
+  data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
-  
   loadlibrary("tree")
   
   regression <- formula(paste(obj$attribute, "  ~ ."))  
@@ -41,6 +41,7 @@ prepare.reg_dtree <- function(obj, data) {
 }
 
 action.reg_dtree <- function(obj, data) {
+  data <- adjust.data.frame(data)
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors, type="vector")  
   return(prediction)
@@ -60,6 +61,7 @@ reg_rf <- function(attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
 }
 
 prepare.reg_rf <- function(obj, data) {
+  data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
 
   loadlibrary("e1071")
@@ -75,6 +77,7 @@ prepare.reg_rf <- function(obj, data) {
 }
 
 action.reg_rf  <- function(obj, data) {
+  data <- adjust.data.frame(data)
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors)  
   return(prediction)
@@ -94,6 +97,7 @@ reg_mlp <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) 
 }
 
 prepare.reg_mlp <- function(obj, data) {
+  data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
   
   loadlibrary("e1071")
@@ -109,6 +113,7 @@ prepare.reg_mlp <- function(obj, data) {
 }
 
 action.reg_mlp  <- function(obj, data) {
+  data <- adjust.data.frame(data)
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors)  
   return(prediction)
@@ -128,6 +133,7 @@ reg_svm <- function(attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="
 }
 
 prepare.reg_svm <- function(obj, data) {
+  data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
   
   loadlibrary("e1071")
@@ -141,6 +147,7 @@ prepare.reg_svm <- function(obj, data) {
 }
 
 action.reg_svm  <- function(obj, data) {
+  data <- adjust.data.frame(data)
   predictors = data[,obj$predictors]   
   prediction <- predict(obj$model, predictors) 
   return(prediction)
@@ -156,18 +163,27 @@ reg_knn <- function(attribute, k=1:20) {
 }
 
 prepare.reg_knn <- function(obj, data) {
+  data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
+  loadlibrary("FNN")
   
-  obj <- register_log(obj)
+  predictors <- as.matrix(data[,obj$predictors])
+  predictand <- data[,obj$attribute]
+  if (length(obj$k) > 1)
+    obj$k <- max(obj$k)
+  obj$model <- list(predictors=predictors, predictand=predictand)
+
   return(obj)
 }
 
 action.reg_knn  <- function(obj, data) {
-  #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html  
-  prediction <- rep(0, nrow(data))
-  return(prediction)
+  #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html
+  data <- adjust.data.frame(data)
+  predictors = as.matrix(data[,obj$predictors])
+  
+  prediction <- knn.reg(train = obj$model$predictors, test = predictors, y = obj$model$predictand, k = obj$k)  
+  return(prediction$pred)
 }
-
 
 # reg_cnn 
 
@@ -181,6 +197,7 @@ reg_cnn <- function(attribute, neurons=64, epochs = 1000) {
 }
 
 prepare.reg_cnn <- function(obj, data) {
+  data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
   
   loadlibrary("dplyr")
@@ -197,8 +214,6 @@ prepare.reg_cnn <- function(obj, data) {
   
   data$y <- data[, obj$attribute]
   data[, obj$attribute] <- NULL
-  
-  set.seed(1)
   
   spec <- feature_spec(data, y ~ . ) %>% 
     step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
@@ -236,6 +251,7 @@ prepare.reg_cnn <- function(obj, data) {
 }
 
 action.reg_cnn  <- function(obj, data) {
+  data <- adjust.data.frame(data)
   prediction <- (obj$mdl %>% predict(data))  
   return(prediction)
 }
