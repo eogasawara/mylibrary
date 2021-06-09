@@ -55,6 +55,16 @@ k_fold.sample_random <- function(obj, data, k) {
   return (folds)
 }
 
+train_test_from_folds <- function(folds, k) {
+  test <- folds[[k]]
+  train <- NULL
+  for (i in 1:length(folds)) {
+    if (i != k)
+      train <- rbind(train, folds[[i]])
+  }
+  return (list(train=train, test=test))
+}
+
 # sample_stratified
 sample_stratified <- function(attribute) {
   obj <- sample_random()

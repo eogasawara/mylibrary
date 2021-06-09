@@ -19,12 +19,9 @@ process_samples <- function(sr, iris) {
 data(iris)
 head(iris)
 
-# it works with both data.frame and matrix. You can comment the next line for data.frame
-iris <- as.matrix(iris)
+#process_samples(sample_random(), iris)
 
-process_samples(sample_random(), iris)
-
-process_samples(sample_stratified("Species"), iris)
+#process_samples(sample_stratified("Species"), iris)
 
 process_folds <- function(sr, iris) {
   # preparing dataset into four folds
@@ -41,4 +38,4 @@ process_folds <- function(sr, iris) {
 
 process_folds(sample_random(), iris)
 
-process_folds(sample_stratified("Species"), iris)
+#process_folds(sample_stratified("Species"), iris)

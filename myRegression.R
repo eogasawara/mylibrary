@@ -288,14 +288,20 @@ tune.reg_cnn <- function (x, y = NULL, neurons, epochs)
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
   mses <- rep(0,n)
-  models <- list()
+  data <- cbind(x, y)
+  
+  folds <- k_fold(sample_random(), data, 3)
+  
   for (i in 1:n) {
-    model <- train.reg_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
-    models[[i]] <- model
-    prediction <- predict(model, x) 
-    mses[i] <- regression_evaluation(y, prediction)$mse
+    for (j in 1:3) {
+      folds$
+      model <- train.reg_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
+      prediction <- predict(model, x) 
+      mses[i] <- mses[i] + regression_evaluation(y, prediction)$mse
+    }
   }
   i <- which.min(mses)
+  model <- train.reg_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
   return(models[[i]])
 }
 
