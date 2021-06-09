@@ -42,7 +42,7 @@ prepare.reg_dtree <- function(obj, data) {
 
 action.reg_dtree <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors = data[,obj$predictors]   
+  predictors <- data[,obj$predictors]   
   prediction <- predict(obj$model, predictors, type="vector")  
   return(prediction)
 }
@@ -78,7 +78,7 @@ prepare.reg_rf <- function(obj, data) {
 
 action.reg_rf  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors = data[,obj$predictors]   
+  predictors <- data[,obj$predictors]   
   prediction <- predict(obj$model, predictors)  
   return(prediction)
 }
@@ -114,7 +114,7 @@ prepare.reg_mlp <- function(obj, data) {
 
 action.reg_mlp  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors = data[,obj$predictors]   
+  predictors <- data[,obj$predictors]   
   prediction <- predict(obj$model, predictors)  
   return(prediction)
 }
@@ -148,99 +148,10 @@ prepare.reg_svm <- function(obj, data) {
 
 action.reg_svm  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors = data[,obj$predictors]   
+  predictors <- data[,obj$predictors]   
   prediction <- predict(obj$model, predictors) 
   return(prediction)
 }
-
-# reg_cnn 
-
-reg_cnn <- function(attribute, neurons=64, epochs = 1000) {
-  obj <- regression(attribute)
-  obj$neurons <- neurons
-  obj$epochs <- epochs
-  
-  class(obj) <- append("reg_cnn", class(obj))    
-  return(obj)
-}
-
-prepare.reg_cnn <- function(obj, data) {
-  data <- adjust.data.frame(data)
-  obj <- prepare.regression(obj, data)  
-  
-  loadlibrary("dplyr")
-  loadlibrary("tfdatasets")
-  loadlibrary("tensorflow")
-  loadlibrary("keras")  
-  
-  print_dot_callback <- callback_lambda(
-    on_epoch_end = function(epoch, logs) {
-      if (epoch %% 800 == 0) cat("\n")
-      if (epoch %% 10 == 0) cat(".")
-    }
-  )    
-  
-  data$y <- data[, obj$attribute]
-  data[, obj$attribute] <- NULL
-  
-  spec <- feature_spec(data, y ~ . ) %>% 
-    step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
-    fit()
-  
-  input <- layer_input_from_dataset(data %>% dplyr::select(-y))
-  
-  output <- input %>% 
-    layer_dense_features(dense_features(spec)) %>% 
-    layer_dense(units = obj$neurons, activation = "relu") %>% 
-    layer_dense(units = obj$neurons, activation = "relu") %>%
-    layer_dense(units = 1) 
-  
-  model <- keras_model(input, output)
-  
-  model %>% 
-    compile(loss = "mse", optimizer = optimizer_rmsprop(), 
-            metrics = list("mean_absolute_error"))
-  
-  history <- model %>% fit(
-    x = data %>% dplyr::select(-y),
-    y = data$y,
-    epochs = obj$epochs,
-    validation_split = 0.2,
-    verbose = 0,
-    callbacks = list(print_dot_callback)
-  )  
-  plot(history)
-  cat("\n")
-  
-  obj$model <- model
-  
-  obj <- register_log(obj)
-  return(obj)
-}
-
-action.reg_cnn  <- function(obj, data) {
-  data <- adjust.data.frame(data)
-  prediction <- (obj$model %>% predict(data))  
-  return(prediction)
-}
-
-
-# regression_evaluation
-regression_evaluation <- function(values, prediction) {
-  obj <- list(values=values, prediction=prediction)
-  
-  loadlibrary("TSPred")  
-  
-  obj$smape <- TSPred::sMAPE(values, prediction)  
-  obj$mse <- TSPred::MSE(values, prediction)  
-  
-  obj$metrics <- data.frame(mse=obj$mse, smape=obj$smape)
-
-  attr(obj, "class") <- "regression_evaluation"  
-  return(obj)
-}
-
-
 
 # reg_knn 
 reg_knn <- function(attribute, k=1:20) {
@@ -268,10 +179,8 @@ prepare.reg_knn <- function(obj, data) {
 action.reg_knn  <- function(obj, data) {
   #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html
   data <- adjust.data.frame(data)
-  predictors = as.matrix(data[,obj$predictors])
-  
+  predictors <- as.matrix(data[,obj$predictors])
   prediction <- predict(obj$model, predictors)
-  #knn.reg(train = obj$model$x, test = predictors, y = obj$model$y, k = obj$model$k)  
   return(prediction)
 }
 
@@ -298,5 +207,112 @@ tune.knnreg <- function (x, y = NULL, k=NULL, ...)
     ranges = NULL
   modeltmp <- tune("train.reg_knn", train.x = x, train.y = y, ranges = ranges, ...)
   modeltmp
+}
+
+# reg_cnn 
+
+reg_cnn <- function(attribute, neurons=c(2,3,4,5,8,10,16,32,64,128), epochs = 100) {
+  obj <- regression(attribute)
+  obj$neurons <- neurons
+  obj$epochs <- epochs
+  
+  class(obj) <- append("reg_cnn", class(obj))    
+  return(obj)
+}
+
+prepare.reg_cnn <- function(obj, data) {
+  data <- adjust.data.frame(data)
+  obj <- prepare.regression(obj, data)  
+  
+  loadlibrary("e1071")
+  loadlibrary("dplyr")
+  loadlibrary("tfdatasets")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+  
+  predictors <- data[obj$predictors]
+  predictand <- data[,obj$attribute]
+
+  obj$model <- tune.reg_cnn(x = predictors, y = predictand, neurons=obj$neurons, epochs=obj$epochs)
+    
+  obj <- register_log(obj)
+  return(obj)
+}
+
+action.reg_cnn  <- function(obj, data) {
+  data <- adjust.data.frame(data)
+  predictors <- data[,obj$predictors]   
+  prediction <- predict(obj$model, predictors)
+  return(prediction)
+}
+
+#functions created from tune
+
+train.reg_cnn <- function(x, y, neurons, epochs, ...) {
+  data <- adjust.data.frame(x)
+  data$y <- y
+  
+  spec <- feature_spec(data, y ~ . ) %>% 
+    step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
+    fit()
+  
+  input <- layer_input_from_dataset(data %>% dplyr::select(-y))
+  
+  output <- input %>% 
+    layer_dense_features(dense_features(spec)) %>% 
+    layer_dense(units = neurons, activation = "relu") %>% 
+    layer_dense(units = neurons, activation = "relu") %>%
+    layer_dense(units = 1) 
+  
+  model <- keras_model(input, output)
+  
+  model %>% 
+    compile(loss = "mse", optimizer = optimizer_rmsprop(), 
+            metrics = list("mean_absolute_error"))
+  
+  history <- model %>% fit(
+    x = data %>% dplyr::select(-y),
+    y = data$y,
+    epochs = epochs,
+    validation_split = 0.2,
+    verbose = 0
+  )  
+  #plot(history)
+  
+  return(model)
+}
+
+tune.reg_cnn <- function (x, y = NULL, neurons, epochs) 
+{
+  ranges <- list(neurons = neurons)
+  ranges <- expand.grid(ranges)
+  n <- nrow(ranges)
+  mses <- rep(0,n)
+  models <- list()
+  for (i in 1:n) {
+    model <- train.reg_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
+    models[[i]] <- model
+    prediction <- predict(model, x) 
+    mses[i] <- regression_evaluation(y, prediction)$mse
+  }
+  i <- which.min(mses)
+  return(models[[i]])
+}
+
+
+
+# regression_evaluation
+regression_evaluation <- function(values, prediction) {
+  obj <- list(values=values, prediction=prediction)
+  
+  loadlibrary("TSPred")  
+  
+  obj$smape <- TSPred::sMAPE(values, prediction)  
+  obj$mse <- TSPred::MSE(values, prediction)  
+  
+  obj$metrics <- data.frame(mse=obj$mse, smape=obj$smape)
+  
+  attr(obj, "class") <- "regression_evaluation"  
+  return(obj)
 }
 
