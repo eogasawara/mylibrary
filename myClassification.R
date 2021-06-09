@@ -136,7 +136,9 @@ prepare.class_rf <- function(obj, data) {
   if (is.null(obj$mtry))
     obj$mtry <- unique(2:round(sqrt(ncol(data))))
   
-  tuned <- tune.randomForest(x=data[, obj$predictors], y=data[,obj$attribute], mtry=obj$mtry, ntree=obj$ntree)
+  predictors <- data[,obj$predictors]
+  predictand <- data[,obj$attribute]
+  tuned <- tune.randomForest(x=predictors, y=predictand, mtry=obj$mtry, ntree=obj$ntree)
   obj$model <- tuned$best.model
   
   msg <- sprintf("mtry=%d,ntree=%d", obj$model$mtry, obj$model$ntree)
@@ -173,7 +175,7 @@ prepare.class_mlp <- function(obj, data) {
     obj$neurons <- unique(1:ceiling(sqrt(ncol(data))))
 
   regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.nnet(regression, data=data, trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons, MaxNWts=5000)
+  tuned <- tune.nnet(regression, data=data, trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons)
   obj$model <- tuned$best.model  
   
   msg <- sprintf("neurons=%d,decay=%.2f", tuned$best.parameters$size, tuned$best.parameters$decay)
@@ -338,7 +340,7 @@ classif_evaluation <- function(data, prediction) {
   loadlibrary("nnet")  
   loadlibrary("MLmetrics")  
   adjust_predictions <- function(predictions) {
-    predictions_i <- as.matrix(Matrix(rep.int(0, nrow(predictions)*ncol(predictions)), nrow=nrow(predictions), ncol=ncol(predictions)))
+    predictions_i <- matrix(rep.int(0, nrow(predictions)*ncol(predictions)), nrow=nrow(predictions), ncol=ncol(predictions))
     y <- apply(predictions, 1, which.is.max)
     for(i in unique(y)) {
       predictions_i[y==i,i] <- 1  

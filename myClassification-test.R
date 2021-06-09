@@ -1,5 +1,5 @@
 # version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
@@ -52,3 +52,4 @@ if (TRUE) {
   train_test(class_knn("Species", slevels), iris_train, iris_test)
   train_test(class_cnn("Species", slevels, epochs = 200), iris_train, iris_test)
 }
+
