@@ -3,10 +3,14 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegressi
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
+data(Boston)
 print(t(sapply(Boston, class)))
 head(Boston)
 #dataset catalog
 #?MASS::Boston
+
+
+Boston <- as.matrix(Boston)
 
 # preparing dataset for random sampling
 set.seed(1)
@@ -16,6 +20,7 @@ boston_train = sr$train
 boston_test = sr$test
 
 train_test <- function(model, boston_train, boston_test) {
+  set.seed(1)
   print(class(model)[1])
   
   loadlibrary("RSNNS")
@@ -33,10 +38,13 @@ train_test <- function(model, boston_train, boston_test) {
   print(test_eval$metrics)
 }
 
-train_test(reg_dtree("medv"), boston_train, boston_test)
-train_test(reg_rf("medv", mtry=5, ntree=375), boston_train, boston_test)
-train_test(reg_mlp("medv", neurons=5, decay=0.08), boston_train, boston_test)
-train_test(reg_svm("medv", epsilon=0.1, cost=20.000), boston_train, boston_test)
-train_test(reg_knn("medv"), boston_train, boston_test)
-train_test(reg_cnn("medv", epochs = 100), boston_train, boston_test)
+if (FALSE) {
+  train_test(reg_dtree("medv"), boston_train, boston_test)
+  train_test(reg_rf("medv", mtry=5, ntree=375), boston_train, boston_test)
+  train_test(reg_mlp("medv", neurons=5, decay=0.08), boston_train, boston_test)
+  train_test(reg_svm("medv", epsilon=0.1, cost=20.000), boston_train, boston_test)
+  train_test(reg_knn("medv", k=2), boston_train, boston_test)
+  train_test(reg_cnn("medv", epochs = 200), boston_train, boston_test)
+}
 
+train_test(reg_knn("medv"), boston_train, boston_test)

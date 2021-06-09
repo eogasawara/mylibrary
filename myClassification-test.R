@@ -21,6 +21,7 @@ head(tbl)
 
 
 train_test <- function(model, iris_train, iris_test) {
+  set.seed(1)
   print(class(model)[1])
   
   loadlibrary("RSNNS")

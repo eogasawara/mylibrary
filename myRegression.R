@@ -153,38 +153,6 @@ action.reg_svm  <- function(obj, data) {
   return(prediction)
 }
 
-# reg_knn 
-reg_knn <- function(attribute, k=1:20) {
-  obj <- regression(attribute)
-  obj$k <- k
-  
-  class(obj) <- append("reg_knn", class(obj))    
-  return(obj)
-}
-
-prepare.reg_knn <- function(obj, data) {
-  data <- adjust.data.frame(data)
-  obj <- prepare.regression(obj, data)  
-  loadlibrary("FNN")
-  
-  predictors <- as.matrix(data[,obj$predictors])
-  predictand <- data[,obj$attribute]
-  if (length(obj$k) > 1)
-    obj$k <- max(obj$k)
-  obj$model <- list(predictors=predictors, predictand=predictand)
-
-  return(obj)
-}
-
-action.reg_knn  <- function(obj, data) {
-  #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html
-  data <- adjust.data.frame(data)
-  predictors = as.matrix(data[,obj$predictors])
-  
-  prediction <- knn.reg(train = obj$model$predictors, test = predictors, y = obj$model$predictand, k = obj$k)  
-  return(prediction$pred)
-}
-
 # reg_cnn 
 
 reg_cnn <- function(attribute, neurons=64, epochs = 1000) {
@@ -244,7 +212,7 @@ prepare.reg_cnn <- function(obj, data) {
   plot(history)
   cat("\n")
   
-  obj$mdl <- model
+  obj$model <- model
   
   obj <- register_log(obj)
   return(obj)
@@ -252,7 +220,7 @@ prepare.reg_cnn <- function(obj, data) {
 
 action.reg_cnn  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  prediction <- (obj$mdl %>% predict(data))  
+  prediction <- (obj$model %>% predict(data))  
   return(prediction)
 }
 
@@ -270,5 +238,65 @@ regression_evaluation <- function(values, prediction) {
 
   attr(obj, "class") <- "regression_evaluation"  
   return(obj)
+}
+
+
+
+# reg_knn 
+reg_knn <- function(attribute, k=1:20) {
+  obj <- regression(attribute)
+  obj$k <- k
+  
+  class(obj) <- append("reg_knn", class(obj))    
+  return(obj)
+}
+
+prepare.reg_knn <- function(obj, data) {
+  data <- adjust.data.frame(data)
+  obj <- prepare.regression(obj, data)  
+  loadlibrary("e1071")
+  loadlibrary("FNN")
+  
+  predictors <- as.matrix(data[,obj$predictors])
+  predictand <- data[,obj$attribute]
+  
+  tuned <- tune.knnreg(train.reg_knn, x = predictors, y = predictand, k = obj$k)
+  obj$model <- tuned$best.model
+  return(obj)
+}
+
+action.reg_knn  <- function(obj, data) {
+  #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html
+  data <- adjust.data.frame(data)
+  predictors = as.matrix(data[,obj$predictors])
+  
+  prediction <- predict(obj$model, predictors)
+  #knn.reg(train = obj$model$x, test = predictors, y = obj$model$y, k = obj$model$k)  
+  return(prediction)
+}
+
+#functions created from tune
+
+train.reg_knn <- function(x, y, k, ...) {
+  obj <- list(x=x, y=y, k=k)
+  class(obj) <- append("reg_knn_pred", class(obj))    
+  return(obj)
+}
+
+predict.reg_knn_pred <- function(model, ...) {
+  params <- list(...)
+  predictors <- params[[1]]
+  prediction <- knn.reg(train = model$x, test = predictors, y = model$y, k = model$k)  
+  return(prediction$pred)
+}
+
+tune.knnreg <- function (x, y = NULL, k=NULL, ...) 
+{
+  ranges <- list(k = k)
+  ranges[vapply(ranges, is.null, NA)] <- NULL
+  if (length(ranges) < 1) 
+    ranges = NULL
+  modeltmp <- tune("train.reg_knn", train.x = x, train.y = y, ranges = ranges, ...)
+  modeltmp
 }
 
