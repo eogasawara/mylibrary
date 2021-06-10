@@ -18,7 +18,7 @@ adjust.factor <- function(value, ilevels, slevels) {
   if (!is.factor(value)) {
     if (is.numeric(value))
       value <- factor(value, levels=ilevels)
-      levels(value) <- slevels
+    levels(value) <- slevels
   }
   return(value)
 }
@@ -135,14 +135,15 @@ prepare.class_rf <- function(obj, data) {
   loadlibrary("randomForest")
   
   if (is.null(obj$mtry))
-    obj$mtry <- unique(2:round(sqrt(ncol(data))))
+    obj$mtry <- ceiling(sqrt(ncol(data)))
   
   predictors <- data[,obj$predictors]
   predictand <- data[,obj$attribute]
-  tuned <- tune.randomForest(x=predictors, y=predictand, mtry=obj$mtry, ntree=obj$ntree)
-  obj$model <- tuned$best.model
   
-  msg <- sprintf("mtry=%d,ntree=%d", obj$model$mtry, obj$model$ntree)
+  obj$model <- tune.class_rf(x=predictors, y=predictand, mtry=obj$mtry, ntree=obj$ntree)
+  
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("mtry=%d,ntree=%d", params$mtry, params$ntree)
   obj <- register_log(obj, msg)
   return(obj)
 }
@@ -150,16 +151,26 @@ prepare.class_rf <- function(obj, data) {
 action.class_rf  <- function(obj, data) {
   data <- adjust.data.frame(data)
   predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, type="prob")  
+  prediction <- predict.class_rf(obj$model, predictors)  
+  return(prediction)
+}
+
+tune.class_rf <- function (x, y, mtry, ntree) {
+  ranges <- list(mtry = mtry, ntree = ntree)
+  model <- tune.general.classification(x = x, y = y, ranges = ranges, train.func = randomForest, pred.fun = predict.class_rf)
+  return(model)
+}
+
+predict.class_rf <- function(model, data) {
+  prediction <- predict(model, data, type="prob")  
   return(prediction)
 }
 
 # mlp_nnet
-class_mlp <- function(attribute, slevels=NULL, neurons=NULL, decay=seq(0, 1, 0.1), maxit=1000) {
+class_mlp <- function(attribute, slevels=NULL, size=NULL, decay=seq(0, 1, 0.1), maxit=1000) {
   obj <- classification(attribute, slevels)
   obj$maxit <- maxit
-  if (is.null(neurons))
-    neurons <- ceiling(sqrt(ncol(data)))
+  obj$size <- size
   obj$decay <- decay
   
   class(obj) <- append("class_mlp", class(obj))    
@@ -173,14 +184,16 @@ prepare.class_mlp <- function(obj, data) {
   loadlibrary("nnet")
   loadlibrary("e1071")
   
-  if (is.null(obj$neurons))
-    obj$neurons <- unique(1:ceiling(sqrt(ncol(data))))
+  if (is.null(obj$size))
+    obj$size <- ceiling(sqrt(ncol(data)))
 
-  regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.nnet(regression, data=data, trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons)
-  obj$model <- tuned$best.model  
+  predictors <- data[,obj$predictors]
+  predictand <- data[,obj$attribute]
   
-  msg <- sprintf("neurons=%d,decay=%.2f", tuned$best.parameters$size, tuned$best.parameters$decay)
+  obj$model <- tune.class_mlp(x=predictors, y=predictand, maxit=obj$maxit, decay = obj$decay, size=obj$size)
+
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("size=%d,decay=%.2f", params$size, params$decay)
   obj <- register_log(obj, msg)
   return(obj)
 }
@@ -188,7 +201,22 @@ prepare.class_mlp <- function(obj, data) {
 action.class_mlp  <- function(obj, data) {
   data <- adjust.data.frame(data)
   predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, type="raw")  
+  prediction <- predict.class_mlp(obj$model, predictors)  
+  return(prediction)
+}
+
+tune.class_mlp <- function (x, y, size, decay, maxit) {
+  ranges <- list(size = size, decay = decay, maxit = maxit)
+  model <- tune.general.classification(x = x, y = y, ranges = ranges, train.func = train.class_mlp, pred.fun = predict.class_mlp)
+  return(model)
+}
+
+train.class_mlp <- function (x, y, size, decay, maxit) {
+  return (nnet(x,decodeClassLabels(y),size=size,decay=decay,maxit=maxit,trace=FALSE))
+}
+
+predict.class_mlp <- function(model, data) {
+  prediction <- predict(model, data, type="raw")  
   return(prediction)
 }
 
@@ -211,11 +239,13 @@ prepare.class_svm <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   loadlibrary("e1071")
   
-  regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.svm(regression, data=data, probability=TRUE, epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
-  obj$model <- tuned$best.model  
+  predictors <- data[,obj$predictors]
+  predictand <- data[,obj$attribute]
   
-  msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
+  obj$model <- tune.class_svm(x=predictors, y=predictand, epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
+
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("epsilon=%.1f,cost=%.3f", params$epsilon, params$cost)
   obj <- register_log(obj, msg)
   return(obj)
 }
@@ -223,11 +253,31 @@ prepare.class_svm <- function(obj, data) {
 action.class_svm  <- function(obj, data) {
   data <- adjust.data.frame(data)
   predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, probability = TRUE) 
-  prediction <- attr(prediction, "probabilities")
-  prediction <- prediction[,obj$slevels]
+  prediction <- predict.class_svm(obj$model, predictors)
   return(prediction)
 }
+
+tune.class_svm <- function (x, y, epsilon, cost, kernel) {
+  ranges <- list(epsilon = epsilon, cost = cost, kernel = kernel)
+  model <- tune.general.classification(x = x, y = y, ranges = ranges, train.func = train.class_svm, pred.fun = predict.class_svm)
+  return(model)
+}
+
+train.class_svm <- function (x, y, epsilon, cost, kernel) {
+  model <- svm(x, y, probability=TRUE, epsilon=epsilon, cost=cost, kernel=kernel) 
+  attr(model, "slevels")  <- levels(y)
+  return (model)
+}
+
+predict.class_svm <- function(model, data) {
+  prediction <- predict(model, data, probability = TRUE) 
+  prediction <- attr(prediction, "probabilities")
+  slevels <- attr(model, "slevels")
+  prediction <- prediction[,slevels]
+  return(prediction)
+}
+
+
 
 # class_knn 
 class_knn <- function(attribute, slevels=NULL, k=1:10) {
@@ -247,23 +297,40 @@ prepare.class_knn <- function(obj, data) {
   
   predictors <- data[,obj$predictors]
   predictand <- data[,obj$attribute]
-  tuned <- tune.knn(x=predictors, y=predictand, k = obj$k)  
-  obj$model <- list(predictors=predictors, predictand=predictand)
-  obj$k <- tuned$k
-  
-  msg <- sprintf("k=%d", obj$k)
-  obj <- register_log(obj)
+  obj$model <- tune.class_knn(x=predictors, y=predictand, k = obj$k)  
+
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("k=%d", params$k)
+  obj <- register_log(obj, msg)
   return(obj)
 }
 
 action.class_knn  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
+  predictors <- data[,obj$predictors] 
+  prediction <- predict.class_knn(obj$model, predictors)
+  return(prediction)
+}
+
+tune.class_knn <- function (x, y, k) {
+  ranges <- list(k = k, stub = 0)
+  model <- tune.general.classification(x = x, y = y, ranges = ranges, train.func = train.class_knn, pred.fun = predict.class_knn)
+  return(model)
+}
+
+train.class_knn <- function (x, y, k, ...) {
+  model <- list(predictors=x, predictand=y, k=k)
+  return (model)
+}
+
+predict.class_knn <- function(model, data) {
   loadlibrary("class")
-  prediction <- knn(train=obj$model$predictors, test=predictors, cl=obj$model$predictand, prob=TRUE)
+  prediction <- knn(train=model$predictors, test=data, cl=model$predictand, prob=TRUE)
   prediction <- decodeClassLabels(prediction)  
   return(prediction)
 }
+
+
 
 # class_cnn 
 class_cnn <- function(attribute, slevels=NULL, neurons=c(2,3,4,5,8,10,16,32,64,128), epochs = 100) {
@@ -288,7 +355,10 @@ prepare.class_cnn <- function(obj, data) {
   predictand <- data[,obj$attribute]
   
   obj$model <- tune.class_cnn(x=predictors, y=predictand, neurons = obj$neurons, epochs = obj$epochs)  
-  obj <- register_log(obj)
+  
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("neurons=%d,epochs=%d", params$neurons, params$epochs)
+  obj <- register_log(obj, msg)
   return(obj)
 }
 
@@ -351,7 +421,7 @@ tune.general.classification <- function (x, y, ranges, folds=3, train.func, pred
         tt <- train_test_from_folds(folds, j)
         params <- append(list(x = tt$train[colnames(x)], y = tt$train$y), as.list(ranges[i,]))
         model <- do.call(train.func, params)
-        prediction <- predict(model, tt$test[colnames(x)]) 
+        prediction <- pred.fun(model, tt$test[colnames(x)]) 
         value <- decodeClassLabels(tt$test$y)
         accuracies[i] <- accuracies[i] + classif_evaluation(value, prediction)$accuracy 
       }
