@@ -287,6 +287,7 @@ train.reg_cnn <- function(x, y, neurons, epochs, ...) {
 }
 
 tune.reg_cnn <- function (x, y = NULL, neurons, epochs) {
+  tf$get_logger()$setLevel('ERROR')  
   ranges <- list(neurons = neurons)
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
@@ -313,6 +314,7 @@ tune.reg_cnn <- function (x, y = NULL, neurons, epochs) {
     i <- which.min(mses)
   }
   model <- train.reg_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
+  tf$get_logger()$setLevel('WARNING')  
   return(model)
 }
 

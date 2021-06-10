@@ -288,8 +288,6 @@ prepare.class_cnn <- function(obj, data) {
   predictand <- data[,obj$attribute]
   
   obj$model <- tune.class_cnn(x=predictors, y=predictand, neurons = obj$neurons, epochs = obj$epochs)  
-  obj$neurons <- obj$model$neurons
-
   obj <- register_log(obj)
   return(obj)
 }
@@ -297,7 +295,7 @@ prepare.class_cnn <- function(obj, data) {
 action.class_cnn  <- function(obj, data) {
   data <- adjust.data.frame(data)
   predictors <- data[,obj$predictors] 
-  prediction <- predict.class_cnn(obj$model, predictors)
+  prediction <- predict(obj$model, predictors)
   colnames(prediction) <- obj$slevels
   return(prediction)
 }
@@ -305,44 +303,42 @@ action.class_cnn  <- function(obj, data) {
 #functions created from tune
 
 train.class_cnn <- function(x, y, neurons, epochs, ...) {
-  x <- as.matrix(x)
-  y <- to_categorical(as.numeric(y) - 1)
-  y <- as.matrix(y)
+  data <- adjust.data.frame(x)
+  yhot <- decodeClassLabels(y)
   
-  model <- keras_model_sequential()
+  spec <- feature_spec(cbind(data, y), y ~ . ) %>% 
+    step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
+    fit()
   
-  model %>%
-    layer_dense(units = ncol(y), activation = 'softmax',
-                input_shape = ncol(x))
-  #summary(model)
+  input <- layer_input_from_dataset(data)
   
-  sgd <- optimizer_sgd(lr = 0.01)
+  output <- input %>% 
+    layer_dense_features(dense_features(spec)) %>% 
+    layer_dense(units = neurons, activation = "relu") %>% 
+    layer_dense(units = neurons, activation = "relu") %>% 
+    layer_dense(units = ncol(yhot), activation = "sigmoid")
+  
+  model <- keras_model(input, output)
   
   model %>% compile(
     loss = 'categorical_crossentropy',
-    optimizer = sgd,
+    optimizer = optimizer_rmsprop(), #optimizer_sgd(lr = 0.01),
     metrics = 'accuracy'
   )
   
-  history <- model %>% fit(
-    x = x,
-    y = y,
-    epochs = epochs,
-    validation_split = 0.2,
-    verbose = 0
-  )
-  #plot(history)
-
+  history <- model %>% 
+    fit(
+      x = data,
+      y = yhot, 
+      epochs = epochs, 
+      validation_split = 0.2,
+      verbose = 0
+    )
   return(model)
 }
 
-predict.class_cnn <- function(model, predictors) {
-  predictors <- as.matrix(predictors)
-  prediction <- model %>% predict(predictors)
-  return(prediction)
-}
-
 tune.class_cnn <- function (x, y = NULL, neurons, epochs) {
+  tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons = neurons)
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
@@ -362,7 +358,7 @@ tune.class_cnn <- function (x, y = NULL, neurons, epochs) {
         xx <- tt$test
         xx$y <- NULL
         yy <- tt$test$y
-        prediction <- predict.class_cnn(model, xx) 
+        prediction <- predict(model, xx) 
         value <- decodeClassLabels(yy)
         accuracies[i] <- accuracies[i] + classif_evaluation(value, prediction)$accuracy 
       }
@@ -370,6 +366,7 @@ tune.class_cnn <- function (x, y = NULL, neurons, epochs) {
     i <- which.max(accuracies)
   }
   model <- train.class_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
+  tf$get_logger()$setLevel('WARNING')
   return(model)
 }
 

@@ -54,4 +54,4 @@ if (FALSE) {
   train_test(class_cnn("Species", slevels, epochs = 200), iris_train, iris_test)
 }
 
-train_test(class_cnn("Species", slevels, neurons=c(3,4), epochs = 200), iris_train, iris_test)
+train_test(class_cnn("Species", slevels, epochs = 200), iris_train, iris_test)
