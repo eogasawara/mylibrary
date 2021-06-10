@@ -194,9 +194,8 @@ train.reg_knn <- function(x, y, k, ...) {
   return(obj)
 }
 
-predict.reg_knn_pred <- function(model, ...) {
+predict.reg_knn_pred <- function(model, predictors, ...) {
   params <- list(...)
-  predictors <- params[[1]]
   prediction <- knn.reg(train = model$x, test = predictors, y = model$y, k = model$k)  
   return(prediction$pred)
 }
@@ -207,8 +206,8 @@ tune.knnreg <- function (x, y = NULL, k=NULL, ...)
   ranges[vapply(ranges, is.null, NA)] <- NULL
   if (length(ranges) < 1) 
     ranges = NULL
-  modeltmp <- tune("train.reg_knn", train.x = x, train.y = y, ranges = ranges, ...)
-  modeltmp
+  tuned <- tune("train.reg_knn", train.x = x, train.y = y, ranges = ranges, ...)
+  return(tuned)
 }
 
 # reg_cnn 

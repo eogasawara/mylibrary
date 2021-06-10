@@ -1,5 +1,5 @@
 # version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
@@ -47,5 +47,5 @@ if (FALSE) {
   train_test(reg_cnn("medv", epochs = 200), boston_train, boston_test)
 }
 
-train_test(reg_cnn("medv", epochs = 200), boston_train, boston_test)
+train_test(reg_knn("medv", k=2), boston_train, boston_test)
 
