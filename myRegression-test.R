@@ -1,6 +1,6 @@
 # version 1.0
 #source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
 data(Boston)
@@ -44,8 +44,8 @@ if (FALSE) {
   train_test(reg_mlp("medv", neurons=5, decay=0.08), boston_train, boston_test)
   train_test(reg_svm("medv", epsilon=0.1, cost=20.000), boston_train, boston_test)
   train_test(reg_knn("medv", k=2), boston_train, boston_test)
-  train_test(reg_cnn("medv", epochs = 100), boston_train, boston_test)
+  train_test(reg_cnn("medv", epochs = 200), boston_train, boston_test)
 }
 
-train_test(reg_cnn("medv", epochs = 100), boston_train, boston_test)
+train_test(reg_cnn("medv", epochs = 200), boston_train, boston_test)
 

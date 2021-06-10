@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
@@ -43,7 +43,7 @@ train_test <- function(model, iris_train, iris_test) {
 }
 
 
-if (TRUE) {
+if (FALSE) {
   train_test(class_majority("Species", slevels), iris_train, iris_test)
   train_test(class_dtree("Species", slevels), iris_train, iris_test)
   train_test(class_nb("Species", slevels), iris_train, iris_test)
@@ -54,3 +54,4 @@ if (TRUE) {
   train_test(class_cnn("Species", slevels, epochs = 200), iris_train, iris_test)
 }
 
+train_test(class_cnn("Species", slevels, neurons=c(3,4), epochs = 200), iris_train, iris_test)

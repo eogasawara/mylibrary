@@ -1,5 +1,6 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 # classif
 classification <- function(attribute, slevels=NULL) {
@@ -154,10 +155,11 @@ action.class_rf  <- function(obj, data) {
 }
 
 # mlp_nnet
-class_mlp <- function(attribute, slevels=NULL, neurons=c(2, 4, 6), decay=seq(0, 1, 0.2), maxit=1000) {
+class_mlp <- function(attribute, slevels=NULL, neurons=NULL, decay=seq(0, 1, 0.1), maxit=1000) {
   obj <- classification(attribute, slevels)
   obj$maxit <- maxit
-  obj$neurons <- neurons
+  if (is.null(neurons))
+    neurons <- ceiling(sqrt(ncol(data)))
   obj$decay <- decay
   
   class(obj) <- append("class_mlp", class(obj))    
@@ -191,7 +193,7 @@ action.class_mlp  <- function(obj, data) {
 }
 
 # class_svm 
-class_svm <- function(attribute, slevels=NULL, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
+class_svm <- function(attribute, slevels=NULL, epsilon=seq(0.5,1,0.5), cost=seq(20,100,20), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   #analisar: https://rpubs.com/Kushan/296706  
   obj <- classification(attribute, slevels)
@@ -228,7 +230,7 @@ action.class_svm  <- function(obj, data) {
 }
 
 # class_knn 
-class_knn <- function(attribute, slevels=NULL, k=seq(1, 20, 4)) {
+class_knn <- function(attribute, slevels=NULL, k=1:10) {
   obj <- classification(attribute, slevels)
   obj$k <- k
   class(obj) <- append("class_knn", class(obj))    
@@ -264,7 +266,7 @@ action.class_knn  <- function(obj, data) {
 }
 
 # class_cnn 
-class_cnn <- function(attribute, slevels=NULL, neurons=64, epochs = 100) {
+class_cnn <- function(attribute, slevels=NULL, neurons=c(2,3,4,5,8,10,16,32,64,128), epochs = 100) {
   obj <- classification(attribute, slevels)
   obj$neurons <- neurons
   obj$epochs <- epochs
@@ -282,17 +284,37 @@ prepare.class_cnn <- function(obj, data) {
   loadlibrary("tensorflow")
   loadlibrary("keras")  
   
-  predictand <- to_categorical(as.numeric(data[,obj$attribute]) - 1)
   predictors <- data[,obj$predictors]
-  predictors <- as.matrix(predictors)
-  predictand <- as.matrix(predictand)
+  predictand <- data[,obj$attribute]
+  
+  obj$model <- tune.class_cnn(x=predictors, y=predictand, neurons = obj$neurons, epochs = obj$epochs)  
+  obj$neurons <- obj$model$neurons
 
+  obj <- register_log(obj)
+  return(obj)
+}
+
+action.class_cnn  <- function(obj, data) {
+  data <- adjust.data.frame(data)
+  predictors <- data[,obj$predictors] 
+  prediction <- predict.class_cnn(obj$model, predictors)
+  colnames(prediction) <- obj$slevels
+  return(prediction)
+}
+
+#functions created from tune
+
+train.class_cnn <- function(x, y, neurons, epochs, ...) {
+  x <- as.matrix(x)
+  y <- to_categorical(as.numeric(y) - 1)
+  y <- as.matrix(y)
+  
   model <- keras_model_sequential()
   
   model %>%
-    layer_dense(units = ncol(predictand), activation = 'softmax',
-                input_shape = ncol(predictors))
-  summary(model)
+    layer_dense(units = ncol(y), activation = 'softmax',
+                input_shape = ncol(x))
+  #summary(model)
   
   sgd <- optimizer_sgd(lr = 0.01)
   
@@ -303,30 +325,52 @@ prepare.class_cnn <- function(obj, data) {
   )
   
   history <- model %>% fit(
-    x = predictors,
-    y = predictand,
-    epochs = obj$epochs,
-    batch_size = 5,
+    x = x,
+    y = y,
+    epochs = epochs,
     validation_split = 0.2,
     verbose = 0
   )
-  plot(history)  
-  
-  obj$mdl <- model
-  
-  obj <- register_log(obj)
-  return(obj)
+  #plot(history)
+
+  return(model)
 }
 
-action.class_cnn  <- function(obj, data) {
-  data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
+predict.class_cnn <- function(model, predictors) {
   predictors <- as.matrix(predictors)
-  prediction <- obj$mdl %>% predict_classes(predictors)
-  prediction <- factor(prediction)
-  levels(prediction) <- obj$slevels
-  prediction <- decodeClassLabels(prediction)
+  prediction <- model %>% predict(predictors)
   return(prediction)
+}
+
+tune.class_cnn <- function (x, y = NULL, neurons, epochs) {
+  ranges <- list(neurons = neurons)
+  ranges <- expand.grid(ranges)
+  n <- nrow(ranges)
+  accuracies <- rep(0,n)
+  data <- adjust.data.frame(cbind(x, y))
+  folds <- k_fold(sample_random(), data, 3)
+  
+  i <- 1
+  if (n > 1) {
+    for (i in 1:n) {
+      for (j in 1:3) {
+        tt <- train_test_from_folds(folds, j)
+        xx <- tt$train
+        xx$y <- NULL
+        yy <- tt$train$y
+        model <- train.class_cnn(x = xx, y = yy, neurons = ranges$neurons[i], epochs)
+        xx <- tt$test
+        xx$y <- NULL
+        yy <- tt$test$y
+        prediction <- predict.class_cnn(model, xx) 
+        value <- decodeClassLabels(yy)
+        accuracies[i] <- accuracies[i] + classif_evaluation(value, prediction)$accuracy 
+      }
+    }
+    i <- which.max(accuracies)
+  }
+  model <- train.class_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
+  return(model)
 }
 
 
