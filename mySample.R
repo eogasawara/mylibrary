@@ -46,7 +46,7 @@ k_fold.sample_random <- function(obj, data, k) {
   samp <- list()
   p <- 1.0 / k
   while (k > 1) {
-    samp <- train_test(obj, data, p)
+    samp <- train_test.sample_random(obj, data, p)
     data <- samp$test
     folds <- append(folds, list(samp$train))
     k = k - 1
@@ -85,4 +85,20 @@ train_test.sample_stratified <- function(obj, data, perc=0.8) {
   test <- data[-idx,]
   return (list(train=train, test=test))
 }
+
+k_fold.sample_stratified <- function(obj, data, k) {
+  folds <- list()
+  samp <- list()
+  p <- 1.0 / k
+  while (k > 1) {
+    samp <- train_test.sample_stratified(obj, data, p)
+    data <- samp$test
+    folds <- append(folds, list(samp$train))
+    k = k - 1
+    p = 1.0 / k
+  }
+  folds <- append(folds, list(samp$test))
+  return (folds)
+}
+
 

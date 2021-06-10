@@ -1,5 +1,7 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+
 
 #loadlibrary("kernlab")
 #loadlibrary("rattle")
@@ -282,22 +284,26 @@ train.reg_cnn <- function(x, y, neurons, epochs, ...) {
   return(model)
 }
 
-tune.reg_cnn <- function (x, y = NULL, neurons, epochs) 
-{
+tune.reg_cnn <- function (x, y = NULL, neurons, epochs) {
   ranges <- list(neurons = neurons)
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
   mses <- rep(0,n)
-  data <- cbind(x, y)
-  
+  data <- adjust.data.frame(cbind(x, y))
   folds <- k_fold(sample_random(), data, 3)
   
   for (i in 1:n) {
     for (j in 1:3) {
-      folds$
-      model <- train.reg_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
-      prediction <- predict(model, x) 
-      mses[i] <- mses[i] + regression_evaluation(y, prediction)$mse
+      tt <- train_test_from_folds(folds, j)
+      xx <- tt$train
+      xx$y <- NULL
+      yy <- tt$train$y
+      model <- train.reg_cnn(x = xx, y = yy, neurons = ranges$neurons[i], epochs)
+      xx <- tt$test
+      xx$y <- NULL
+      yy <- tt$test$y
+      prediction <- predict(model, xx) 
+      mses[i] <- mses[i] + regression_evaluation(yy, prediction)$mse
     }
   }
   i <- which.min(mses)

@@ -1,6 +1,6 @@
 # version 1.0
 #source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
 data(Boston)
@@ -10,7 +10,7 @@ head(Boston)
 #?MASS::Boston
 
 
-Boston <- as.matrix(Boston)
+#Boston <- as.matrix(Boston)
 
 # preparing dataset for random sampling
 set.seed(1)
