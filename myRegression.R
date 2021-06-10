@@ -1,6 +1,6 @@
 # version 1.0
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 
 #loadlibrary("kernlab")
@@ -50,7 +50,7 @@ action.reg_dtree <- function(obj, data) {
 }
 
 # random_forest
-reg_rf <- function(attribute, mtry = NULL, ntree = seq(50, 500, 50)) {
+reg_rf <- function(attribute, mtry = NULL, ntree = seq(5, 50, 5)) {
   obj <- regression(attribute)
   
   if (is.null(mtry))
@@ -86,11 +86,11 @@ action.reg_rf  <- function(obj, data) {
 }
 
 # mlp_nnet
-reg_mlp <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
+reg_mlp <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.1), maxit=1000) {
   obj <- regression(attribute)
   obj$maxit <- maxit
   if (is.null(neurons))
-    neurons <- unique(1:ceiling(ncol(data)/3))
+    neurons <- ceiling(ncol(data)/3)
   obj$neurons <- neurons
   obj$decay <- decay
   
@@ -122,7 +122,7 @@ action.reg_mlp  <- function(obj, data) {
 }
 
 # reg_svm 
-reg_svm <- function(attribute, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
+reg_svm <- function(attribute, epsilon=seq(0.5,1,0.5), cost=seq(20,100,20), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   #analisar: https://rpubs.com/Kushan/296706  
   obj <- regression(attribute)
@@ -156,7 +156,7 @@ action.reg_svm  <- function(obj, data) {
 }
 
 # reg_knn 
-reg_knn <- function(attribute, k=1:20) {
+reg_knn <- function(attribute, k=1:10) {
   obj <- regression(attribute)
   obj$k <- k
   
@@ -271,6 +271,8 @@ train.reg_cnn <- function(x, y, neurons, epochs, ...) {
   model %>% 
     compile(loss = "mse", optimizer = optimizer_rmsprop(), 
             metrics = list("mean_absolute_error"))
+  #summary(model)
+  
   
   history <- model %>% fit(
     x = data %>% dplyr::select(-y),
@@ -292,23 +294,26 @@ tune.reg_cnn <- function (x, y = NULL, neurons, epochs) {
   data <- adjust.data.frame(cbind(x, y))
   folds <- k_fold(sample_random(), data, 3)
   
-  for (i in 1:n) {
-    for (j in 1:3) {
-      tt <- train_test_from_folds(folds, j)
-      xx <- tt$train
-      xx$y <- NULL
-      yy <- tt$train$y
-      model <- train.reg_cnn(x = xx, y = yy, neurons = ranges$neurons[i], epochs)
-      xx <- tt$test
-      xx$y <- NULL
-      yy <- tt$test$y
-      prediction <- predict(model, xx) 
-      mses[i] <- mses[i] + regression_evaluation(yy, prediction)$mse
+  i <- 1
+  if (n > 1) {
+    for (i in 1:n) {
+      for (j in 1:3) {
+        tt <- train_test_from_folds(folds, j)
+        xx <- tt$train
+        xx$y <- NULL
+        yy <- tt$train$y
+        model <- train.reg_cnn(x = xx, y = yy, neurons = ranges$neurons[i], epochs)
+        xx <- tt$test
+        xx$y <- NULL
+        yy <- tt$test$y
+        prediction <- predict(model, xx) 
+        mses[i] <- mses[i] + regression_evaluation(yy, prediction)$mse
+      }
     }
+    i <- which.min(mses)
   }
-  i <- which.min(mses)
   model <- train.reg_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
-  return(models[[i]])
+  return(model)
 }
 
 
