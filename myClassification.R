@@ -337,35 +337,37 @@ train.class_cnn <- function(x, y, neurons, epochs, ...) {
   return(model)
 }
 
-tune.class_cnn <- function (x, y = NULL, neurons, epochs) {
-  tf$get_logger()$setLevel('ERROR')
-  ranges <- list(neurons = neurons)
+tune.general.classification <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
   accuracies <- rep(0,n)
   data <- adjust.data.frame(cbind(x, y))
-  folds <- k_fold(sample_random(), data, 3)
+  folds <- k_fold(sample_random(), data, folds)
   
   i <- 1
   if (n > 1) {
     for (i in 1:n) {
-      for (j in 1:3) {
+      for (j in 1:length(folds)) {
         tt <- train_test_from_folds(folds, j)
-        xx <- tt$train
-        xx$y <- NULL
-        yy <- tt$train$y
-        model <- train.class_cnn(x = xx, y = yy, neurons = ranges$neurons[i], epochs)
-        xx <- tt$test
-        xx$y <- NULL
-        yy <- tt$test$y
-        prediction <- predict(model, xx) 
-        value <- decodeClassLabels(yy)
+        params <- append(list(x = tt$train[colnames(x)], y = tt$train$y), as.list(ranges[i,]))
+        model <- do.call(train.func, params)
+        prediction <- predict(model, tt$test[colnames(x)]) 
+        value <- decodeClassLabels(tt$test$y)
         accuracies[i] <- accuracies[i] + classif_evaluation(value, prediction)$accuracy 
       }
     }
     i <- which.max(accuracies)
   }
-  model <- train.class_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
+  params <- append(list(x = x, y = y), as.list(ranges[i,]))
+  model <- do.call(train.func, params)
+  attr(model, "params") <- as.list(ranges[i,])
+  return(model)
+}
+
+tune.class_cnn <- function (x, y, neurons, epochs) {
+  tf$get_logger()$setLevel('ERROR')
+  ranges <- list(neurons = neurons, epochs = epochs)
+  model <- tune.general.classification(x = x, y = y, ranges = ranges, train.func = train.class_cnn)
   tf$get_logger()$setLevel('WARNING')
   return(model)
 }

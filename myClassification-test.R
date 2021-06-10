@@ -1,5 +1,5 @@
 # version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 data(iris)
@@ -50,7 +50,7 @@ if (FALSE) {
   train_test(class_rf("Species", slevels, mtry=2, ntree=50), iris_train, iris_test)
   train_test(class_mlp("Species", slevels, neurons=2,decay=0.04), iris_train, iris_test)
   train_test(class_svm("Species", slevels, epsilon=0.0,cost=5.000), iris_train, iris_test)
-  train_test(class_knn("Species", slevels), iris_train, iris_test)
+  train_test(class_knn("Species", slevels, k=2), iris_train, iris_test)
   train_test(class_cnn("Species", slevels, epochs = 200), iris_train, iris_test)
 }
 
