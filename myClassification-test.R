@@ -43,13 +43,25 @@ train_test <- function(model, iris_train, iris_test) {
 }
 
 
+if (FALSE) {
+  train_test(class_majority("Species", slevels), iris_train, iris_test)
+  train_test(class_dtree("Species", slevels), iris_train, iris_test)
+  train_test(class_nb("Species", slevels), iris_train, iris_test)
+  train_test(class_rf("Species", slevels, mtry=3, ntree=5), iris_train, iris_test)
+  train_test(class_mlp("Species", slevels, size=3,decay=0.30), iris_train, iris_test)
+  train_test(class_svm("Species", slevels, epsilon=0.5,cost=20.0), iris_train, iris_test)
+  train_test(class_knn("Species", slevels, k=1), iris_train, iris_test)
+  train_test(class_cnn("Species", slevels, neurons=32), iris_train, iris_test)
+}
+
 if (TRUE) {
   train_test(class_majority("Species", slevels), iris_train, iris_test)
   train_test(class_dtree("Species", slevels), iris_train, iris_test)
   train_test(class_nb("Species", slevels), iris_train, iris_test)
-  train_test(class_rf("Species", slevels, mtry=2, ntree=50), iris_train, iris_test)
-  train_test(class_mlp("Species", slevels, size=2,decay=0.04), iris_train, iris_test)
-  train_test(class_svm("Species", slevels, epsilon=0.0,cost=5.000), iris_train, iris_test)
-  train_test(class_knn("Species", slevels, k=2), iris_train, iris_test)
-  train_test(class_cnn("Species", slevels, neurons=10, epochs = 200), iris_train, iris_test)
+  train_test(class_rf("Species", slevels), iris_train, iris_test)
+  train_test(class_mlp("Species", slevels), iris_train, iris_test)
+  train_test(class_svm("Species", slevels), iris_train, iris_test)
+  train_test(class_knn("Species", slevels), iris_train, iris_test)
+  train_test(class_cnn("Species", slevels), iris_train, iris_test)
 }
+

@@ -25,7 +25,7 @@ adjust.factor <- function(value, ilevels, slevels) {
 
 prepare.classification <- function(obj, data) {
   obj <- start_log(obj) 
-  obj$predictors <- setdiff(colnames(data), obj$attribute)  
+  obj$x <- setdiff(colnames(data), obj$attribute)  
   return(obj)
 }
 
@@ -43,8 +43,8 @@ prepare.class_majority <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   
   loadlibrary("RSNNS")
-  predictand <- decodeClassLabels(data[,obj$attribute])
-  cols <- apply(predictand, 2, sum)
+  y <- decodeClassLabels(data[,obj$attribute])
+  cols <- apply(y, 2, sum)
   col <- match(max(cols),cols)
   obj$model <- list(cols=cols, col=col)
   
@@ -86,8 +86,8 @@ prepare.class_dtree <- function(obj, data) {
 
 action.class_dtree <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, type="vector")  
+  x <- data[,obj$x]   
+  prediction <- predict(obj$model, x, type="vector")  
   return(prediction)
 }
 
@@ -114,8 +114,8 @@ prepare.class_nb <- function(obj, data) {
 
 action.class_nb  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]
-  prediction <- predict(obj$model, predictors, type="raw")
+  x <- data[,obj$x]
+  prediction <- predict(obj$model, x, type="raw")
   return(prediction)
 }
 
@@ -137,10 +137,10 @@ prepare.class_rf <- function(obj, data) {
   if (is.null(obj$mtry))
     obj$mtry <- ceiling(sqrt(ncol(data)))
   
-  predictors <- data[,obj$predictors]
-  predictand <- data[,obj$attribute]
+  x <- data[,obj$x]
+  y <- data[,obj$attribute]
   
-  obj$model <- tune.class_rf(x=predictors, y=predictand, mtry=obj$mtry, ntree=obj$ntree)
+  obj$model <- tune.class_rf(x=x, y=y, mtry=obj$mtry, ntree=obj$ntree)
   
   params <- attr(obj$model, "params") 
   msg <- sprintf("mtry=%d,ntree=%d", params$mtry, params$ntree)
@@ -150,8 +150,8 @@ prepare.class_rf <- function(obj, data) {
 
 action.class_rf  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict.class_rf(obj$model, predictors)  
+  x <- data[,obj$x]   
+  prediction <- predict.class_rf(obj$model, x)  
   return(prediction)
 }
 
@@ -187,10 +187,10 @@ prepare.class_mlp <- function(obj, data) {
   if (is.null(obj$size))
     obj$size <- ceiling(sqrt(ncol(data)))
 
-  predictors <- data[,obj$predictors]
-  predictand <- data[,obj$attribute]
+  x <- data[,obj$x]
+  y <- data[,obj$attribute]
   
-  obj$model <- tune.class_mlp(x=predictors, y=predictand, maxit=obj$maxit, decay = obj$decay, size=obj$size)
+  obj$model <- tune.class_mlp(x=x, y=y, maxit=obj$maxit, decay = obj$decay, size=obj$size)
 
   params <- attr(obj$model, "params") 
   msg <- sprintf("size=%d,decay=%.2f", params$size, params$decay)
@@ -200,8 +200,8 @@ prepare.class_mlp <- function(obj, data) {
 
 action.class_mlp  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict.class_mlp(obj$model, predictors)  
+  x <- data[,obj$x]   
+  prediction <- predict.class_mlp(obj$model, x)  
   return(prediction)
 }
 
@@ -239,10 +239,10 @@ prepare.class_svm <- function(obj, data) {
   obj <- prepare.classification(obj, data)
   loadlibrary("e1071")
   
-  predictors <- data[,obj$predictors]
-  predictand <- data[,obj$attribute]
+  x <- data[,obj$x]
+  y <- data[,obj$attribute]
   
-  obj$model <- tune.class_svm(x=predictors, y=predictand, epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
+  obj$model <- tune.class_svm(x=x, y=y, epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
 
   params <- attr(obj$model, "params") 
   msg <- sprintf("epsilon=%.1f,cost=%.3f", params$epsilon, params$cost)
@@ -252,8 +252,8 @@ prepare.class_svm <- function(obj, data) {
 
 action.class_svm  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict.class_svm(obj$model, predictors)
+  x <- data[,obj$x]   
+  prediction <- predict.class_svm(obj$model, x)
   return(prediction)
 }
 
@@ -295,9 +295,9 @@ prepare.class_knn <- function(obj, data) {
   loadlibrary("e1071")
   loadlibrary("class")
   
-  predictors <- data[,obj$predictors]
-  predictand <- data[,obj$attribute]
-  obj$model <- tune.class_knn(x=predictors, y=predictand, k = obj$k)  
+  x <- data[,obj$x]
+  y <- data[,obj$attribute]
+  obj$model <- tune.class_knn(x=x, y=y, k = obj$k)  
 
   params <- attr(obj$model, "params") 
   msg <- sprintf("k=%d", params$k)
@@ -307,8 +307,8 @@ prepare.class_knn <- function(obj, data) {
 
 action.class_knn  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors] 
-  prediction <- predict.class_knn(obj$model, predictors)
+  x <- data[,obj$x] 
+  prediction <- predict.class_knn(obj$model, x)
   return(prediction)
 }
 
@@ -319,13 +319,13 @@ tune.class_knn <- function (x, y, k) {
 }
 
 train.class_knn <- function (x, y, k, ...) {
-  model <- list(predictors=x, predictand=y, k=k)
+  model <- list(x=x, y=y, k=k)
   return (model)
 }
 
 predict.class_knn <- function(model, data) {
   loadlibrary("class")
-  prediction <- knn(train=model$predictors, test=data, cl=model$predictand, prob=TRUE)
+  prediction <- knn(train=model$x, test=data, cl=model$y, prob=TRUE)
   prediction <- decodeClassLabels(prediction)  
   return(prediction)
 }
@@ -351,10 +351,10 @@ prepare.class_cnn <- function(obj, data) {
   loadlibrary("tensorflow")
   loadlibrary("keras")  
   
-  predictors <- data[,obj$predictors]
-  predictand <- data[,obj$attribute]
+  x <- data[,obj$x]
+  y <- data[,obj$attribute]
   
-  obj$model <- tune.class_cnn(x=predictors, y=predictand, neurons = obj$neurons, epochs = obj$epochs)  
+  obj$model <- tune.class_cnn(x=x, y=y, neurons = obj$neurons, epochs = obj$epochs)  
   
   params <- attr(obj$model, "params") 
   msg <- sprintf("neurons=%d,epochs=%d", params$neurons, params$epochs)
@@ -364,8 +364,8 @@ prepare.class_cnn <- function(obj, data) {
 
 action.class_cnn  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors] 
-  prediction <- predict(obj$model, predictors)
+  x <- data[,obj$x] 
+  prediction <- predict(obj$model, x)
   colnames(prediction) <- obj$slevels
   return(prediction)
 }
