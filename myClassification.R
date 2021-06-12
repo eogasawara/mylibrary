@@ -122,8 +122,10 @@ action.class_nb  <- function(obj, data) {
 # random_forest
 class_rf <- function(attribute, slevels=NULL, mtry = NULL, ntree = seq(5, 50, 5)) {
   obj <- classification(attribute, slevels)
+  
   obj$ntree <- ntree
   obj$mtry <- mtry
+  
   class(obj) <- append("class_rf", class(obj))
   return(obj)
 }
@@ -161,8 +163,8 @@ tune.class_rf <- function (x, y, mtry, ntree) {
   return(model)
 }
 
-predict.class_rf <- function(model, data) {
-  prediction <- predict(model, data, type="prob")  
+predict.class_rf <- function(model, x) {
+  prediction <- predict(model, x, type="prob")  
   return(prediction)
 }
 
@@ -182,7 +184,6 @@ prepare.class_mlp <- function(obj, data) {
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
   obj <- prepare.classification(obj, data)
   loadlibrary("nnet")
-  loadlibrary("e1071")
   
   if (is.null(obj$size))
     obj$size <- ceiling(sqrt(ncol(data)))
@@ -215,15 +216,15 @@ train.class_mlp <- function (x, y, size, decay, maxit) {
   return (nnet(x,decodeClassLabels(y),size=size,decay=decay,maxit=maxit,trace=FALSE))
 }
 
-predict.class_mlp <- function(model, data) {
-  prediction <- predict(model, data, type="raw")  
+predict.class_mlp <- function(model, x) {
+  prediction <- predict(model, x, type="raw")  
   return(prediction)
 }
 
 # class_svm 
 class_svm <- function(attribute, slevels=NULL, epsilon=seq(0.5,1,0.5), cost=seq(20,100,20), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
-  #analisar: https://rpubs.com/Kushan/296706  
+  #studio: https://rpubs.com/Kushan/296706  
   obj <- classification(attribute, slevels)
   obj$kernel <- kernel
   obj$epsilon <- epsilon
@@ -269,8 +270,8 @@ train.class_svm <- function (x, y, epsilon, cost, kernel) {
   return (model)
 }
 
-predict.class_svm <- function(model, data) {
-  prediction <- predict(model, data, probability = TRUE) 
+predict.class_svm <- function(model, x) {
+  prediction <- predict(model, x, probability = TRUE) 
   prediction <- attr(prediction, "probabilities")
   slevels <- attr(model, "slevels")
   prediction <- prediction[,slevels]
@@ -292,7 +293,6 @@ prepare.class_knn <- function(obj, data) {
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
   obj <- prepare.classification(obj, data)
   
-  loadlibrary("e1071")
   loadlibrary("class")
   
   x <- data[,obj$x]
@@ -323,9 +323,9 @@ train.class_knn <- function (x, y, k, ...) {
   return (model)
 }
 
-predict.class_knn <- function(model, data) {
+predict.class_knn <- function(model, x) {
   loadlibrary("class")
-  prediction <- knn(train=model$x, test=data, cl=model$y, prob=TRUE)
+  prediction <- knn(train=model$x, test=x, cl=model$y, prob=TRUE)
   prediction <- decodeClassLabels(prediction)  
   return(prediction)
 }
@@ -407,6 +407,20 @@ train.class_cnn <- function(x, y, neurons, epochs, ...) {
   return(model)
 }
 
+tune.class_cnn <- function (x, y, neurons, epochs) {
+  tf$get_logger()$setLevel('ERROR')
+  ranges <- list(neurons = neurons, epochs = epochs)
+  model <- tune.general.classification(x = x, y = y, ranges = ranges, train.func = train.class_cnn)
+  tf$get_logger()$setLevel('WARNING')
+  return(model)
+}
+
+myClassRepro <- TRUE
+class_repro <- function() {
+  if (myClassRepro)
+    set.seed(1)
+}
+
 tune.general.classification <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
@@ -418,6 +432,8 @@ tune.general.classification <- function (x, y, ranges, folds=3, train.func, pred
   if (n > 1) {
     for (i in 1:n) {
       for (j in 1:length(folds)) {
+        if (myClassRepro)
+        class_repro()
         tt <- train_test_from_folds(folds, j)
         params <- append(list(x = tt$train[colnames(x)], y = tt$train$y), as.list(ranges[i,]))
         model <- do.call(train.func, params)
@@ -428,17 +444,10 @@ tune.general.classification <- function (x, y, ranges, folds=3, train.func, pred
     }
     i <- which.max(accuracies)
   }
+  class_repro()
   params <- append(list(x = x, y = y), as.list(ranges[i,]))
   model <- do.call(train.func, params)
   attr(model, "params") <- as.list(ranges[i,])
-  return(model)
-}
-
-tune.class_cnn <- function (x, y, neurons, epochs) {
-  tf$get_logger()$setLevel('ERROR')
-  ranges <- list(neurons = neurons, epochs = epochs)
-  model <- tune.general.classification(x = x, y = y, ranges = ranges, train.func = train.class_cnn)
-  tf$get_logger()$setLevel('WARNING')
   return(model)
 }
 

@@ -1,4 +1,5 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 # regression 
 
@@ -32,7 +33,7 @@ prepare.tsreg_arima <- function(obj, x, y = NULL) {
   obj <- prepare.tsregression(obj, x, y)
   
   loadlibrary("forecast")  
-  obj$mdl <- auto.arima(x, allowdrift = TRUE, allowmean = TRUE) 
+  obj$model <- auto.arima(x, allowdrift = TRUE, allowmean = TRUE) 
   
   obj <- register_log(obj)    
   return(obj)
@@ -40,14 +41,14 @@ prepare.tsreg_arima <- function(obj, x, y = NULL) {
 
 action.tsreg_arima <- function(obj, x, y = NULL, steps_ahead=NULL) {
   loadlibrary("forecast")  
-  if (!is.null(x) && (length(obj$mdl$x) == length(x)) && (sum(obj$mdl$x-x) == 0)){
+  if (!is.null(x) && (length(obj$model$x) == length(x)) && (sum(obj$model$x-x) == 0)){
     #get adjusted data
-    pred <- obj$mdl$x - obj$mdl$residuals    
+    pred <- obj$model$x - obj$model$residuals    
   }
   else {
     if (is.null(steps_ahead))
       steps_ahead <- length(x)
-    pred <- forecast(obj$mdl, h = steps_ahead)
+    pred <- forecast(obj$model, h = steps_ahead)
     pred <- pred$mean
   }
   return(pred)
@@ -83,9 +84,7 @@ ts_as_matrix <- function(data, input_size) {
 
 prepare.tsreg_sw <- function(obj, x, y) {
   obj <- prepare.tsregression(obj, x, y)
-  
-  set.seed(1)
-  
+
   obj$preprocess <- prepare(obj$preprocess, x)
   
   x <- action(obj$preprocess, x)
@@ -94,7 +93,7 @@ prepare.tsreg_sw <- function(obj, x, y) {
   
   obj <- ts_invoke_prepare(obj, ts_as_matrix(x, obj$input_size), y)
   
-  obj <- register_log(obj)    
+  obj <- register_log(obj, obj$msg)    
   return(obj)
 }
 
@@ -122,18 +121,18 @@ action.tsreg_sw <- function(obj, x, steps_ahead=1) {
 }
 
 ts_invoke_action.tsreg_sw <- function(obj, x) {
-  prediction <- predict(obj$mdl, x)  
+  prediction <- predict(obj$model, x)  
   return(prediction)
 }
 
 #class tsreg_mlp
 
-tsreg_mlp <- function(preprocess, input_size, neurons=NULL, decay=seq(0, 1, 0.02), maxit=1000) {
+tsreg_mlp <- function(preprocess, input_size, size=NULL, decay=seq(0, 1, 0.1), maxit=1000) {
   obj <- tsreg_sw(preprocess, input_size)
   
-  if (is.null(neurons))
-    neurons <- unique(1:ceiling(input_size/3))
-  obj$neurons <- neurons
+  if (is.null(size))
+    size <- ceiling(input_size/3)
+  obj$size <- size
   obj$decay <- decay
   obj$maxit <- maxit
   
@@ -142,17 +141,19 @@ tsreg_mlp <- function(preprocess, input_size, neurons=NULL, decay=seq(0, 1, 0.02
 }
 
 ts_invoke_prepare.tsreg_mlp <- function(obj, x, y) {
-  loadlibrary("e1071")
   loadlibrary("nnet")  
-  tuned <- tune(nnet, x, y, maxit=obj$maxit, trace=FALSE, ranges=list(decay=obj$decay, size=obj$neurons, linout=TRUE))
-  obj$mdl <- tuned$best.model
+  ranges <- list(size = obj$size, decay=obj$decay, maxit = obj$maxit, linout=TRUE, trace = FALSE)
+  obj$model <- tune.general.tsregression(x = x, y = y, ranges = ranges, train.func = nnet)
+  
+  params <- attr(obj$model, "params") 
+  obj$msg <- sprintf("size=%d,decay=%.2f", params$size, params$decay)
   return(obj)
 }
 
 
 #class tsreg_svm
 
-tsreg_svm <- function(preprocess, input_size, epsilon=seq(0,1,0.1), cost=seq(5,100,5), kernel="radial") {
+tsreg_svm <- function(preprocess, input_size, epsilon=seq(0.5,1,0.5), cost=seq(20,100,20), kernel="radial") {
   obj <- tsreg_sw(preprocess, input_size)
 
   obj$kernel <- kernel
@@ -167,7 +168,7 @@ ts_invoke_prepare.tsreg_svm <- function(obj, x, y) {
   loadlibrary("e1071")
   
   tuned <- tune(svm, x, y, ranges=list(epsilon=seq(0,1,0.1), cost=1:100))
-  obj$mdl <- tuned$best.model
+  obj$model <- tuned$best.model
   return(obj)
 }
 
@@ -190,7 +191,7 @@ ts_invoke_prepare.tsreg_rf <- function(obj, x, y) {
   loadlibrary("randomForest")
   
   tuned <- tune(randomForest, x, y, ranges=list(mtry=obj$mtry, ntree=obj$ntree))
-  obj$mdl <- tuned$best.model 
+  obj$model <- tuned$best.model 
 
   return(obj)
 }
@@ -198,11 +199,11 @@ ts_invoke_prepare.tsreg_rf <- function(obj, x, y) {
 
 #class tsreg_elm
 
-tsreg_elm <- function(preprocess, input_size, nhid=NULL) {
+tsreg_elm <- function(preprocess, input_size, nhid=1:10) {
   obj <- tsreg_sw(preprocess, input_size)
   
   if (is.null(nhid))
-    nhid <- unique(1:ceiling(input_size/3))
+    nhid <- input_size/3
   obj$nhid <- nhid
 
   class(obj) <- append("tsreg_elm", class(obj))    
@@ -213,13 +214,13 @@ ts_invoke_prepare.tsreg_elm <- function(obj, x, y) {
   loadlibrary("e1071")
   loadlibrary("elmNNRcpp")
   
-  obj$mdl <- elm_train(x, y, nhid = max(obj$nhid), actfun = 'purelin', init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
+  obj$model <- elm_train(x, y, nhid = max(obj$nhid), actfun = 'purelin', init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
   
   return(obj)
 }
 
 ts_invoke_action.tsreg_elm <- function(obj, x) {
-  prediction <- elm_predict(obj$mdl, x)
+  prediction <- elm_predict(obj$model, x)
   return(prediction)
 }
 
@@ -280,14 +281,14 @@ ts_invoke_prepare.tsreg_cnn <- function(obj, x, y) {
   )  
   cat("\n")
   
-  obj$mdl <- model
+  obj$model <- model
   
   return(obj)
 }
 
 ts_invoke_action.tsreg_cnn <- function(obj, x) {
   x <- data.frame(x)
-  prediction <- (obj$mdl %>% predict(x))  
+  prediction <- (obj$model %>% predict(x))  
   return(prediction)
 }
 
@@ -348,7 +349,7 @@ ts_invoke_prepare.tsreg_lstm <- function(obj, x, y) {
   model %>% reset_states()
   cat("\n")
   
-  obj$mdl <- model
+  obj$model <- model
   
   return(obj)
 }
@@ -356,11 +357,68 @@ ts_invoke_prepare.tsreg_lstm <- function(obj, x, y) {
 ts_invoke_action.tsreg_lstm <- function(obj, x) {
   x <- array(as.vector(x), dim=(c(dim(x),1)))
   batch.size <- 1
-  prediction <- obj$mdl %>% predict(x, batch_size = batch.size) %>% .[,1]
+  prediction <- obj$model %>% predict(x, batch_size = batch.size) %>% .[,1]
   return(prediction)
 }
 
 # utility functions
+
+
+tsreg.MSE <- function (actual, prediction) 
+{
+  if (length(actual) != length(prediction)) 
+    stop("actual and prediction have different lengths")
+  n <- length(actual)
+  res <- mean((actual - prediction)^2)
+  res
+}
+
+tsreg.sMAPE <- function (actual, prediction) 
+{
+  if (length(actual) != length(prediction)) 
+    stop("actual and prediction have different lengths")
+  n <- length(actual)
+  res <- (1/n) * sum(abs(actual - prediction)/((abs(actual) + 
+                                                  abs(prediction))/2))
+  res
+}
+
+
+myRegRepro <- TRUE
+reg_repro <- function() {
+  if (myRegRepro)
+    set.seed(1)
+}
+
+tune.general.tsregression <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
+  ranges <- expand.grid(ranges)
+  n <- nrow(ranges)
+  errors <- rep(0,n)
+  data <- data.frame(i = 1:nrow(x), idx = 1:nrow(x))
+  folds <- k_fold(sample_random(), data, folds)
+  
+  i <- 1
+  if (n > 1) {
+    for (i in 1:n) {
+      for (j in 1:length(folds)) {
+        reg_repro()
+        tt <- train_test_from_folds(folds, j)
+        params <- append(list(x = x[tt$train$i,], y = y[tt$train$i,]), as.list(ranges[i,]))
+        model <- do.call(train.func, params)
+        prediction <- pred.fun(model, x[tt$test$i,]) 
+        errors[i] <- errors[i] + tsregression_evaluation(y[tt$test$i,], prediction)$mse 
+      }
+    }
+    i <- which.min(errors)
+  }
+  params <- append(list(x = x, y = y), as.list(ranges[i,]))
+  reg_repro()
+  model <- do.call(train.func, params)
+  attr(model, "params") <- as.list(ranges[i,])
+  return(model)
+}
+
+
 
 # regression_evaluation
 tsregression_evaluation <- function(values, prediction) {
@@ -368,8 +426,8 @@ tsregression_evaluation <- function(values, prediction) {
   
   loadlibrary("TSPred")  
   
-  obj$smape <- TSPred::sMAPE(values, prediction)  
-  obj$mse <- TSPred::MSE(values, prediction)  
+  obj$smape <- tsreg.sMAPE(values, prediction)  
+  obj$mse <- tsreg.MSE(values, prediction)  
   
   obj$metrics <- data.frame(mse=obj$mse, smape=obj$smape)
   
@@ -381,8 +439,8 @@ plot.tsregression <- function(obj, y, yadj, ypre) {
   loadlibrary("TSPred")
   modelname <- class(obj)[1]
   ntrain <- length(yadj)
-  smape_train <- TSPred::sMAPE(y[1:ntrain], yadj)*100
-  smape_test <- TSPred::sMAPE(y[(ntrain+1):(ntrain+length(ypre))], ypre)*100
+  smape_train <- tsreg.sMAPE(y[1:ntrain], yadj)*100
+  smape_test <- tsreg.sMAPE(y[(ntrain+1):(ntrain+length(ypre))], ypre)*100
   par(xpd=TRUE)      
   plot(1:length(y), y, main = modelname, xlab = sprintf("time [smape train=%.2f%%], [smape test=%.2f%%]", smape_train, smape_test), ylab="value")
   lines(1:ntrain, yadj, col="blue")  

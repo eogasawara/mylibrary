@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
@@ -38,14 +38,13 @@ train_test <- function(model, boston_train, boston_test) {
   print(test_eval$metrics)
 }
 
-if (FALSE) {
+if (TRUE) {
   train_test(reg_dtree("medv"), boston_train, boston_test)
-  train_test(reg_rf("medv", mtry=5, ntree=375), boston_train, boston_test)
-  train_test(reg_mlp("medv", neurons=5, decay=0.08), boston_train, boston_test)
-  train_test(reg_svm("medv", epsilon=0.1, cost=20.000), boston_train, boston_test)
-  train_test(reg_knn("medv", k=2), boston_train, boston_test)
-  train_test(reg_cnn("medv", epochs = 200), boston_train, boston_test)
+  train_test(reg_rf("medv", mtry=5, ntree=40), boston_train, boston_test)
+  train_test(reg_mlp("medv", size=5, decay=0.40), boston_train, boston_test)
+  train_test(reg_svm("medv", epsilon=0.5, cost=20.000), boston_train, boston_test)
+  train_test(reg_knn("medv", k=5), boston_train, boston_test)
+  train_test(reg_cnn("medv", 16, epochs = 200), boston_train, boston_test)
 }
 
-train_test(reg_knn("medv", k=2), boston_train, boston_test)
 

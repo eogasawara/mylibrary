@@ -2,30 +2,25 @@
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
-
-#loadlibrary("kernlab")
-#loadlibrary("rattle")
-#loadlibrary("MASS")
-
 # regression
 regression <- function(attribute) {
   obj <- dal_transform()
   obj$attribute <- attribute
-
+  
   class(obj) <- append("regression", class(obj))    
   return(obj)
 }
 
 prepare.regression <- function(obj, data) {
   obj <- start_log(obj) 
-  obj$predictors <- setdiff(colnames(data), obj$attribute)  
+  obj$x <- setdiff(colnames(data), obj$attribute)  
   return(obj)
 }
 
 # decision_tree
 reg_dtree <- function(attribute) {
   obj <- regression(attribute)
-
+  
   class(obj) <- append("reg_dtree", class(obj))    
   return(obj)
 }
@@ -44,8 +39,8 @@ prepare.reg_dtree <- function(obj, data) {
 
 action.reg_dtree <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors, type="vector")  
+  x <- data[,obj$x]   
+  prediction <- predict(obj$model, x, type="vector")  
   return(prediction)
 }
 
@@ -53,11 +48,9 @@ action.reg_dtree <- function(obj, data) {
 reg_rf <- function(attribute, mtry = NULL, ntree = seq(5, 50, 5)) {
   obj <- regression(attribute)
   
-  if (is.null(mtry))
-    mtry <- unique(1:ceiling(ncol(data)/3))
   obj$mtry <- mtry
   obj$ntree <- ntree
-
+  
   class(obj) <- append("reg_rf", class(obj))    
   return(obj)
 }
@@ -65,33 +58,42 @@ reg_rf <- function(attribute, mtry = NULL, ntree = seq(5, 50, 5)) {
 prepare.reg_rf <- function(obj, data) {
   data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
-
-  loadlibrary("e1071")
+  
   loadlibrary("randomForest")
   
-  regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.randomForest(regression, data=data, mtry=obj$mtry, ntree=obj$ntree)
-  obj$model <- tuned$best.model 
+  if (is.null(obj$mtry))
+    obj$mtry <- ceiling(ncol(data)/3)
   
-  msg <- sprintf("mtry=%d,ntree=%d", obj$model$mtry, obj$model$ntree)
+  x <- data[,obj$x]
+  y <- data[,obj$attribute]
+  
+  obj$model <- tune.reg_rf(x=x, y=y, mtry=obj$mtry, ntree=obj$ntree)
+  
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("mtry=%d,ntree=%d", params$mtry, params$ntree)
   obj <- register_log(obj, msg)
   return(obj)
 }
 
 action.reg_rf  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors)  
+  x <- data[,obj$x]   
+  prediction <- predict(obj$model, x)  
   return(prediction)
 }
 
+tune.reg_rf <- function (x, y, mtry, ntree) {
+  ranges <- list(mtry = mtry, ntree = ntree)
+  model <- tune.general.regression(x = x, y = y, ranges = ranges, train.func = randomForest)
+  return(model)
+}
+
+
 # mlp_nnet
-reg_mlp <- function(attribute, neurons=NULL, decay=seq(0, 1, 0.1), maxit=1000) {
+reg_mlp <- function(attribute, size=NULL, decay=seq(0, 1, 0.1), maxit=1000) {
   obj <- regression(attribute)
   obj$maxit <- maxit
-  if (is.null(neurons))
-    neurons <- ceiling(ncol(data)/3)
-  obj$neurons <- neurons
+  obj$size <- size
   obj$decay <- decay
   
   class(obj) <- append("reg_mlp", class(obj))    
@@ -105,21 +107,32 @@ prepare.reg_mlp <- function(obj, data) {
   loadlibrary("e1071")
   loadlibrary("nnet")
   
-  regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.nnet(regression, data=data, trace=FALSE, maxit=obj$maxit, decay = obj$decay, size=obj$neurons, linout=TRUE)
-  obj$model <- tuned$best.model  
+  if (is.null(obj$size))
+    obj$size <- ceiling(ncol(data)/3)
   
-  msg <- sprintf("neurons=%d,decay=%.2f", tuned$best.parameters$size, tuned$best.parameters$decay)
+  x <- data[,obj$x]
+  y <- data[,obj$attribute]
+  obj$model <- tune.reg_mlp(x, y, size = obj$size, decay = obj$decay, maxit=obj$maxit)
+  
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("size=%d,decay=%.2f", params$size, params$decay)
   obj <- register_log(obj, msg)
   return(obj)
 }
 
 action.reg_mlp  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors)  
+  x <- data[,obj$x]   
+  prediction <- predict(obj$model, x)  
   return(prediction)
 }
+
+tune.reg_mlp <- function (x, y, size, decay, maxit) {
+  ranges <- list(size = size, decay = decay, maxit = maxit, linout=TRUE, trace = FALSE)
+  model <- tune.general.regression(x = x, y = y, ranges = ranges, train.func = nnet)
+  return(model)
+}
+
 
 # reg_svm 
 reg_svm <- function(attribute, epsilon=seq(0.5,1,0.5), cost=seq(20,100,20), kernel="radial") {
@@ -138,21 +151,33 @@ prepare.reg_svm <- function(obj, data) {
   data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
   
-  loadlibrary("e1071")
-  regression <- formula(paste(obj$attribute, "  ~ ."))  
-  tuned <- tune.svm(regression, data=data, epsilon=obj$epsilon, cost=obj$cost, kernel="radial")
-  obj$model <- tuned$best.model  
+  #  loadlibrary("e1071")
+  #  regression <- formula(paste(obj$attribute, "  ~ ."))  
+  #  tuned <- tune.svm(regression, data=data, epsilon=obj$epsilon, cost=obj$cost, kernel="radial")
+  #  obj$model <- tuned$best.model  
+  #msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
   
-  msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
+  x <- data[,obj$x]
+  y <- data[,obj$attribute]
+  obj$model <- tune.reg_svm(x, y, epsilon=obj$epsilon, cost=obj$cost, kernel="radial")
+  
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("epsilon=%.1f,cost=%.3f", params$epsilon, params$cost)
   obj <- register_log(obj, msg)
   return(obj)
 }
 
 action.reg_svm  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors) 
+  x <- data[,obj$x]   
+  prediction <- predict(obj$model, x) 
   return(prediction)
+}
+
+tune.reg_svm <- function (x, y, epsilon, cost, kernel) {
+  ranges <- list(epsilon = epsilon, cost = cost, kernel = kernel)
+  model <- tune.general.regression(x = x, y = y, ranges = ranges, train.func = svm)
+  return(model)
 }
 
 # reg_knn 
@@ -167,47 +192,42 @@ reg_knn <- function(attribute, k=1:10) {
 prepare.reg_knn <- function(obj, data) {
   data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
-  loadlibrary("e1071")
   loadlibrary("FNN")
   
-  predictors <- as.matrix(data[,obj$predictors])
-  predictand <- data[,obj$attribute]
+  x <- as.matrix(data[,obj$x])
+  y <- data[,obj$attribute]
   
-  tuned <- tune.knnreg(train.reg_knn, x = predictors, y = predictand, k = obj$k)
-  obj$model <- tuned$best.model
+  obj$model <- tune.reg_knn(x=x, y=y, k = obj$k)  
+  
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("k=%d", params$k)
+  obj <- register_log(obj, msg)
   return(obj)
 }
 
 action.reg_knn  <- function(obj, data) {
   #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html
   data <- adjust.data.frame(data)
-  predictors <- as.matrix(data[,obj$predictors])
-  prediction <- predict(obj$model, predictors)
+  x <- as.matrix(data[,obj$x])
+  prediction <- predict.reg_knn(obj$model, x)
   return(prediction)
 }
 
-#functions created from tune
 
-train.reg_knn <- function(x, y, k, ...) {
-  obj <- list(x=x, y=y, k=k)
-  class(obj) <- append("reg_knn_pred", class(obj))    
-  return(obj)
+tune.reg_knn <- function (x, y, k) {
+  ranges <- list(k = k, stub = 0)
+  model <- tune.general.regression(x = x, y = y, ranges = ranges, train.func = train.reg_knn, pred.fun = predict.reg_knn)
+  return(model)
 }
 
-predict.reg_knn_pred <- function(model, predictors, ...) {
-  params <- list(...)
-  prediction <- knn.reg(train = model$x, test = predictors, y = model$y, k = model$k)  
+train.reg_knn <- function (x, y, k, ...) {
+  model <- list(x=x, y=y, k=k)
+  return (model)
+}
+
+predict.reg_knn <- function(model, x) {
+  prediction <- knn.reg(train = model$x, test = x, y = model$y, k = model$k)  
   return(prediction$pred)
-}
-
-tune.knnreg <- function (x, y = NULL, k=NULL, ...) 
-{
-  ranges <- list(k = k)
-  ranges[vapply(ranges, is.null, NA)] <- NULL
-  if (length(ranges) < 1) 
-    ranges = NULL
-  tuned <- tune("train.reg_knn", train.x = x, train.y = y, ranges = ranges, ...)
-  return(tuned)
 }
 
 # reg_cnn 
@@ -231,19 +251,21 @@ prepare.reg_cnn <- function(obj, data) {
   loadlibrary("tensorflow")
   loadlibrary("keras")  
   
-  predictors <- data[obj$predictors]
-  predictand <- data[,obj$attribute]
-
-  obj$model <- tune.reg_cnn(x = predictors, y = predictand, neurons=obj$neurons, epochs=obj$epochs)
-    
-  obj <- register_log(obj)
+  x <- data[obj$x]
+  y <- data[,obj$attribute]
+  
+  obj$model <- tune.reg_cnn(x = x, y = y, neurons=obj$neurons, epochs=obj$epochs)
+  
+  params <- attr(obj$model, "params") 
+  msg <- sprintf("neurons=%d,epochs=%d", params$neurons, params$epochs)
+  obj <- register_log(obj, msg)
   return(obj)
 }
 
 action.reg_cnn  <- function(obj, data) {
   data <- adjust.data.frame(data)
-  predictors <- data[,obj$predictors]   
-  prediction <- predict(obj$model, predictors)
+  x <- data[,obj$x]   
+  prediction <- predict(obj$model, x)
   return(prediction)
 }
 
@@ -285,36 +307,65 @@ train.reg_cnn <- function(x, y, neurons, epochs, ...) {
   return(model)
 }
 
-tune.reg_cnn <- function (x, y = NULL, neurons, epochs) {
-  tf$get_logger()$setLevel('ERROR')  
-  ranges <- list(neurons = neurons)
+tune.reg_cnn <- function (x, y, neurons, epochs) {
+  tf$get_logger()$setLevel('ERROR')
+  ranges <- list(neurons = neurons, epochs = epochs)
+  model <- tune.general.regression(x = x, y = y, ranges = ranges, train.func = train.reg_cnn)
+  tf$get_logger()$setLevel('WARNING')
+  return(model)
+}
+
+myRegRepro <- TRUE
+reg_repro <- function() {
+  if (myRegRepro)
+    set.seed(1)
+}
+
+tune.general.regression <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
-  mses <- rep(0,n)
+  errors <- rep(0,n)
   data <- adjust.data.frame(cbind(x, y))
-  folds <- k_fold(sample_random(), data, 3)
+  folds <- k_fold(sample_random(), data, folds)
   
   i <- 1
   if (n > 1) {
     for (i in 1:n) {
-      for (j in 1:3) {
+      for (j in 1:length(folds)) {
+        reg_repro()
         tt <- train_test_from_folds(folds, j)
-        xx <- tt$train
-        xx$y <- NULL
-        yy <- tt$train$y
-        model <- train.reg_cnn(x = xx, y = yy, neurons = ranges$neurons[i], epochs)
-        xx <- tt$test
-        xx$y <- NULL
-        yy <- tt$test$y
-        prediction <- predict(model, xx) 
-        mses[i] <- mses[i] + regression_evaluation(yy, prediction)$mse
+        params <- append(list(x = tt$train[colnames(x)], y = tt$train$y), as.list(ranges[i,]))
+        model <- do.call(train.func, params)
+        prediction <- pred.fun(model, tt$test[colnames(x)]) 
+        errors[i] <- errors[i] + regression_evaluation(tt$test$y, prediction)$mse 
       }
     }
-    i <- which.min(mses)
+    i <- which.min(errors)
   }
-  model <- train.reg_cnn(x = x, y = y, neurons = ranges$neurons[i], epochs)
-  tf$get_logger()$setLevel('WARNING')  
+  params <- append(list(x = x, y = y), as.list(ranges[i,]))
+  reg_repro()
+  model <- do.call(train.func, params)
+  attr(model, "params") <- as.list(ranges[i,])
   return(model)
+}
+
+reg.MSE <- function (actual, prediction) 
+{
+  if (length(actual) != length(prediction)) 
+    stop("actual and prediction have different lengths")
+  n <- length(actual)
+  res <- mean((actual - prediction)^2)
+  res
+}
+
+reg.sMAPE <- function (actual, prediction) 
+{
+  if (length(actual) != length(prediction)) 
+    stop("actual and prediction have different lengths")
+  n <- length(actual)
+  res <- (1/n) * sum(abs(actual - prediction)/((abs(actual) + 
+                                                  abs(prediction))/2))
+  res
 }
 
 
@@ -323,10 +374,8 @@ tune.reg_cnn <- function (x, y = NULL, neurons, epochs) {
 regression_evaluation <- function(values, prediction) {
   obj <- list(values=values, prediction=prediction)
   
-  loadlibrary("TSPred")  
-  
-  obj$smape <- TSPred::sMAPE(values, prediction)  
-  obj$mse <- TSPred::MSE(values, prediction)  
+  obj$smape <- reg.sMAPE(values, prediction)  
+  obj$mse <- reg.MSE(values, prediction)  
   
   obj$metrics <- data.frame(mse=obj$mse, smape=obj$smape)
   
