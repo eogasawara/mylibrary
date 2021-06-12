@@ -1,4 +1,4 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
@@ -37,7 +37,7 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
   return(model)
 }
 
-if (TRUE) {
+if (FALSE) {
   train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_rf(preproc, input_size=4, mtry=3, ntree=50), sw = swsize, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_mlp(preproc, input_size=4, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
@@ -46,3 +46,5 @@ if (TRUE) {
   train_test(x, model=tsreg_cnn(preproc, input_size=4, epochs = 100), sw = swsize, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_lstm(preproc, input_size=4, neurons=32, epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
 }
+
+train_test(x, model=tsreg_cnn(preproc, input_size=4, epochs = 100), sw = swsize, test_size = tsize, steps_ahead = sahead)

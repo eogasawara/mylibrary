@@ -247,14 +247,15 @@ tsreg_cnn <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs = 
 }
 
 train.tsreg_cnn <- function(x, y, neurons, epochs, ...) {
-  xy <- data.frame(x)
+  x <- adjust.data.frame(x)
+  xy <- x
   xy$t0 <- y
   
   spec <- feature_spec(xy, t0 ~ . ) %>% 
     step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
     fit()
   
-  input <- layer_input_from_dataset(xy %>% select(-t0))
+  input <- layer_input_from_dataset(x)
   
   output <- input %>% 
     layer_dense_features(dense_features(spec)) %>% 
@@ -269,8 +270,8 @@ train.tsreg_cnn <- function(x, y, neurons, epochs, ...) {
             metrics = list("mean_absolute_error"))
   
   history <- model %>% fit(
-    x = xy %>% select(-t0),
-    y = xy$t0,
+    x = x,
+    y = y,
     epochs = epochs,
     validation_split = 0.2,
     verbose = 0
