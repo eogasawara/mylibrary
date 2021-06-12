@@ -139,6 +139,8 @@ prepare.regression_svm <- function(obj, data) {
   data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
   
+  loadlibrary("e1071")
+  
   x <- data[,obj$x]
   y <- data[,obj$attribute]
   

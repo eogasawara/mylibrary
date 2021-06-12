@@ -6,6 +6,7 @@ loadlibrary("MASS")
 data(Boston)
 print(t(sapply(Boston, class)))
 head(Boston)
+Boston <- as.matrix(Boston)
 #dataset catalog
 #?MASS::Boston
 
