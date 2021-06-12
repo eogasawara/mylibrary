@@ -62,7 +62,7 @@ prepare.reg_rf <- function(obj, data) {
   loadlibrary("randomForest")
   
   if (is.null(obj$mtry))
-    obj$mtry <- ceiling(ncol(data)/3)
+    obj$mtry <- ceiling(c(1,1.5,2)*ncol(data)/3)
   
   x <- data[,obj$x]
   y <- data[,obj$attribute]
@@ -90,12 +90,11 @@ tune.reg_rf <- function (x, y, mtry, ntree) {
 
 
 # mlp_nnet
-reg_mlp <- function(attribute, size=NULL, decay=seq(0, 1, 0.1), maxit=1000) {
+reg_mlp <- function(attribute, size=NULL, decay=seq(0, 1, 0.0335), maxit=1000) {
   obj <- regression(attribute)
   obj$maxit <- maxit
   obj$size <- size
   obj$decay <- decay
-  
   class(obj) <- append("reg_mlp", class(obj))    
   return(obj)
 }
@@ -135,7 +134,7 @@ tune.reg_mlp <- function (x, y, size, decay, maxit) {
 
 
 # reg_svm 
-reg_svm <- function(attribute, epsilon=seq(0.5,1,0.5), cost=seq(20,100,20), kernel="radial") {
+reg_svm <- function(attribute, epsilon=seq(0,1,0.2), cost=seq(20,100,20), kernel="radial") {
   #kernel: linear, radial, polynomial, sigmoid
   #analisar: https://rpubs.com/Kushan/296706  
   obj <- regression(attribute)
@@ -151,15 +150,9 @@ prepare.reg_svm <- function(obj, data) {
   data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
   
-  #  loadlibrary("e1071")
-  #  regression <- formula(paste(obj$attribute, "  ~ ."))  
-  #  tuned <- tune.svm(regression, data=data, epsilon=obj$epsilon, cost=obj$cost, kernel="radial")
-  #  obj$model <- tuned$best.model  
-  #msg <- sprintf("epsilon=%.1f,cost=%.3f", obj$model$epsilon, obj$model$cost)
-  
   x <- data[,obj$x]
   y <- data[,obj$attribute]
-  obj$model <- tune.reg_svm(x, y, epsilon=obj$epsilon, cost=obj$cost, kernel="radial")
+  obj$model <- tune.reg_svm(x, y, epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
   
   params <- attr(obj$model, "params") 
   msg <- sprintf("epsilon=%.1f,cost=%.3f", params$epsilon, params$cost)
@@ -245,7 +238,6 @@ prepare.reg_cnn <- function(obj, data) {
   data <- adjust.data.frame(data)
   obj <- prepare.regression(obj, data)  
   
-  loadlibrary("e1071")
   loadlibrary("dplyr")
   loadlibrary("tfdatasets")
   loadlibrary("tensorflow")

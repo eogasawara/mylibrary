@@ -38,7 +38,7 @@ train_test <- function(model, boston_train, boston_test) {
   print(test_eval$metrics)
 }
 
-if (TRUE) {
+if (FALSE) {
   train_test(reg_dtree("medv"), boston_train, boston_test)
   train_test(reg_rf("medv", mtry=5, ntree=40), boston_train, boston_test)
   train_test(reg_mlp("medv", size=5, decay=0.40), boston_train, boston_test)
@@ -48,3 +48,7 @@ if (TRUE) {
 }
 
 
+train_test(reg_dtree("medv"), boston_train, boston_test)
+train_test(reg_rf("medv"), boston_train, boston_test)
+train_test(reg_mlp("medv"), boston_train, boston_test)
+train_test(reg_svm("medv"), boston_train, boston_test)
