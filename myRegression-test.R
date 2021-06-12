@@ -21,11 +21,8 @@ boston_train = sr$train
 boston_test = sr$test
 
 train_test <- function(model, boston_train, boston_test) {
-  set.seed(1)
   print(class(model)[1])
-  
-  loadlibrary("RSNNS")
-  
+
   model <- prepare(model, boston_train)
   
   train_prediction <- action(model, boston_train)

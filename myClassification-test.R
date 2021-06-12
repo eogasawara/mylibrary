@@ -24,8 +24,6 @@ train_test <- function(model, iris_train, iris_test) {
   set.seed(1)
   print(class(model)[1])
   
-  loadlibrary("RSNNS")
-  
   model <- prepare(model, iris_train)
   train_prediction <- action(model, iris_train)
   
