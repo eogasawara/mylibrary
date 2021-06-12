@@ -1,3 +1,4 @@
+# version 1.1
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 

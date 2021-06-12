@@ -1,3 +1,4 @@
+# version 1.1
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
 
 load_series <- function(name) {

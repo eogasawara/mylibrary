@@ -1,4 +1,4 @@
-# version 1.0
+# version 1.1
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClassification.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
