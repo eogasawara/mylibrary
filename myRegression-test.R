@@ -1,5 +1,5 @@
 # version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
 
 loadlibrary("MASS")
@@ -29,26 +29,22 @@ train_test <- function(model, boston_train, boston_test) {
   
   train_prediction <- action(model, boston_train)
   boston_train_predictand = boston_train[,"medv"]
-  train_eval <- regression_evaluation(boston_train_predictand, train_prediction)
+  train_eval <- evaluation.regression(boston_train_predictand, train_prediction)
   print(train_eval$metrics)
 
   test_prediction <- action(model, boston_test)
   boston_test_predictand = boston_test[,"medv"]
-  test_eval <- regression_evaluation(boston_test_predictand, test_prediction)
+  test_eval <- evaluation.regression(boston_test_predictand, test_prediction)
   print(test_eval$metrics)
 }
 
-if (FALSE) {
-  train_test(reg_dtree("medv"), boston_train, boston_test)
-  train_test(reg_rf("medv", mtry=5, ntree=40), boston_train, boston_test)
-  train_test(reg_mlp("medv", size=5, decay=0.40), boston_train, boston_test)
-  train_test(reg_svm("medv", epsilon=0.5, cost=20.000), boston_train, boston_test)
-  train_test(reg_knn("medv", k=5), boston_train, boston_test)
-  train_test(reg_cnn("medv", 16, epochs = 200), boston_train, boston_test)
+if (TRUE) {
+  train_test(regression_dtree("medv"), boston_train, boston_test)
+  train_test(regression_rf("medv", mtry=7,ntree=30), boston_train, boston_test)
+  train_test(regression_mlp("medv", size=5,decay=0.54), boston_train, boston_test)
+  train_test(regression_svm("medv", epsilon=0.2,cost=40.000), boston_train, boston_test)
+  train_test(regression_knn("medv", k=5), boston_train, boston_test)
+  train_test(regression_cnn("medv", neurons=32,epochs=200), boston_train, boston_test)
 }
 
 
-train_test(reg_dtree("medv"), boston_train, boston_test)
-train_test(reg_rf("medv"), boston_train, boston_test)
-train_test(reg_mlp("medv"), boston_train, boston_test)
-train_test(reg_svm("medv"), boston_train, boston_test)
