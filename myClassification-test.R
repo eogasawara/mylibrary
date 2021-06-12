@@ -30,38 +30,27 @@ train_test <- function(model, iris_train, iris_test) {
   train_prediction <- action(model, iris_train)
   
   iris_train_predictand = decodeClassLabels(iris_train[,"Species"])
-  train_eval <- classif_evaluation(iris_train_predictand, train_prediction)
+  train_eval <- evaluation.classification(iris_train_predictand, train_prediction)
   print(train_eval$metrics)
   plot(roc_curve(train_eval))
   
   test_prediction <- action(model, iris_test)
   
   iris_test_predictand = decodeClassLabels(iris_test[,"Species"])
-  test_eval <- classif_evaluation(iris_test_predictand, test_prediction)
+  test_eval <- evaluation.classification(iris_test_predictand, test_prediction)
   print(test_eval$metrics)
   plot(roc_curve(test_eval))
 }
 
 
-if (FALSE) {
-  train_test(class_majority("Species", slevels), iris_train, iris_test)
-  train_test(class_dtree("Species", slevels), iris_train, iris_test)
-  train_test(class_nb("Species", slevels), iris_train, iris_test)
-  train_test(class_rf("Species", slevels, mtry=3, ntree=5), iris_train, iris_test)
-  train_test(class_mlp("Species", slevels, size=3,decay=0.30), iris_train, iris_test)
-  train_test(class_svm("Species", slevels, epsilon=0.5,cost=20.0), iris_train, iris_test)
-  train_test(class_knn("Species", slevels, k=1), iris_train, iris_test)
-  train_test(class_cnn("Species", slevels, neurons=32), iris_train, iris_test)
-}
-
 if (TRUE) {
-  train_test(class_majority("Species", slevels), iris_train, iris_test)
-  train_test(class_dtree("Species", slevels), iris_train, iris_test)
-  train_test(class_nb("Species", slevels), iris_train, iris_test)
-  train_test(class_rf("Species", slevels), iris_train, iris_test)
-  train_test(class_mlp("Species", slevels), iris_train, iris_test)
-  train_test(class_svm("Species", slevels), iris_train, iris_test)
-  train_test(class_knn("Species", slevels), iris_train, iris_test)
-  train_test(class_cnn("Species", slevels), iris_train, iris_test)
+  train_test(classification_majority("Species", slevels), iris_train, iris_test)
+  train_test(classification_dtree("Species", slevels), iris_train, iris_test)
+  train_test(classification_nb("Species", slevels), iris_train, iris_test)
+  train_test(classification_rf("Species", slevels, mtry=3, ntree=5), iris_train, iris_test)
+  train_test(classification_mlp("Species", slevels, size=3,decay=0.03), iris_train, iris_test)
+  train_test(classification_svm("Species", slevels, epsilon=0.0,cost=20.000), iris_train, iris_test)
+  train_test(classification_knn("Species", slevels, k=1), iris_train, iris_test)
+  train_test(classification_cnn("Species", slevels, neurons=16,epochs=150), iris_train, iris_test)
 }
 
