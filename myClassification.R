@@ -75,8 +75,8 @@ prepare.classification_dtree <- function(obj, data) {
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
   obj <- prepare.classification(obj, data)
-  loadlibrary("tree")
   
+  loadlibrary("tree")
   regression <- formula(paste(obj$attribute, "  ~ ."))  
   obj$model <- tree(regression, data)
   
@@ -87,7 +87,10 @@ prepare.classification_dtree <- function(obj, data) {
 action.classification_dtree <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
+  
+  loadlibrary("tree")
   prediction <- predict(obj$model, x, type="vector")  
+  
   return(prediction)
 }
 
@@ -103,8 +106,8 @@ prepare.classification_nb <- function(obj, data) {
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
   obj <- prepare.classification(obj, data)
+
   loadlibrary("e1071")
-  
   regression <- formula(paste(obj$attribute, "  ~ ."))  
   obj$model <- naiveBayes(regression, data, laplace=0)
   
@@ -115,7 +118,10 @@ prepare.classification_nb <- function(obj, data) {
 action.classification_nb  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]
+  
+  loadlibrary("e1071")
   prediction <- predict(obj$model, x, type="raw")
+  
   return(prediction)
 }
 
@@ -154,7 +160,10 @@ prepare.classification_rf <- function(obj, data) {
 action.classification_rf  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
+  
+  loadlibrary("randomForest")
   prediction <- predict.classification_rf(obj$model, x)  
+  
   return(prediction)
 }
 
@@ -207,7 +216,10 @@ predict.classification_mlp <- function(model, x) {
 action.classification_mlp  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
+  
+  loadlibrary("nnet")
   prediction <- predict.classification_mlp(obj$model, x)  
+  
   return(prediction)
 }
 
@@ -260,7 +272,10 @@ predict.classification_svm <- function(model, x) {
 action.classification_svm  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
+  
+  loadlibrary("e1071")
   prediction <- predict.classification_svm(obj$model, x)
+  
   return(prediction)
 }
 
@@ -381,7 +396,13 @@ train.classification_cnn <- function(x, y, neurons, epochs, ...) {
 action.classification_cnn  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x] 
+  
+  loadlibrary("dplyr")
+  loadlibrary("tfdatasets")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")   
   prediction <- predict(obj$model, x)
+  
   colnames(prediction) <- obj$slevels
   return(prediction)
 }
