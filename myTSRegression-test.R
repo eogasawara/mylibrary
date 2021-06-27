@@ -16,25 +16,29 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
   ts <- ts_data(x, sw)
   
   samp <- ts_sample(ts, test_size)
-
+  
   io_train <- ts_projection(samp$train)
-
+  
   model <- prepare(model, x=io_train$input, y=io_train$output)
   
   adjust <- action(model, io_train$input)
   ev_adjust <- evaluation.tsreg(io_train$output, adjust)
   print(head(ev_adjust$metrics))
-
+  
   io_test <- ts_projection(samp$test)
   
   prediction <- action(model, io_test$input)
   ev_prediction <- evaluation.tsreg(io_test$output, prediction)
   print(head(ev_prediction$metrics))
   
-  print(sprintf("%s %.2f", class(model)[1], 100*ev_prediction$metrics$smape))
+  prep <- ""
+  if (!is.null(model$preprocess))
+    prep <- sprintf("-%s", class(model$preprocess)[1])    
   
-  plot(model, y=c(io_train$output, io_test$output), yadj=adjust, ypre=prediction)
+  print(sprintf("%s%s %.2f", class(model)[1], prep, 100*ev_prediction$metrics$smape))
   
+  yvalues <- c(io_train$output, io_test$output)
+  plot(model, y=yvalues, yadj=adjust, ypre=prediction, xlabels=years[(length(years)+1-length(yvalues)):length(years)])
   return(model)
 }
 

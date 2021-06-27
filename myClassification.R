@@ -326,7 +326,7 @@ action.classification_knn  <- function(obj, x) {
 }
 
 # classification_cnn 
-classification_cnn <- function(attribute, slevels=NULL, neurons=c(3,5,10,16,32), epochs = c(100, 150, 200)) {
+classification_cnn <- function(attribute, slevels=NULL, neurons=c(3:9, seq(12,24,6)), epochs = 200) {
   obj <- classification(attribute, slevels)
   obj$neurons <- neurons
   obj$epochs <- epochs

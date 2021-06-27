@@ -190,7 +190,7 @@ action.ts_gminmax_diff <- function(obj, data, x=NULL) {
     return(x)
   }
   else {
-    ref <- data[,ncol(data)]
+    ref <- as.vector(data[,ncol(data)])
     cnames <- colnames(data)
     for (i in (ncol(data)-1):1)
       data[,i+1] <- data[, i+1] - data[,i]
@@ -214,7 +214,7 @@ deaction.ts_gminmax_diff <- function(obj, data, x=NULL) {
   }
   else {
     data <- data * (obj$gmax-obj$gmin) + obj$gmin
-    data <- cbind(data, ref[,1])
+    data <- cbind(data, ref)
     for (i in (ncol(data)-1):1)
       data[,i] <- data[, i+1] - data[,i]
     colnames(data) <- cnames

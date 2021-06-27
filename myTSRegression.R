@@ -203,7 +203,7 @@ do_prepare.tsreg_svm <- function(obj, x, y) {
 
 #class tsreg_elm
 
-tsreg_elm <- function(preprocess, input_size, nhid=3:7, actfun = c('sig', 'radbas', 'tribas', 'relu', 'purelin')) {
+tsreg_elm <- function(preprocess, input_size, nhid=3:8, actfun = c('sig', 'radbas', 'tribas', 'relu', 'purelin')) {
   obj <- tsreg_sw(preprocess, input_size)
   if (is.null(nhid))
     nhid <- input_size/3
@@ -238,7 +238,7 @@ do_action.tsreg_elm <- function(obj, x) {
 
 #class tsreg_cnn
 
-tsreg_cnn <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs = c(100, 150, 200)) {
+tsreg_cnn <- function(preprocess, input_size, neurons=c(3:9, seq(12,24,6)), epochs = 200) {
   obj <- tsreg_sw(preprocess, input_size)
   obj$neurons <- neurons
   obj$epochs <- epochs
@@ -309,7 +309,7 @@ do_action.tsreg_cnn <- function(obj, x) {
 
 #class tsreg_lstm
 
-tsreg_lstm <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs = c(100, 150, 200)) {
+tsreg_lstm <- function(preprocess, input_size, neurons=c(3:9, seq(12,24,6)), epochs = 200) {
   obj <- tsreg_sw(preprocess, input_size)
   
   obj$neurons <- neurons
@@ -451,15 +451,20 @@ evaluation.tsreg <- function(values, prediction) {
   return(obj)
 }
 
-plot.tsreg <- function(obj, y, yadj, ypre) {
+plot.tsreg <- function(obj, y, yadj, ypre, xlabels=NULL) {
   loadlibrary("TSPred")
-  modelname <- class(obj)[1]
+  prepname <- ""
+  if (!is.null(obj$preprocess))
+    prepname <- sprintf("-%s", class(obj$preprocess)[1])
+  modelname <- sprintf("%s%s", class(obj)[1], prepname)
   ntrain <- length(yadj)
   smape_train <- sMAPE.tsreg(y[1:ntrain], yadj)*100
   smape_test <- sMAPE.tsreg(y[(ntrain+1):(ntrain+length(ypre))], ypre)*100
   par(xpd=TRUE)      
-  plot(1:length(y), y, main = modelname, xlab = sprintf("time [smape train=%.2f%%], [smape test=%.2f%%]", smape_train, smape_test), ylab="value")
-  lines(1:ntrain, yadj, col="blue")  
-  lines((ntrain+1):(ntrain+length(ypre)), ypre, col="green")  
+  if(is.null(xlabels))
+    xlabels <- 1:length(y)
+  plot(xlabels, y, main = modelname, xlab = sprintf("time [smape train=%.2f%%], [smape test=%.2f%%]", smape_train, smape_test), ylab="value")
+  lines(xlabels[1:ntrain], yadj, col="blue")  
+  lines(xlabels[ntrain:(ntrain+length(ypre))], c(yadj[length(yadj)],ypre), col="green")  
   par(xpd=FALSE)      
 }
