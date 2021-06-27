@@ -388,9 +388,9 @@ do_prepare.tsreg_lstm <- function(obj, x, y) {
 }
 
 predict.tsreg_lstm <- function(model, x) {
-  x <- array(as.vector(x), dim=(c(dim(x),1)))
+  dat <- array(as.vector(as.matrix(x)), dim=(c(dim(x),1)))
   batch.size <- 1
-  prediction <- model %>% predict(x, batch_size = batch.size) %>% .[,1]
+  prediction <- model %>% predict(dat, batch_size = batch.size) %>% .[,1]
   return(prediction)
 }
 
