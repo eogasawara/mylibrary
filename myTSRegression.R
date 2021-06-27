@@ -48,11 +48,23 @@ action.tsreg_arima <- function(obj, x, y = NULL, steps_ahead=NULL) {
   else {
     if (is.null(steps_ahead))
       steps_ahead <- length(x)
-    pred <- forecast(obj$model, h = steps_ahead)
-    pred <- pred$mean
+    if ((steps_ahead == 1) && (length(x) != 1)) {
+      pred <- NULL
+      model <- obj$model
+      i <- 1
+      while (i <= length(x)) {
+        pred <- c(pred, forecast(model, h = 1)$mean)
+        model <- auto.arima(c(model$x, x[i]), allowdrift = TRUE, allowmean = TRUE)       
+        i <- i + 1
+      }
+    }
+    else {
+      pred <- forecast(obj$model, h = steps_ahead)$mean
+    }
   }
   return(pred)
 }
+
 
 # setup for sliding window
 
