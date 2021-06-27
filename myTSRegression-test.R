@@ -40,13 +40,13 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
   print(sprintf("%s%s %.2f", class(model)[1], prep, 100*ev_prediction$metrics$smape))
   
   yvalues <- c(io_train$output, io_test$output)
-  plot(model, y=yvalues, yadj=adjust, ypre=prediction, xlabels=years[(length(years)+1-length(yvalues)):length(years)])
+  plot(model, y=yvalues, yadj=adjust, ypre=prediction)
   return(model)
 }
 
 if (TRUE) {
   for (sahead in 1:tsize) {
-  train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
+  #train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_rf(preproc, input_size=4, mtry=3, ntree=50), sw = swsize, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_mlp(preproc, input_size=4, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_svm(preproc, input_size=4, epsilon=0.0, cost=80.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
