@@ -107,8 +107,10 @@ action.tsreg_sw <- function(obj, x, steps_ahead=1) {
   else {
     prediction <- NULL
     x <- as.data.frame(x)
+    cnames <- colnames(x)
     x <- x[1,]
     for (i in 1:steps_ahead) {
+      colnames(x) <- cnames
       x <- action(obj$preprocess, x)
       y <- do_action(obj, ts_as_matrix(x, obj$input_size))
       x <- deaction(obj$preprocess, x)
@@ -232,6 +234,8 @@ do_prepare.tsreg_elm <- function(obj, x, y) {
 }
 
 do_action.tsreg_elm <- function(obj, x) {
+  if (is.data.frame(x))
+    x <- as.matrix(x)
   prediction <- elm_predict(obj$model, x)
   return(prediction)
 }
