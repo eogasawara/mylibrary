@@ -106,13 +106,14 @@ action.tsreg_sw <- function(obj, x, steps_ahead=1) {
   }
   else {
     prediction <- NULL
+    x <- as.data.frame(x)
     x <- x[1,]
     for (i in 1:steps_ahead) {
       x <- action(obj$preprocess, x)
       y <- do_action(obj, ts_as_matrix(x, obj$input_size))
       x <- deaction(obj$preprocess, x)
       y <- deaction(obj$preprocess, x, y)
-      x <- cbind(x[,2:ncol(X)], y)
+      x <- cbind(x[,2:ncol(x)], y)
       prediction <- c(prediction, y)
     }
     return(prediction)
@@ -141,7 +142,7 @@ tsreg_rf <- function(preprocess, input_size, mtry = NULL, ntree = seq(5, 50, 5))
 
 do_prepare.tsreg_rf <- function(obj, x, y) {
   loadlibrary("randomForest")
-  
+
   ranges <- list(mtry=obj$mtry, ntree=obj$ntree)
   obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = randomForest)
   

@@ -7,8 +7,7 @@ load_series <- function(name) {
   return(x)  
 }
 x <- load_series("sin")
-sahead <- 1
-tsize <- 1
+tsize <- 8
 swsize <- 10
 preproc <- ts_gminmax()
 
@@ -27,8 +26,11 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
   
   io_test <- ts_projection(samp$test)
   
-  prediction <- action(model, io_test$input)
-  ev_prediction <- evaluation.tsreg(io_test$output, prediction)
+  prediction <- action(model, x=io_test$input, steps_ahead=steps_ahead)
+  output <- as.vector(io_test$output)
+  if (steps_ahead > 1)
+    output <- output[1:steps_ahead]
+  ev_prediction <- evaluation.tsreg(output, prediction)
   print(head(ev_prediction$metrics))
   
   prep <- ""
@@ -43,11 +45,13 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
 }
 
 if (TRUE) {
+  for (sahead in 1:tsize) {
   train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_rf(preproc, input_size=4, mtry=3, ntree=50), sw = swsize, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_mlp(preproc, input_size=4, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_svm(preproc, input_size=4, epsilon=0.0, cost=80.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
   train_test(x, model=tsreg_elm(preproc, input_size=4, nhid=3,actfun="purelin"), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  train_test(x, model=tsreg_cnn(preproc, input_size=4, neurons=16,epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  train_test(x, model=tsreg_lstm(preproc, input_size=4, neurons=32, epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  #train_test(x, model=tsreg_cnn(preproc, input_size=4, neurons=16,epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  #train_test(x, model=tsreg_lstm(preproc, input_size=4, neurons=32, epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  }
 }
