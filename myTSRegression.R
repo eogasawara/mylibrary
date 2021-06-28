@@ -255,7 +255,7 @@ do_action.tsreg_elm <- function(obj, x) {
 
 #class tsreg_cnn
 
-tsreg_cnn <- function(preprocess, input_size, neurons=c(3:9, seq(12,24,6)), epochs = 200) {
+tsreg_cnn <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs = 200) {
   obj <- tsreg_sw(preprocess, input_size)
   obj$neurons <- neurons
   obj$epochs <- epochs
@@ -326,7 +326,7 @@ do_action.tsreg_cnn <- function(obj, x) {
 
 #class tsreg_lstm
 
-tsreg_lstm <- function(preprocess, input_size, neurons=c(3:9, seq(12,24,6)), epochs = 200) {
+tsreg_lstm <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs = 200) {
   obj <- tsreg_sw(preprocess, input_size)
   
   obj$neurons <- neurons
