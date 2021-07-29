@@ -1,10 +1,9 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
 
-loadlibrary("ggplot2")
-loadlibrary("dplyr")
-loadlibrary("reshape")
-loadlibrary("RColorBrewer")
+library(ggplot2)
+library(dplyr)
+library(reshape)
+library(RColorBrewer)
 
 plot.size <-function(width, height) {
   options(repr.plot.width=width, repr.plot.height=height)    

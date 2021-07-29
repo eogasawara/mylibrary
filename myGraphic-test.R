@@ -2,9 +2,15 @@
 # install.packages("tidyverse")
 # Alternatively, install just ggplot2:
 # install.packages("ggplot2")
+# Use suppressPackageStartupMessages(source(filename)) to avoid warning messages
 
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
+loadlibrary("ggplot2")
+loadlibrary("dplyr")
+loadlibrary("reshape")
+loadlibrary("RColorBrewer")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
-#Use suppressPackageStartupMessages(source(filename)) to avoid warning messages
+
 
 col_set <- brewer.pal(11, 'Spectral')
 colors <- col_set[c(11,10,9,8)]
