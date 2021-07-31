@@ -27,32 +27,21 @@ balance_oversampling <- function(attribute) {
 
 balance.balance_oversampling <- function(obj, data) {
   library(smotefamily)
+  j <- match(obj$attribute, colnames(data))
+  x <- sort((table(data[,obj$attribute]))) 
+  result <- data[data[obj$attribute]==names(x)[length(x)],]
   
-  data <- data
-  attribute <- obj$attribute
-  
-  x <- sort((table(data[,attribute]))) 
-  class_formula = formula(paste(attribute, "  ~ ."))
-  data[,attribute] <- as.character(data[,attribute])
-  mainclass = names(x)[length(x)]
-  newdata = NULL
   for (i in 1:(length(x)-1)) {
-    minorclass = names(x)[i]
-    curdata = data[data[,attribute]==mainclass | data[,attribute]==minorclass,]
-    ratio <- as.integer(ceiling(x[length(x)]/x[i])*100)
-    curdata[,attribute] <- as.factor(curdata[,attribute])
-    curdata <- SMOTE(class_formula, curdata, perc.over = ratio, perc.under=100)
-    curdata[,attribute] <- as.character(curdata[,attribute])
-    curdata = curdata[curdata[,attribute]==minorclass, ]
-    idx = sample(1:nrow(curdata),x[length(x)])
-    curdata = curdata[idx,]
-    newdata = rbind(newdata, curdata)
+    small <- data[,obj$attribute]==names(x)[i]
+    large <- data[,obj$attribute]==names(x)[length(x)]
+    data_smote <- data[small | large,]
+    syn_data <- SMOTE(data_smote[,-j], as.integer(data_smote[,j]))$syn_data
+    syn_data$class <- NULL
+    syn_data[obj$attribute] <- data[small, j][1]
+    result <- rbind(result, data[small,])
+    result <- rbind(result, syn_data)
   }
-  curdata = data[data[,attribute]==mainclass,]
-  newdata = rbind(newdata, curdata)
-  newdata[,attribute] <- as.factor(newdata[,attribute])
-  data <- newdata
-  return(data)
+  return(result)
 }
 
 # balance_subsampling
