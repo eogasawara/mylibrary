@@ -99,7 +99,7 @@ cluster_dbscan <- function(eps, MinPts) {
 }
 
 action.cluster_dbscan <- function(obj, data) {
-  library(dbscan)
+  library(fpc)
   
   cluster <- fpc::dbscan(data, eps = obj$eps, MinPts = obj$MinPts)
   
@@ -109,6 +109,7 @@ action.cluster_dbscan <- function(obj, data) {
 }
 
 optimize.cluster_dbscan <- function(obj, data, do_plot=FALSE) {
+  library(dbscan)
   t <- sort(dbscan::kNNdist(data, k = obj$MinPts))
   
   y <- t

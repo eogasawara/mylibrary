@@ -1,8 +1,16 @@
-# version 1.0
+# version 1.2
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
+loadlibrary("factoextra") 
+loadlibrary("cluster")
+loadlibrary("factoextra")  
+loadlibrary("cluster")
+loadlibrary("dbscan")
+loadlibrary("dplyr")
+
 data(iris)
 
 eval <- cluster_evaluation(rep(1, nrow(iris)), iris$Species)
