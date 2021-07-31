@@ -1,5 +1,6 @@
-# version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
+# version 1.2
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
+
 
 # clustering
 clustering <- function() {
@@ -18,7 +19,7 @@ cluster_kmeans <- function(k) {
 }
 
 optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
-  loadlibrary("factoextra")  
+  library(factoextra)  
   
   t <- fviz_nbclust(data, kmeans, k.max = kmax, method = "wss")
   
@@ -33,7 +34,7 @@ optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
 }
 
 action.cluster_kmeans <- function(obj, data) {
-  loadlibrary("cluster")
+  library(cluster)
   k <- obj$k
   cluster <- kmeans(x = data, centers = k)
   dist <- 0
@@ -59,7 +60,7 @@ cluster_pam <- function(k) {
 }
 
 optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
-  loadlibrary("factoextra")  
+  library(factoextra)  
   t <- fviz_nbclust(data, pam, k.max = kmax, method = "wss")
   
   y <- t$data$y
@@ -73,7 +74,7 @@ optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
 }
 
 action.cluster_pam <- function(obj, data) {
-  loadlibrary("cluster")
+  library(cluster)
   cluster <- pam(data, obj$k)
   dist <- 0
   for (i in 1:obj$k) {
@@ -98,7 +99,7 @@ cluster_dbscan <- function(eps, MinPts) {
 }
 
 action.cluster_dbscan <- function(obj, data) {
-  loadlibrary("dbscan")
+  library(dbscan)
   
   cluster <- fpc::dbscan(data, eps = obj$eps, MinPts = obj$MinPts)
   
@@ -126,7 +127,7 @@ cluster_evaluation <- function(cluster, attribute) {
   obj <- list(data=as.factor(cluster), attribute=as.factor(attribute))
   attr(obj, "class") <- "cluster_evaluation"  
 
-  loadlibrary("dplyr")
+  library(dplyr)
   
   compute_entropy <- function(obj) {
     value <- getOption("dplyr.summarise.inform")
