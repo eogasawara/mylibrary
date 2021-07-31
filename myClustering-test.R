@@ -38,6 +38,6 @@ test_clustering(cluster_kmeans(NULL), iris[,1:4], iris[,5], TRUE)
 
 test_clustering(cluster_pam(NULL), iris[,1:4], iris[,5], TRUE)
 
-test_clustering(cluster_dbscan(eps = NULL, MinPts = 3), iris[,1:4], iris[,5], TRUE)
+test_clustering(cluster_dbscan(eps = 0.3, MinPts = 3), iris[,1:4], iris[,5], FALSE)
 
 
