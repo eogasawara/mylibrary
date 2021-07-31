@@ -1,5 +1,8 @@
 # version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBalance.R")
+loadlibrary("smotefamily")
 
 data(iris)
 head(iris)

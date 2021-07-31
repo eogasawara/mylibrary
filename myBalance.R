@@ -1,5 +1,5 @@
-# version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
+# version 1.2
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
 
 #balance
 
@@ -26,7 +26,7 @@ balance_oversampling <- function(attribute) {
 }
 
 balance.balance_oversampling <- function(obj, data) {
-  loadlibrary("DMwR")
+  library(smotefamily)
   
   data <- data
   attribute <- obj$attribute

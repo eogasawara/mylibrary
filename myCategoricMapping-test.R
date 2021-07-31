@@ -1,4 +1,5 @@
 # version 1.0
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myCategoricMapping.R")
 
 cm <- categ_mapping("Species")

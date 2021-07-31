@@ -1,5 +1,5 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
 
 #https://stackoverflow.com/questions/7532845/matrix-losing-class-attribute-in-r
 

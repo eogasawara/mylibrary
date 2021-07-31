@@ -9,6 +9,11 @@ loadlibrary("ggplot2")
 loadlibrary("dplyr")
 loadlibrary("reshape")
 loadlibrary("RColorBrewer")
+loadlibrary("scales")
+loadlibrary("ggpubr")
+loadlibrary("corrplot")  
+loadlibrary("WVPlots")
+loadlibrary("GGally") 
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
 
 

@@ -60,7 +60,7 @@ plot.series <- function(data, label_x = "", label_y = "", colors = NULL) {
 }
 
 plot.series2nd <- function(data, label_x = "", label_y = "", label_z = "", colors = c("blue", "red")) {
-  loadlibrary("scales")
+  library(scales)
   
   series <- data[,1:3]
   cnames <- colnames(series)[-1]
@@ -228,7 +228,7 @@ plot.pieplot <- function(data, label_x = "", label_y = "", colors = NULL, textco
 
 
 plot.dotchar <- function(data, colors, colorline = "lightgray", xlabel = "", ylabel = "", sorting="ascending") {
-  loadlibrary("ggpubr")
+  library(ggpubr)
   cnames <- colnames(data)[-1]
   series <- data
   colnames(series)[1] <- "x"
@@ -371,7 +371,7 @@ plot.density.class <-  function(data, class_label, label_x = "", label_y = "", c
 plot.correlation <- function(data, colors="") {
   if (colors == "")
     colors <- brewer.pal(n=8, name="RdYlBu")
-  loadlibrary("corrplot")  
+  library(corrplot)  
   series <-cor(data)
   corrplot(series, type="upper", order="hclust", col=colors)
 }
@@ -389,7 +389,7 @@ plot.norm_dist <- function(vect, label_x = "", label_y = "",  colors)  {
 
 
 plot.pair <- function(data, cnames, title = NULL, clabel = NULL, colors) {
-  loadlibrary("WVPlots")
+  library(WVPlots)
   grf <- PairPlot(data, cnames, title, group_var = clabel, palette=NULL) + theme_bw(base_size = 10)
   if (is.null(clabel)) 
     grf <- grf + geom_point(color=colors)
@@ -399,7 +399,7 @@ plot.pair <- function(data, cnames, title = NULL, clabel = NULL, colors) {
 }
 
 plot.pair.adv <- function(data, cnames, title = NULL, clabel= NULL, colors) {
-  loadlibrary("GGally")  
+  library(GGally)  
   if (!is.null(clabel)) {
     data$clabel <- data[,clabel]
     cnames <- c(cnames, 'clabel')
