@@ -109,6 +109,7 @@ action.cluster_dbscan <- function(obj, data) {
 }
 
 optimize.cluster_dbscan <- function(obj, data, do_plot=FALSE) {
+  library(Rcpp)
   library(dbscan)
   t <- sort(dbscan::kNNdist(data, k = obj$MinPts))
   

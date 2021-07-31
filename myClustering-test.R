@@ -10,6 +10,8 @@ loadlibrary("factoextra")
 loadlibrary("cluster")
 loadlibrary("dbscan")
 loadlibrary("dplyr")
+loadlibrary("fpc")
+loadlibrary("Rcpp")
 
 data(iris)
 
