@@ -1,9 +1,45 @@
-# version 1.0
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
+# version 1.2
 
-#https://stackoverflow.com/questions/7532845/matrix-losing-class-attribute-in-r
+repos_name <- getOption("repos")[1]
+
+setrepos <- function(repos=repos) {
+  repos_name <- repos 
+}
+
+loadlibrary <- function(packagename) 
+{
+  if (!require(packagename, character.only = TRUE))
+  {
+    install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
+    require(packagename, character.only = TRUE)
+  }
+}
+
+
+### basic data strucutures
+
+
+# general functions
+adjust.matrix <- function(data) {
+  if(!is.matrix(data)) {
+    return(as.matrix(data))
+  }
+  else
+    return(data)
+}
+
+adjust.data.frame <- function(data) {
+  if(!is.data.frame(data)) {
+    return(as.data.frame(data))
+  }
+  else
+    return(data)
+}
+
+
 
 ts_data <- function(y, sw=1) {
+  #https://stackoverflow.com/questions/7532845/matrix-losing-class-attribute-in-r
   ts_sw <- function(x, sw) {
     ts_lag <- function(x, k) 
     {
@@ -20,7 +56,7 @@ ts_data <- function(y, sw=1) {
     colnames(window) <- col
     return(window)  
   }
-
+  
   if (sw > 1) 
     y <- ts_sw(as.matrix(y), sw)  
   else {
@@ -96,19 +132,79 @@ ts_projection <- function(ts) {
 }
 
 
-# general functions
-adjust.matrix <- function(data) {
-  if(!is.matrix(data)) {
-    return(as.matrix(data))
-  }
-  else
-    return(data)
+### basic transformation functions
+
+dal_transform <- function() {
+  obj <- list()
+  attr(obj, "class") <- "dal_transform"  
+  return(obj)
 }
 
-adjust.data.frame <- function(data) {
-  if(!is.data.frame(data)) {
-    return(as.data.frame(data))
-  }
+#action
+
+action <- function(obj, ...) {
+  UseMethod("action")
+}
+
+action.default <- function(obj) {
+  return(NULL)
+}
+
+#deaction
+
+deaction <- function(obj, ...) {
+  UseMethod("action")
+}
+
+deaction.default <- function(obj) {
+  return(NULL)
+}
+
+#prepare
+
+prepare <- function(obj, ...) {
+  UseMethod("prepare")
+}
+
+prepare.default <- function(obj) {
+  return(obj)
+}
+
+#optimize
+
+optimize <- function(obj, ...) {
+  UseMethod("optimize")
+}
+
+optimize.default <- function(obj) {
+  return(obj)
+}
+
+#start_log
+
+start_log <- function(obj) {
+  UseMethod("start_log")
+}
+
+start_log.default <- function(obj) {
+  obj$log_time <- Sys.time()
+  return(obj)
+}
+
+#register_log
+
+register_log <- function(obj, msg, ref) {
+  UseMethod("register_log")
+}
+
+register_log.default <- function(obj, msg = "") {
+  obj$log_time <- as.numeric(difftime(Sys.time(), obj$log_time, units = "min"))
+  ref <- as.list(sys.call(-2))[[1]]
+  if (is.null(ref))
+    ref <- ""
   else
-    return(data)
+    ref <- as.character(ref)
+  obj$log_msg <- sprintf("%s,%s,%.3f,%s", as.character(class(obj)[1]), ref, obj$log_time, msg)
+  message(obj$log_msg)
+  return(obj)
 }

@@ -1,5 +1,4 @@
-# version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
+# version 1.2
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
