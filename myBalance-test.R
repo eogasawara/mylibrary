@@ -1,4 +1,4 @@
-# version 1.0
+# version 1.2
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
 loadlibrary("smotefamily")
