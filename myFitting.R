@@ -1,6 +1,6 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
-# version 1.0
+# version 1.2
 # curvature
+# source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
 
 fit_curvature <- function() {
   obj <- dal_transform()

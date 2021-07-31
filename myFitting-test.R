@@ -1,5 +1,6 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
 
 wine <- get(load(url("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/wine.RData")))
 head(wine)
