@@ -22,18 +22,29 @@ loadlibrary <- function(packagename)
 ### time series regression 
 
 tsreg <- function() {
-  obj <- dal_transform()
-  
-  class(obj) <- append("tsreg", class(obj))    
+  obj <- list()
+  attr(obj, "class") <- "tsreg"  
   return(obj)
 }
 
-prepare.tsreg <- function(obj, x, y) {
+#train
+
+train <- function(obj, ...) {
+  UseMethod("train")
+}
+
+train.default <- function(obj) {
+  return(NULL)
+}
+
+train.tsreg <- function(obj, x, y) {
   obj <- start_log(obj)   
   return(obj)
 }
 
-action.tsreg <- function(obj, x) {
+#predict
+
+predict.tsreg <- function(obj, x) {
   return(x[,ncol(x)])
 }
 
@@ -46,8 +57,8 @@ tsreg_arima <- function() {
   return(obj)
 }
 
-prepare.tsreg_arima <- function(obj, x, y = NULL) {
-  obj <- prepare.tsreg(obj, x, y)
+train.tsreg_arima <- function(obj, x, y = NULL) {
+  obj <- train.tsreg(obj, x, y)
   
   loadlibrary("forecast")  
   obj$model <- auto.arima(x, allowdrift = TRUE, allowmean = TRUE) 
@@ -56,7 +67,7 @@ prepare.tsreg_arima <- function(obj, x, y = NULL) {
   return(obj)
 }
 
-action.tsreg_arima <- function(obj, x, y = NULL, steps_ahead=NULL) {
+predict.tsreg_arima <- function(obj, x, y = NULL, steps_ahead=NULL) {
   loadlibrary("forecast")  
   if (!is.null(x) && (length(obj$model$x) == length(x)) && (sum(obj$model$x-x) == 0)){
     #get adjusted data
@@ -85,12 +96,12 @@ action.tsreg_arima <- function(obj, x, y = NULL, steps_ahead=NULL) {
 
 # setup for sliding window
 
-do_prepare <- function(obj, x, y = NULL) {
-  UseMethod("do_prepare")
+do_train <- function(obj, x, y = NULL) {
+  UseMethod("do_train")
 }
 
-do_action <- function(obj, x) {
-  UseMethod("do_action")
+do_predict <- function(obj, x) {
+  UseMethod("do_predict")
 }
 
 #class tsreg_sw
@@ -111,8 +122,8 @@ ts_as_matrix <- function(data, input_size) {
   return(result)
 }
 
-prepare.tsreg_sw <- function(obj, x, y) {
-  obj <- prepare.tsreg(obj, x, y)
+train.tsreg_sw <- function(obj, x, y) {
+  obj <- train.tsreg(obj, x, y)
   
   obj$preprocess <- prepare(obj$preprocess, x)
   
@@ -120,16 +131,16 @@ prepare.tsreg_sw <- function(obj, x, y) {
   
   y <- action(obj$preprocess, x, y)
   
-  obj <- do_prepare(obj, ts_as_matrix(x, obj$input_size), y)
+  obj <- do_train(obj, ts_as_matrix(x, obj$input_size), y)
   
   obj <- register_log(obj, obj$msg)    
   return(obj)
 }
 
-action.tsreg_sw <- function(obj, x, steps_ahead=1) {
+predict.tsreg_sw <- function(obj, x, steps_ahead=1) {
   if (steps_ahead == 1) {
     x <- action(obj$preprocess, x)
-    y <- do_action(obj, ts_as_matrix(x, obj$input_size))
+    y <- do_predict(obj, ts_as_matrix(x, obj$input_size))
     y <- deaction(obj$preprocess, x, y)
     return(y)
   }
@@ -141,7 +152,7 @@ action.tsreg_sw <- function(obj, x, steps_ahead=1) {
     for (i in 1:steps_ahead) {
       colnames(x) <- cnames
       x <- action(obj$preprocess, x)
-      y <- do_action(obj, ts_as_matrix(x, obj$input_size))
+      y <- do_predict(obj, ts_as_matrix(x, obj$input_size))
       x <- deaction(obj$preprocess, x)
       y <- deaction(obj$preprocess, x, y)
       x <- cbind(x[,2:ncol(x)], y)
@@ -152,7 +163,7 @@ action.tsreg_sw <- function(obj, x, steps_ahead=1) {
   return(prediction)
 }
 
-do_action.tsreg_sw <- function(obj, x) {
+do_predict.tsreg_sw <- function(obj, x) {
   prediction <- predict(obj$model, x)  
   return(prediction)
 }
@@ -171,7 +182,7 @@ tsreg_rf <- function(preprocess, input_size, mtry = NULL, ntree = seq(5, 50, 5))
   return(obj)
 }
 
-do_prepare.tsreg_rf <- function(obj, x, y) {
+do_train.tsreg_rf <- function(obj, x, y) {
   loadlibrary("randomForest")
 
   ranges <- list(mtry=obj$mtry, ntree=obj$ntree)
@@ -198,7 +209,7 @@ tsreg_mlp <- function(preprocess, input_size, size=NULL, decay=seq(0, 1, 0.0335)
   return(obj)
 }
 
-do_prepare.tsreg_mlp <- function(obj, x, y) {
+do_train.tsreg_mlp <- function(obj, x, y) {
   loadlibrary("nnet")  
   ranges <- list(size = obj$size, decay=obj$decay, maxit = obj$maxit, linout=TRUE, trace = FALSE)
   obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = nnet)
@@ -222,7 +233,7 @@ tsreg_svm <- function(preprocess, input_size, epsilon=seq(0,1,0.2), cost=seq(20,
   return(obj)
 }
 
-do_prepare.tsreg_svm <- function(obj, x, y) {
+do_train.tsreg_svm <- function(obj, x, y) {
   loadlibrary("e1071")
   
   ranges <- list(epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
@@ -251,7 +262,7 @@ ts_train.tsreg_elm <- function(x, y, nhid, actfun, ...) {
   return(model)
 }
 
-do_prepare.tsreg_elm <- function(obj, x, y) {
+do_train.tsreg_elm <- function(obj, x, y) {
   loadlibrary("elmNNRcpp")
   
   ranges <- list(nhid = obj$nhid, actfun = "purelin", init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
@@ -262,7 +273,7 @@ do_prepare.tsreg_elm <- function(obj, x, y) {
   return(obj)
 }
 
-do_action.tsreg_elm <- function(obj, x) {
+do_predict.tsreg_elm <- function(obj, x) {
   if (is.data.frame(x))
     x <- as.matrix(x)
   prediction <- elm_predict(obj$model, x)
@@ -281,49 +292,53 @@ tsreg_cnn <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs = 
   return(obj)
 }
 
-train.tsreg_cnn <- function(x, y, neurons, epochs, ...) {
-  x <- adjust.data.frame(x)
-  xy <- x
-  xy$t0 <- y
+do_train.tsreg_cnn <- function(obj, x, y) {
+  internal_train.tsreg_cnn <- function(x, y, neurons, epochs, ...) {
+    loadlibrary("dplyr")
+    loadlibrary("tensorflow")
+    loadlibrary("keras")  
+    
+    x <- adjust.data.frame(x)
+    xy <- x
+    xy$t0 <- y
+    
+    spec <- feature_spec(xy, t0 ~ . ) %>% 
+      step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
+      fit()
+    
+    input <- layer_input_from_dataset(x)
+    
+    output <- input %>% 
+      layer_dense_features(dense_features(spec)) %>% 
+      layer_dense(units = neurons, activation = "relu") %>% 
+      layer_dense(units = neurons, activation = "relu") %>%
+      layer_dense(units = 1) 
+    
+    model <- keras_model(input, output)
+    
+    model %>% 
+      compile(loss = "mse", optimizer = optimizer_rmsprop(), 
+              metrics = list("mean_absolute_error"))
+    
+    history <- model %>% fit(
+      x = x,
+      y = y,
+      epochs = epochs,
+      validation_split = 0.2,
+      verbose = 0
+    )  
+    
+    return (model)
+  }  
   
-  spec <- feature_spec(xy, t0 ~ . ) %>% 
-    step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
-    fit()
+  internal_predict.tsreg_cnn <- function(model, x) {
+    x <- adjust.data.frame(x)  
+    return(predict(model, x))  
+  }
   
-  input <- layer_input_from_dataset(x)
-  
-  output <- input %>% 
-    layer_dense_features(dense_features(spec)) %>% 
-    layer_dense(units = neurons, activation = "relu") %>% 
-    layer_dense(units = neurons, activation = "relu") %>%
-    layer_dense(units = 1) 
-  
-  model <- keras_model(input, output)
-  
-  model %>% 
-    compile(loss = "mse", optimizer = optimizer_rmsprop(), 
-            metrics = list("mean_absolute_error"))
-  
-  history <- model %>% fit(
-    x = x,
-    y = y,
-    epochs = epochs,
-    validation_split = 0.2,
-    verbose = 0
-  )  
-  
-  return (model)
-}
-
-do_prepare.tsreg_cnn <- function(obj, x, y) {
-  loadlibrary("dplyr")
-  loadlibrary("tensorflow")
-  loadlibrary("keras")  
-  loadlibrary("tfdatasets")
-
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons = obj$neurons, epochs = obj$epochs)
-  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = train.tsreg_cnn, pred.fun = predict.tsreg_cnn)
+  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = internal_train.tsreg_cnn, pred.fun = internal_predict.tsreg_cnn)
   tf$get_logger()$setLevel('WARNING')
   
   params <- attr(obj$model, "params") 
@@ -331,14 +346,12 @@ do_prepare.tsreg_cnn <- function(obj, x, y) {
   return(obj) 
 }
 
-predict.tsreg_cnn <- function(model, x) {
-  x <- adjust.data.frame(x)
-  prediction <- predict(model, x)  
-  return(prediction)
-}
-
-do_action.tsreg_cnn <- function(obj, x) {
-  return(predict.tsreg_cnn(obj$model, x))  
+do_predict.tsreg_cnn <- function(obj, x) {
+  loadlibrary("dplyr")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+  x <- adjust.data.frame(x)  
+  return(predict(obj$model, x))  
 }
 
 #class tsreg_lstm
@@ -353,50 +366,56 @@ tsreg_lstm <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs =
   return(obj)
 }
 
-train.tsreg_lstm <- function(x, y, neurons, epochs, ...) {
-  batch.size <- 1
-  size <- ncol(x)
+do_train.tsreg_lstm <- function(obj, x, y) {
+  internal_train.tsreg_lstm <- function(x, y, neurons, epochs, ...) {
+    loadlibrary("dplyr")
+    loadlibrary("tensorflow")
+    loadlibrary("keras")  
+    
+    batch.size <- 1
+    size <- ncol(x)
+    
+    x <- array(as.vector(x), dim=(c(dim(x),1)))
+    
+    model <- keras_model_sequential()
+    model %>%
+      layer_lstm(units = neurons,
+                 input_shape = c(size, 1),
+                 batch_size = batch.size,
+                 return_sequences = TRUE,
+                 stateful = TRUE) %>%
+      layer_dropout(rate = 0.5) %>%
+      layer_lstm(units = neurons,
+                 return_sequences = FALSE,
+                 stateful = TRUE) %>%
+      layer_dropout(rate = 0.5) %>%
+      layer_dense(units = 1)
+    
+    model %>%
+      compile(loss = 'mae', optimizer = 'adam')
+    
+    history <- model %>% fit(x = x,
+                             y = y,
+                             batch_size = batch.size,
+                             epochs = epochs,
+                             verbose = 0,
+                             shuffle = FALSE)
+    
+    model %>% reset_states()
+    
+    return (model)
+  }
   
-  x <- array(as.vector(x), dim=(c(dim(x),1)))
-  
-  model <- keras_model_sequential()
-  model %>%
-    layer_lstm(units = neurons,
-               input_shape = c(size, 1),
-               batch_size = batch.size,
-               return_sequences = TRUE,
-               stateful = TRUE) %>%
-    layer_dropout(rate = 0.5) %>%
-    layer_lstm(units = neurons,
-               return_sequences = FALSE,
-               stateful = TRUE) %>%
-    layer_dropout(rate = 0.5) %>%
-    layer_dense(units = 1)
-  
-  model %>%
-    compile(loss = 'mae', optimizer = 'adam')
-  
-  history <- model %>% fit(x = x,
-                           y = y,
-                           batch_size = batch.size,
-                           epochs = epochs,
-                           verbose = 0,
-                           shuffle = FALSE)
-  
-  model %>% reset_states()
+  internal_predict.tsreg_lstm <- function(model, x) {
+    dat <- array(as.vector(as.matrix(x)), dim=(c(dim(x),1)))
+    batch.size <- 1
+    prediction <- model %>% predict(dat, batch_size = batch.size) %>% .[,1]
+    return(prediction)  
+  }
 
-  return (model)
-}
-
-
-do_prepare.tsreg_lstm <- function(obj, x, y) {
-  loadlibrary("dplyr")
-  loadlibrary("tensorflow")
-  loadlibrary("keras")  
-  
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons = obj$neurons, epochs = obj$epochs)
-  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = train.tsreg_lstm, pred.fun = predict.tsreg_lstm)
+  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = internal_train.tsreg_lstm, pred.fun = internal_predict.tsreg_lstm)
   tf$get_logger()$setLevel('WARNING')
   
   params <- attr(obj$model, "params") 
@@ -404,15 +423,16 @@ do_prepare.tsreg_lstm <- function(obj, x, y) {
   return(obj) 
 }
 
-predict.tsreg_lstm <- function(model, x) {
+
+do_predict.tsreg_lstm <- function(obj, x) {
+  loadlibrary("dplyr")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+  
   dat <- array(as.vector(as.matrix(x)), dim=(c(dim(x),1)))
   batch.size <- 1
-  prediction <- model %>% predict(dat, batch_size = batch.size) %>% .[,1]
-  return(prediction)
-}
-
-do_action.tsreg_lstm <- function(obj, x) {
-  return(predict.tsreg_lstm(obj$model, x))  
+  prediction <- obj$model %>% predict(dat, batch_size = batch.size) %>% .[,1]
+  return(prediction)  
 }
 
 # utility functions
