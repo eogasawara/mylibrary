@@ -1,5 +1,7 @@
-# version 1.1
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
+# version 1.2
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBasic.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
@@ -44,17 +46,15 @@ train_test <- function(x, model, sw, test_size, steps_ahead) {
 }
 
 if (TRUE) {
-  #1:tsize
-  for (sahead in 1:tsize) {
-    train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_rf(ts_gminmax(), input_size=5, mtry=3, ntree=50), sw = swsize, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_mlp(ts_gminmax(), input_size=5, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_mlp(ts_gminmax_diff(), input_size=5, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_mlp(ts_swminmax(), input_size=5, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_mlp(ts_an(), input_size=5, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_svm(ts_gminmax(), input_size=5, epsilon=0.0, cost=80.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_elm(ts_gminmax(), input_size=5, nhid=3,actfun="purelin"), sw = swsize, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_cnn(ts_gminmax(), input_size=5, neurons=16,epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
-    train_test(x, model=tsreg_lstm(ts_gminmax(), input_size=5, neurons=32, epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
-  }
+  sahead <- 1
+  train_test(x, model=tsreg_arima(), 0, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_rf(ts_gminmax(), input_size=5, mtry=3, ntree=50), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_mlp(ts_gminmax(), input_size=5, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_mlp(ts_gminmax_diff(), input_size=5, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_mlp(ts_swminmax(), input_size=5, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_mlp(ts_an(), input_size=5, size=2,decay=0.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_svm(ts_gminmax(), input_size=5, epsilon=0.0, cost=80.00), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_elm(ts_gminmax(), input_size=5, nhid=3,actfun="purelin"), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_cnn(ts_gminmax(), input_size=5, neurons=16,epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
+  train_test(x, model=tsreg_lstm(ts_gminmax(), input_size=5, neurons=32, epochs=200), sw = swsize, test_size = tsize, steps_ahead = sahead)
 }

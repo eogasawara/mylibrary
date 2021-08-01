@@ -1,8 +1,25 @@
-# version 1.1
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myNormalization.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+# version 1.2
+# depends myBasic.R
+# depends myPreprocessing.R
 
-# regression 
+if (!exists("repos_name"))
+  repos_name <<- getOption("repos")[1]
+
+setrepos <- function(repos=repos) {
+  repos_name <<- repos 
+}
+
+loadlibrary <- function(packagename) 
+{
+  if (!require(packagename, character.only = TRUE))
+  {
+    install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
+    require(packagename, character.only = TRUE)
+  }
+}
+
+
+### time series regression 
 
 tsreg <- function() {
   obj <- dal_transform()
