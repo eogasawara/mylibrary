@@ -9,6 +9,15 @@ setrepos <- function(repos=repos) {
   repos_name <<- repos 
 }
 
+loadlibrary <- function(packagename) 
+{
+  if (!require(packagename, character.only = TRUE))
+  {
+    install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
+    require(packagename, character.only = TRUE)
+  }
+}
+
 # classif
 classification <- function(attribute, slevels=NULL) {
   obj <- dal_transform()
