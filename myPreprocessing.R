@@ -321,3 +321,408 @@ action.dt_pca <- function(obj, data) {
   return(data) 
 }  
 
+### Outliers
+
+outliers <- function(alpha = 1.5) {
+  obj <- dal_transform()
+  obj$alpha <- alpha
+  class(obj) <- append("outliers", class(obj))    
+  return(obj)
+}
+
+prepare.outliers <- function(obj, data) {
+  lq1 <- NA
+  hq3 <- NA
+  if(is.matrix(data) || is.data.frame(data)) {
+    lq1 <- rep(NA, ncol(data))
+    hq3 <- rep(NA, ncol(data))
+    if (nrow(data) >= 30) {
+      for (i in 1:ncol(data)) {
+        if (is.numeric(data[,i])) {
+          q <- quantile(data[,i])
+          IQR <- q[4] - q[2]
+          lq1[i] <- q[2] - obj$alpha*IQR
+          hq3[i] <- q[4] + obj$alpha*IQR
+        }
+      }
+    }
+  }
+  else {
+    if ((length(data) >= 30) && is.numeric(data)) {
+      q <- quantile(data)
+      IQR <- q[4] - q[2]
+      lq1 <- q[2] - obj$alpha*IQR
+      hq3 <- q[4] + obj$alpha*IQR
+    }
+  } 
+  obj$lq1 <- lq1
+  obj$hq3 <- hq3
+  return(obj)
+}
+
+action.outliers <- function(obj, data)
+{
+  idx <- FALSE
+  lq1 <- obj$lq1
+  hq3 <- obj$hq3
+  if (is.matrix(data) || is.data.frame(data)) {
+    idx = rep(FALSE, nrow(data))
+    for (i in 1:ncol(data)) 
+      if (!is.na(lq1[i]) && !is.na(hq3[i]))
+        idx = idx | (!is.na(data[,i]) & (data[,i] < lq1[i] | data[,i] > hq3[i]))
+  }
+  if(is.matrix(data))
+    data <- adjust.matrix(data[!idx,])
+  else if (is.data.frame(data))
+    data <- adjust.data.frame(data[!idx,])
+  else {
+    if (!is.na(lq1) && !is.na(hq3)) {
+      idx <- data < lq1 | data > hq3
+      data <- data[!idx]
+    }
+    else
+      idx <- rep(FALSE, length(data))
+  }
+  attr(data, "idx") <- idx
+  return(data)
+}
+
+### Normalization
+
+# normalize normalization
+normalize <- function() {
+  obj <- dal_transform()
+  class(obj) <- append("normalize", class(obj))    
+  return(obj)
+}  
+
+deaction <- function(obj, ...) {
+  UseMethod("deaction")
+}
+
+deaction.default <- function(obj) {
+  return(obj)
+}
+
+# min-max normalization
+minmax <- function() {
+  obj <- normalize()
+  class(obj) <- append("minmax", class(obj))    
+  return(obj)
+}  
+
+prepare.minmax <- function(obj, data) {
+  minmax = data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
+  minmax = rbind(minmax, rep(NA, ncol(minmax)))
+  minmax = rbind(minmax, rep(NA, ncol(minmax)))
+  colnames(minmax) = colnames(data)    
+  rownames(minmax) = c("numeric", "max", "min")
+  for (j in colnames(minmax)[minmax["numeric",]==1]) {
+    minmax["min",j] <- min(data[,j], na.rm=TRUE)
+    minmax["max",j] <- max(data[,j], na.rm=TRUE)
+  }
+  obj$norm.set <- minmax
+  return(obj)
+}
+
+action.minmax <- function(obj, data) {
+  minmax <- obj$norm.set
+  for (j in colnames(minmax)[minmax["numeric",]==1]) {
+    if ((minmax["max", j] != minmax["min", j])) {
+      data[,j] <- (data[,j] - minmax["min", j]) / (minmax["max", j] - minmax["min", j])
+    }
+    else {
+      data[,j] <- 0
+    }
+  }
+  return (data)
+}
+
+deaction.minmax <- function(obj, data) {
+  minmax <- obj$norm.set
+  for (j in colnames(minmax)[minmax["numeric",]==1]) {
+    if ((minmax["max", j] != minmax["min", j])) {
+      data[,j] <- data[,j] * (minmax["max", j] - minmax["min", j]) + minmax["min", j]
+    }
+    else {
+      data[,j] <- minmax["max", j]
+    }
+  }
+  return (data)
+}
+
+# z-score normalization
+zscore <- function(nmean=0, nsd=1) {
+  obj <- normalize()
+  obj$nmean <- nmean
+  obj$nsd <- nsd
+  class(obj) <- append("zscore", class(obj))    
+  return(obj)
+}  
+
+prepare.zscore <- function(obj, data) {
+  nmean <- obj$nmean
+  nsd <- obj$nsd
+  zscore <- data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
+  zscore <- rbind(zscore, rep(NA, ncol(zscore)))
+  zscore <- rbind(zscore, rep(NA, ncol(zscore)))
+  zscore <- rbind(zscore, rep(NA, ncol(zscore)))
+  zscore <- rbind(zscore, rep(NA, ncol(zscore)))
+  colnames(zscore) <- colnames(data)    
+  rownames(zscore) <- c("numeric", "mean", "sd","nmean", "nsd")
+  for (j in colnames(zscore)[zscore["numeric",]==1]) {
+    zscore["mean",j] <- mean(data[,j], na.rm=TRUE)
+    zscore["sd",j] <- sd(data[,j], na.rm=TRUE)
+    zscore["nmean",j] <- nmean
+    zscore["nsd",j] <- nsd
+  }
+  obj$norm.set <- zscore
+  
+  return(obj)  
+}
+
+action.zscore <- function(obj, data) {
+  zscore <- obj$norm.set
+  for (j in colnames(zscore)[zscore["numeric",]==1]) {
+    if ((zscore["sd", j]) > 0) {
+      data[,j] <- (data[,j] - zscore["mean", j]) / zscore["sd", j] * zscore["nsd", j] + zscore["nmean", j]
+    }
+    else {
+      data[,j] <- obj$nmean
+    }
+  }
+  return (data)
+}
+
+deaction.zscore <- function(obj, data) {
+  zscore <- obj$norm.set
+  for (j in colnames(zscore)[zscore["numeric",]==1]) {
+    if ((zscore["sd", j]) > 0) {
+      data[,j] <- (data[,j] - zscore["nmean", j]) / zscore["nsd", j] * zscore["sd", j] + zscore["mean", j]
+    }
+    else {
+      data[,j] <- zscore["nmean", j]  
+    }
+  }
+  return (data)
+}
+
+# ts_normalize (base class)
+ts_normalize <- function() {
+  obj <- normalize()
+  
+  class(obj) <- append("ts_normalize", class(obj))    
+  return(obj)
+}
+
+# ts_gminmax
+ts_gminmax <- function() {
+  obj <- ts_normalize()
+  class(obj) <- append("ts_gminmax", class(obj))    
+  return(obj)
+}
+
+prepare.ts_gminmax <- function(obj, data) {
+  out <- outliers()
+  out <- prepare(out, data)
+  data <- action(out, data)
+  
+  obj$gmin <- min(data)
+  obj$gmax <- max(data)
+  
+  return(obj)
+}
+
+action.ts_gminmax <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
+    return(x)
+  }
+  else {
+    data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
+    return(data)
+  }
+}
+
+deaction.ts_gminmax <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    x <- x * (obj$gmax-obj$gmin) + obj$gmin
+    return(x)
+  }
+  else {
+    data <- data * (obj$gmax-obj$gmin) + obj$gmin
+    return (data)
+  }
+}
+
+#ts_gminmax_diff
+ts_gminmax_diff <- function() {
+  obj <- ts_normalize()
+  class(obj) <- append("ts_gminmax_diff", class(obj))    
+  return(obj)
+}
+
+prepare.ts_gminmax_diff <- function(obj, data) {
+  data <- data[,2:ncol(data)]-data[,1:(ncol(data)-1)]
+  obj <- prepare.ts_gminmax(obj, data)
+  return(obj)
+}
+
+action.ts_gminmax_diff <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    ref <- attr(data, "ref")
+    sw <- attr(data, "sw")
+    x <- x-ref
+    x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
+    return(x)
+  }
+  else {
+    ref <- as.vector(data[,ncol(data)])
+    cnames <- colnames(data)
+    for (i in (ncol(data)-1):1)
+      data[,i+1] <- data[, i+1] - data[,i]
+    data <- data[,2:ncol(data)]
+    data <- (data-obj$gmin)/(obj$gmax-obj$gmin)
+    attr(data, "ref") <- ref
+    attr(data, "sw") <- ncol(data)
+    attr(data, "cnames") <- cnames
+    return(data)
+  }
+}
+
+deaction.ts_gminmax_diff <- function(obj, data, x=NULL) {
+  cnames <- attr(data, "cnames")
+  ref <- attr(data, "ref")
+  sw <- attr(data, "sw")
+  if (!is.null(x)) {
+    x <- x * (obj$gmax-obj$gmin) + obj$gmin
+    x <- x + ref
+    return(x)
+  }
+  else {
+    data <- data * (obj$gmax-obj$gmin) + obj$gmin
+    data <- cbind(data, ref)
+    for (i in (ncol(data)-1):1)
+      data[,i] <- data[, i+1] - data[,i]
+    colnames(data) <- cnames
+    attr(data, "ref") <- ref
+    attr(data, "sw") <- ncol(data)
+    attr(data, "cnames") <- cnames
+    return(data)
+  }
+}
+
+#ts_swminmax
+ts_swminmax <- function() {
+  obj <- ts_normalize()
+  class(obj) <- append("ts_swminmax", class(obj))    
+  return(obj)
+}
+
+prepare.ts_swminmax <- function(obj, data) {
+  out <- outliers()
+  out <- prepare(out, data)
+  data <- action(out, data)
+  return(obj)
+}
+
+action.ts_swminmax <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    i_min <- attr(data, "i_min")
+    i_max <- attr(data, "i_max")
+    x <- (x-i_min)/(i_max-i_min)
+    return(x)
+  }
+  else {
+    i_min <- apply(data, 1, min)
+    i_max <- apply(data, 1, max)
+    data <- (data-i_min)/(i_max-i_min)
+    attr(data, "i_min") <- i_min
+    attr(data, "i_max") <- i_max
+    return(data)
+  }
+}
+
+deaction.ts_swminmax <- function(obj, data, x=NULL) {
+  i_min <- attr(data, "i_min")
+  i_max <- attr(data, "i_max")
+  if (!is.null(x)) {
+    x <- x * (i_max - i_min) + i_min
+    return(x)
+  }
+  else {
+    data <- data * (i_max - i_min) + i_min
+    attr(data, "i_min") <- i_min
+    attr(data, "i_max") <- i_max
+    return(data)
+  }
+}
+
+#ts_an
+ts_an <- function() {
+  obj <- ts_normalize()
+  class(obj) <- append("ts_an", class(obj))    
+  return(obj)
+}
+
+prepare.ts_an <- function(obj, data) {
+  input <- data[,1:(ncol(data)-1)]
+  an <- apply(input, 1, mean)
+  data <- data / an
+  
+  out <- outliers()
+  out <- prepare(out, data)
+  data <- action(out, data)
+  
+  obj$gmin <- min(data)
+  obj$gmax <- max(data)
+  
+  return(obj)
+}
+
+action.ts_an <- function(obj, data, x=NULL) {
+  if (!is.null(x)) {
+    an <- attr(data, "an")
+    x <- x / an
+    x <- (x - obj$gmin) / (obj$gmax-obj$gmin)
+    return(x)
+  }
+  else {
+    an <- apply(data, 1, mean)  
+    data <- data / an
+    data <- (data - obj$gmin) / (obj$gmax-obj$gmin) 
+    attr(data, "an") <- an
+    return (data)
+  }
+}
+
+deaction.ts_an <- function(obj, data, x=NULL) {
+  an <- attr(data, "an")
+  if (!is.null(x)) {
+    x <- x * (obj$gmax-obj$gmin) + obj$gmin
+    x <- x * an
+    return(x)
+  }
+  else {
+    data <- data * (obj$gmax-obj$gmin) + obj$gmin
+    data <- data * an
+    attr(data, "an") <- an
+    return (data)
+  }
+}
+
+exp_mean <- function(x) {
+  n <- length(x)
+  y <- rep(0,n)
+  alfa <- 1 - 2.0 / (n + 1);
+  for (i in 0:(n-1)) {
+    y[n-i] <- alfa^i
+  }
+  m <- sum(y * x)/sum(y)
+  return(m)
+}
+
+
+
+
+
