@@ -1,6 +1,13 @@
-# version 1.1
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+# version 1.2
+# depends myBasic.R
+# depends myPreprocessing.R
+
+if (!exists("repos_name"))
+  repos_name <<- getOption("repos")[1]
+
+setrepos <- function(repos=repos) {
+  repos_name <<- repos 
+}
 
 # classif
 classification <- function(attribute, slevels=NULL) {
