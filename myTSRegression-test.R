@@ -1,7 +1,7 @@
 # version 1.2
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBasic.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTSRegression.R")
 
 load_series <- function(name) {
   link <- url(sprintf("https://raw.githubusercontent.com/eogasawara/mylibrary/master/data/time-series/%s.RData", name))
