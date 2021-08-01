@@ -1,6 +1,6 @@
-# version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFeatureSelection.R")
-data(iris)
+# version 1.2
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
+iris <- datasets::iris
 
 select_features <- function(myfeature, data) {
   myfeature <- prepare(myfeature, data)

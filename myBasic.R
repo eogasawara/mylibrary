@@ -1,10 +1,10 @@
 # version 1.2
 
 if (is.null(repos_name))
-  repos_name <- getOption("repos")[1]
+  repos_name <-- getOption("repos")[1]
 
 setrepos <- function(repos=repos) {
-  repos_name <- repos 
+  repos_name <-- repos 
 }
 
 loadlibrary <- function(packagename) 
