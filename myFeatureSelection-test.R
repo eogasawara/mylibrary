@@ -1,4 +1,5 @@
 # version 1.2
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBasic.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
 iris <- datasets::iris
 
