@@ -1,6 +1,7 @@
-# version 1.1
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
+# version 1.2
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBasic.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
 
 loadlibrary("MASS")
 data(Boston)
