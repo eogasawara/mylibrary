@@ -1,6 +1,7 @@
 # version 1.2
 
-repos_name <- getOption("repos")[1]
+if (is.null(repos_name))
+  repos_name <- getOption("repos")[1]
 
 setrepos <- function(repos=repos) {
   repos_name <- repos 

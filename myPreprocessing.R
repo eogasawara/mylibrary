@@ -1,6 +1,23 @@
 # version 1.2
 # depends myBasic.R
 
+if (is.null(repos_name))
+  repos_name <- getOption("repos")[1]
+
+setrepos <- function(repos=repos) {
+  repos_name <- repos 
+}
+
+loadlibrary <- function(packagename) 
+{
+  if (!require(packagename, character.only = TRUE))
+  {
+    install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
+    require(packagename, character.only = TRUE)
+  }
+}
+
+
 ### Balance Dataset
 
 balance_dataset <- function(attribute) {
@@ -26,7 +43,7 @@ balance_oversampling <- function(attribute) {
 }
 
 balance.balance_oversampling <- function(obj, data) {
-  library(smotefamily)
+  loadlibrary("smotefamily")
   j <- match(obj$attribute, colnames(data))
   x <- sort((table(data[,obj$attribute]))) 
   result <- data[data[obj$attribute]==names(x)[length(x)],]
@@ -239,7 +256,7 @@ smoothing_evaluation <- function(data, attribute) {
   obj <- list(data=as.factor(data), attribute=as.factor(attribute))
   attr(obj, "class") <- "cluster_evaluation"  
   
-  library(dplyr)
+  loadlibrary("dplyr")
   
   compute_entropy <- function(obj) {
     value <- getOption("dplyr.summarise.inform")

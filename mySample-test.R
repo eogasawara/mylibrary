@@ -1,6 +1,7 @@
 # version 1.0
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/mySample.R")
-
+# version 1.2
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBasic.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
 
 process_samples <- function(sr, iris) {
   # sampling dataset into train and test
