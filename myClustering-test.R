@@ -1,17 +1,8 @@
 # version 1.2
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPackage.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myData.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myTransform.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
-loadlibrary("factoextra") 
-loadlibrary("cluster")
-loadlibrary("factoextra")  
-loadlibrary("cluster")
-loadlibrary("dbscan")
-loadlibrary("dplyr")
-loadlibrary("fpc")
-loadlibrary("Rcpp")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBasic.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myClustering.R")
+
 
 data(iris)
 
@@ -38,6 +29,6 @@ test_clustering(cluster_kmeans(NULL), iris[,1:4], iris[,5], TRUE)
 
 test_clustering(cluster_pam(NULL), iris[,1:4], iris[,5], TRUE)
 
-test_clustering(cluster_dbscan(eps = 0.3, MinPts = 3), iris[,1:4], iris[,5], FALSE)
+test_clustering(cluster_dbscan(eps = NULL, MinPts = 3), iris[,1:4], iris[,5], TRUE)
 
 

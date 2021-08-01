@@ -933,7 +933,6 @@ feature_selection_ig <- function(attribute) {
 }
 
 prepare.feature_selection_ig <- function(obj, data) {
-  loadlibrary("rJava")
   loadlibrary("FSelector")
   loadlibrary("doBy")
   data <- data.frame(data)

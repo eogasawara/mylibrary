@@ -1,6 +1,22 @@
 # version 1.2
-#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myFitting.R")
+# depends myBasic.R
+# depends myPreprocessing.R
 
+if (!exists("repos_name"))
+  repos_name <<- getOption("repos")[1]
+
+setrepos <- function(repos=repos) {
+  repos_name <<- repos 
+}
+
+loadlibrary <- function(packagename) 
+{
+  if (!require(packagename, character.only = TRUE))
+  {
+    install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
+    require(packagename, character.only = TRUE)
+  }
+}
 
 # clustering
 clustering <- function() {
@@ -19,7 +35,7 @@ cluster_kmeans <- function(k) {
 }
 
 optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
-  library(factoextra)  
+  loadlibrary("factoextra")  
   
   t <- fviz_nbclust(data, kmeans, k.max = kmax, method = "wss")
   
@@ -34,7 +50,7 @@ optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
 }
 
 action.cluster_kmeans <- function(obj, data) {
-  library(cluster)
+  loadlibrary("cluster")
   k <- obj$k
   cluster <- kmeans(x = data, centers = k)
   dist <- 0
@@ -60,7 +76,7 @@ cluster_pam <- function(k) {
 }
 
 optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
-  library(factoextra)  
+  loadlibrary("factoextra")  
   t <- fviz_nbclust(data, pam, k.max = kmax, method = "wss")
   
   y <- t$data$y
@@ -74,7 +90,7 @@ optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
 }
 
 action.cluster_pam <- function(obj, data) {
-  library(cluster)
+  loadlibrary("cluster")
   cluster <- pam(data, obj$k)
   dist <- 0
   for (i in 1:obj$k) {
@@ -99,7 +115,7 @@ cluster_dbscan <- function(eps, MinPts) {
 }
 
 action.cluster_dbscan <- function(obj, data) {
-  library(fpc)
+  loadlibrary("fpc")
   
   cluster <- fpc::dbscan(data, eps = obj$eps, MinPts = obj$MinPts)
   
@@ -109,8 +125,8 @@ action.cluster_dbscan <- function(obj, data) {
 }
 
 optimize.cluster_dbscan <- function(obj, data, do_plot=FALSE) {
-  library(Rcpp)
-  library(dbscan)
+  loadlibrary("Rcpp")
+  loadlibrary("dbscan")
   t <- sort(dbscan::kNNdist(data, k = obj$MinPts))
   
   y <- t
@@ -129,7 +145,7 @@ cluster_evaluation <- function(cluster, attribute) {
   obj <- list(data=as.factor(cluster), attribute=as.factor(attribute))
   attr(obj, "class") <- "cluster_evaluation"  
 
-  library(dplyr)
+  loadlibrary("dplyr")
   
   compute_entropy <- function(obj) {
     value <- getOption("dplyr.summarise.inform")
