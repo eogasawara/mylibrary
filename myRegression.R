@@ -20,14 +20,13 @@ loadlibrary <- function(packagename)
 
 # regression
 regression <- function(attribute) {
-  obj <- dal_transform()
+  obj <- list()
+  attr(obj, "class") <- "regression"  
   obj$attribute <- attribute
-  
-  class(obj) <- append("regression", class(obj))    
   return(obj)
 }
 
-prepare.regression <- function(obj, data) {
+train.regression <- function(obj, data) {
   obj <- start_log(obj) 
   obj$x <- setdiff(colnames(data), obj$attribute)  
   return(obj)
@@ -41,9 +40,9 @@ regression_dtree <- function(attribute) {
   return(obj)
 }
 
-prepare.regression_dtree <- function(obj, data) {
+train.regression_dtree <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- prepare.regression(obj, data)  
+  obj <- train.regression(obj, data)  
   loadlibrary("tree")
   
   regression <- formula(paste(obj$attribute, "  ~ ."))  
@@ -53,7 +52,7 @@ prepare.regression_dtree <- function(obj, data) {
   return(obj)
 }
 
-action.regression_dtree <- function(obj, x) {
+test.regression_dtree <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x, type="vector")  
@@ -71,9 +70,9 @@ regression_rf <- function(attribute, mtry = NULL, ntree = seq(5, 50, 5)) {
   return(obj)
 }
 
-prepare.regression_rf <- function(obj, data) {
+train.regression_rf <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- prepare.regression(obj, data)  
+  obj <- train.regression(obj, data)  
   
   loadlibrary("randomForest")
   
@@ -92,7 +91,7 @@ prepare.regression_rf <- function(obj, data) {
   return(obj)
 }
 
-action.regression_rf  <- function(obj, x) {
+test.regression_rf  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x)  
@@ -110,9 +109,9 @@ regression_mlp <- function(attribute, size=NULL, decay=seq(0, 1, 0.0335), maxit=
   return(obj)
 }
 
-prepare.regression_mlp <- function(obj, data) {
+train.regression_mlp <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- prepare.regression(obj, data)  
+  obj <- train.regression(obj, data)  
   
   loadlibrary("nnet")
   
@@ -130,7 +129,7 @@ prepare.regression_mlp <- function(obj, data) {
   return(obj)
 }
 
-action.regression_mlp  <- function(obj, x) {
+test.regression_mlp  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x)  
@@ -151,9 +150,9 @@ regression_svm <- function(attribute, epsilon=seq(0,1,0.2), cost=seq(20,100,20),
   return(obj)
 }
 
-prepare.regression_svm <- function(obj, data) {
+train.regression_svm <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- prepare.regression(obj, data)  
+  obj <- train.regression(obj, data)  
   
   loadlibrary("e1071")
   
@@ -169,7 +168,7 @@ prepare.regression_svm <- function(obj, data) {
   return(obj)
 }
 
-action.regression_svm  <- function(obj, x) {
+test.regression_svm  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x) 
@@ -185,9 +184,9 @@ regression_knn <- function(attribute, k=1:30) {
   return(obj)
 }
 
-prepare.regression_knn <- function(obj, data) {
+train.regression_knn <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- prepare.regression(obj, data)  
+  obj <- train.regression(obj, data)  
   loadlibrary("FNN")
   
   x <- as.matrix(data[,obj$x])
@@ -212,7 +211,7 @@ predict.regression_knn <- function(model, x) {
   return(prediction$pred)
 }
 
-action.regression_knn  <- function(obj, x) {
+test.regression_knn  <- function(obj, x) {
   #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html
   x <- adjust.data.frame(x)
   x <- as.matrix(x[,obj$x])
@@ -231,9 +230,9 @@ regression_cnn <- function(attribute, neurons=c(3,5,10,16,32), epochs = c(100, 1
   return(obj)
 }
 
-prepare.regression_cnn <- function(obj, data) {
+train.regression_cnn <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- prepare.regression(obj, data)  
+  obj <- train.regression(obj, data)  
   
   loadlibrary("dplyr")
   loadlibrary("tfdatasets")
@@ -290,7 +289,7 @@ train.regression_cnn <- function(x, y, neurons, epochs, ...) {
   return(model)
 }
 
-action.regression_cnn  <- function(obj, x) {
+test.regression_cnn  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x)
