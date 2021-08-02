@@ -323,6 +323,7 @@ do_train.tsreg_cnn <- function(obj, x, y) {
   }
   
   loadlibrary("dplyr")
+  loadlibrary("tfdatasets")
   loadlibrary("tensorflow")
   loadlibrary("keras")  
   
@@ -401,6 +402,7 @@ do_train.tsreg_lstm <- function(obj, x, y) {
   }
   
   loadlibrary("dplyr")
+  loadlibrary("tfdatasets")
   loadlibrary("tensorflow")
   loadlibrary("keras")  
   
