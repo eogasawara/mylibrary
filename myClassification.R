@@ -2,22 +2,6 @@
 # depends myBasic.R
 # depends myPreprocessing.R
 
-if (!exists("repos_name"))
-  repos_name <<- getOption("repos")[1]
-
-setrepos <- function(repos=repos) {
-  repos_name <<- repos 
-}
-
-loadlibrary <- function(packagename) 
-{
-  if (!require(packagename, character.only = TRUE))
-  {
-    install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
-    require(packagename, character.only = TRUE)
-  }
-}
-
 # classif
 classification <- function(attribute, slevels=NULL) {
   obj <- list()
@@ -27,7 +11,6 @@ classification <- function(attribute, slevels=NULL) {
   obj$ilevels <- 1:length(slevels)
   return(obj)
 }
-
 
 adjust.factor <- function(value, ilevels, slevels) {
   if (!is.factor(value)) {

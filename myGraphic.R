@@ -1,4 +1,4 @@
-# version 1.0
+# version 1.2
 
 
 if (is.null(repos_name))
