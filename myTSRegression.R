@@ -27,16 +27,6 @@ tsreg <- function() {
   return(obj)
 }
 
-#train
-
-train <- function(obj, ...) {
-  UseMethod("train")
-}
-
-train.default <- function(obj) {
-  return(NULL)
-}
-
 train.tsreg <- function(obj, x, y) {
   obj <- start_log(obj)   
   return(obj)

@@ -181,6 +181,17 @@ optimize.default <- function(obj) {
   return(obj)
 }
 
+#train
+
+train <- function(obj, ...) {
+  UseMethod("train")
+}
+
+train.default <- function(obj) {
+  return(NULL)
+}
+
+
 #start_log
 
 start_log <- function(obj) {
