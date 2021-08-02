@@ -191,6 +191,17 @@ train.default <- function(obj) {
   return(NULL)
 }
 
+#cluster
+
+cluster <- function(obj, ...) {
+  UseMethod("cluster")
+}
+
+cluster.default <- function(obj) {
+  return(NULL)
+}
+
+
 #start_log
 
 start_log <- function(obj) {

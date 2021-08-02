@@ -41,7 +41,7 @@ optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
   
   y <- t$data$y
   myfit <- fit_curvature_max()
-  res <- cluster(myfit, y)
+  res <- action(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
   obj$k <- res$x
@@ -81,7 +81,7 @@ optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
   
   y <- t$data$y
   myfit <- fit_curvature_max()
-  res <- cluster(myfit, y)
+  res <- action(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
   obj$k <- res$x
@@ -131,7 +131,7 @@ optimize.cluster_dbscan <- function(obj, data, do_plot=FALSE) {
   
   y <- t
   myfit <- fit_curvature_max()
-  res <- cluster(myfit, y)
+  res <- action(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
   obj$eps <- res$y
