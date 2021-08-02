@@ -284,10 +284,6 @@ tsreg_cnn <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs = 
 
 do_train.tsreg_cnn <- function(obj, x, y) {
   internal_train.tsreg_cnn <- function(x, y, neurons, epochs, ...) {
-    loadlibrary("dplyr")
-    loadlibrary("tensorflow")
-    loadlibrary("keras")  
-    
     x <- adjust.data.frame(x)
     xy <- x
     xy$t0 <- y
@@ -326,6 +322,10 @@ do_train.tsreg_cnn <- function(obj, x, y) {
     return(predict(model, x))  
   }
   
+  loadlibrary("dplyr")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+  
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons = obj$neurons, epochs = obj$epochs)
   obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = internal_train.tsreg_cnn, pred.fun = internal_predict.tsreg_cnn)
@@ -339,7 +339,8 @@ do_train.tsreg_cnn <- function(obj, x, y) {
 do_predict.tsreg_cnn <- function(obj, x) {
   loadlibrary("dplyr")
   loadlibrary("tensorflow")
-  loadlibrary("keras")  
+  loadlibrary("keras")
+  
   x <- adjust.data.frame(x)  
   return(predict(obj$model, x))  
 }
@@ -358,10 +359,6 @@ tsreg_lstm <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs =
 
 do_train.tsreg_lstm <- function(obj, x, y) {
   internal_train.tsreg_lstm <- function(x, y, neurons, epochs, ...) {
-    loadlibrary("dplyr")
-    loadlibrary("tensorflow")
-    loadlibrary("keras")  
-    
     batch.size <- 1
     size <- ncol(x)
     
@@ -402,7 +399,11 @@ do_train.tsreg_lstm <- function(obj, x, y) {
     prediction <- model %>% predict(dat, batch_size = batch.size) %>% .[,1]
     return(prediction)  
   }
-
+  
+  loadlibrary("dplyr")
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+  
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons = obj$neurons, epochs = obj$epochs)
   obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = internal_train.tsreg_lstm, pred.fun = internal_predict.tsreg_lstm)

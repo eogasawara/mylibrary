@@ -271,7 +271,7 @@ train.regression_cnn <- function(obj, data) {
   obj <- train.regression(obj, data)  
   
   loadlibrary("dplyr")
-  loadlibrary("tfdatasets")
+  #loadlibrary("tfdatasets")
   loadlibrary("tensorflow")
   loadlibrary("keras")  
   
@@ -291,6 +291,9 @@ train.regression_cnn <- function(obj, data) {
 
 
 predict.regression_cnn  <- function(obj, x) {
+  loadlibrary("tensorflow")
+  loadlibrary("keras")  
+
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x)
