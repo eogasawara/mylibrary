@@ -1,7 +1,7 @@
 # version 1.2
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBasic.R")
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myPreprocessing.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
+#source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myRegression.R")
 
 loadlibrary("MASS")
 data(Boston)
@@ -21,24 +21,24 @@ boston_test = sr$test
 train_test <- function(model, boston_train, boston_test) {
   print(class(model)[1])
 
-  model <- prepare(model, boston_train)
+  model <- train(model, boston_train)
   
-  train_prediction <- action(model, boston_train)
+  train_prediction <- predict(model, boston_train)
   boston_train_predictand = boston_train[,"medv"]
   train_eval <- evaluation.regression(boston_train_predictand, train_prediction)
   print(train_eval$metrics)
 
-  test_prediction <- action(model, boston_test)
+  test_prediction <- predict(model, boston_test)
   boston_test_predictand = boston_test[,"medv"]
   test_eval <- evaluation.regression(boston_test_predictand, test_prediction)
   print(test_eval$metrics)
 }
 
-  train_test(regression_dtree("medv"), boston_train, boston_test)
+train_test(regression_dtree("medv"), boston_train, boston_test)
 
 # do not set mtry and ntree for hyperparameter optimization
 # you can also set a range for them
-  train_test(regression_rf("medv", mtry=7,ntree=30), boston_train, boston_test)
+train_test(regression_rf("medv", mtry=7,ntree=30), boston_train, boston_test)
 
 # do not set neurons and decay for hyperparameter optimization
 # you can also set a range for them

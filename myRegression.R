@@ -52,7 +52,7 @@ train.regression_dtree <- function(obj, data) {
   return(obj)
 }
 
-test.regression_dtree <- function(obj, x) {
+predict.regression_dtree <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x, type="vector")  
@@ -91,7 +91,7 @@ train.regression_rf <- function(obj, data) {
   return(obj)
 }
 
-test.regression_rf  <- function(obj, x) {
+predict.regression_rf  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x)  
@@ -129,7 +129,7 @@ train.regression_mlp <- function(obj, data) {
   return(obj)
 }
 
-test.regression_mlp  <- function(obj, x) {
+predict.regression_mlp  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x)  
@@ -168,7 +168,7 @@ train.regression_svm <- function(obj, data) {
   return(obj)
 }
 
-test.regression_svm  <- function(obj, x) {
+predict.regression_svm  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x) 
@@ -185,6 +185,15 @@ regression_knn <- function(attribute, k=1:30) {
 }
 
 train.regression_knn <- function(obj, data) {
+  internal_train.regression_knn <- function (x, y, k, ...) {
+    model <- list(x=x, y=y, k=k)
+    return (model)
+  }  
+  
+  internal_predict.regression_knn <- function(model, x) {
+    prediction <- knn.reg(train = model$x, test = x, y = model$y, k = model$k)  
+    return(prediction$pred)
+  }  
   data <- adjust.data.frame(data)
   obj <- train.regression(obj, data)  
   loadlibrary("FNN")
@@ -193,7 +202,7 @@ train.regression_knn <- function(obj, data) {
   y <- data[,obj$attribute]
   
   ranges <- list(k = obj$k, stub = 0)
-  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = train.regression_knn, pred.fun = predict.regression_knn)
+  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = internal_train.regression_knn, pred.fun = internal_predict.regression_knn)
 
   params <- attr(obj$model, "params") 
   msg <- sprintf("k=%d", params$k)
@@ -201,22 +210,13 @@ train.regression_knn <- function(obj, data) {
   return(obj)
 }
 
-train.regression_knn <- function (x, y, k, ...) {
-  model <- list(x=x, y=y, k=k)
-  return (model)
-}
 
-predict.regression_knn <- function(model, x) {
-  prediction <- knn.reg(train = model$x, test = x, y = model$y, k = model$k)  
-  return(prediction$pred)
-}
-
-test.regression_knn  <- function(obj, x) {
+predict.regression_knn  <- function(obj, x) {
   #develop from FNN https://daviddalpiaz.github.io/r4sl/knn-reg.html
   x <- adjust.data.frame(x)
   x <- as.matrix(x[,obj$x])
-  prediction <- predict.regression_knn(obj$model, x)
-  return(prediction)
+  prediction <- knn.reg(train = obj$model$x, test = x, y = obj$model$y, k = obj$model$k)  
+  return(prediction$pred)
 }
 
 # regression_cnn 
@@ -231,6 +231,42 @@ regression_cnn <- function(attribute, neurons=c(3,5,10,16,32), epochs = c(100, 1
 }
 
 train.regression_cnn <- function(obj, data) {
+  internal_train.regression_cnn <- function(x, y, neurons, epochs, ...) {
+    data <- adjust.data.frame(x)
+    data$y <- y
+    
+    spec <- feature_spec(data, y ~ . ) %>% 
+      step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
+      fit()
+    
+    input <- layer_input_from_dataset(data %>% dplyr::select(-y))
+    
+    output <- input %>% 
+      layer_dense_features(dense_features(spec)) %>% 
+      layer_dense(units = neurons, activation = "relu") %>% 
+      layer_dense(units = neurons, activation = "relu") %>%
+      layer_dense(units = 1) 
+    
+    model <- keras_model(input, output)
+    
+    model %>% 
+      compile(loss = "mse", optimizer = optimizer_rmsprop(), 
+              metrics = list("mean_absolute_error"))
+    #summary(model)
+    
+    
+    history <- model %>% fit(
+      x = data %>% dplyr::select(-y),
+      y = data$y,
+      epochs = epochs,
+      validation_split = 0.2,
+      verbose = 0
+    )  
+    #plot(history)
+    
+    return(model)
+  }
+  
   data <- adjust.data.frame(data)
   obj <- train.regression(obj, data)  
   
@@ -244,7 +280,7 @@ train.regression_cnn <- function(obj, data) {
   
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons=obj$neurons, epochs=obj$epochs)
-  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = train.regression_cnn)
+  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = internal_train.regression_cnn)
   tf$get_logger()$setLevel('WARNING')
 
   params <- attr(obj$model, "params") 
@@ -253,43 +289,8 @@ train.regression_cnn <- function(obj, data) {
   return(obj)
 }
 
-train.regression_cnn <- function(x, y, neurons, epochs, ...) {
-  data <- adjust.data.frame(x)
-  data$y <- y
-  
-  spec <- feature_spec(data, y ~ . ) %>% 
-    step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
-    fit()
-  
-  input <- layer_input_from_dataset(data %>% dplyr::select(-y))
-  
-  output <- input %>% 
-    layer_dense_features(dense_features(spec)) %>% 
-    layer_dense(units = neurons, activation = "relu") %>% 
-    layer_dense(units = neurons, activation = "relu") %>%
-    layer_dense(units = 1) 
-  
-  model <- keras_model(input, output)
-  
-  model %>% 
-    compile(loss = "mse", optimizer = optimizer_rmsprop(), 
-            metrics = list("mean_absolute_error"))
-  #summary(model)
-  
-  
-  history <- model %>% fit(
-    x = data %>% dplyr::select(-y),
-    y = data$y,
-    epochs = epochs,
-    validation_split = 0.2,
-    verbose = 0
-  )  
-  #plot(history)
-  
-  return(model)
-}
 
-test.regression_cnn  <- function(obj, x) {
+predict.regression_cnn  <- function(obj, x) {
   x <- adjust.data.frame(x)
   x <- x[,obj$x]   
   prediction <- predict(obj$model, x)
