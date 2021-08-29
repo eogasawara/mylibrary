@@ -154,7 +154,7 @@ action.default <- function(obj) {
 #deaction
 
 deaction <- function(obj, ...) {
-  UseMethod("action")
+  UseMethod("deaction")
 }
 
 deaction.default <- function(obj) {

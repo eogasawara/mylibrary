@@ -1,6 +1,11 @@
 # version 1.2
 # depends myBasic.R
 
+# prepare -> fit
+# action -> transform
+# deaction -> inverse_transform
+# fit_transform (fit + transform em sequencia)
+
 ### Balance Dataset
 
 balance_dataset <- function(attribute) {
