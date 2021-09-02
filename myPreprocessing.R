@@ -1,27 +1,21 @@
-# version 1.2
+# version 1.5
 # depends myBasic.R
 
 # prepare -> fit
 # optimize -> fit
 # train -> fit
 # action -> transform
+# balance -> transform
 # deaction -> inverse_transform
 # (*) -> fit_transform
 
 ### Balance Dataset
 
 balance_dataset <- function(attribute) {
-  obj <- list(attribute=attribute)
-  attr(obj, "class") <- "balance_dataset"  
+  obj <- dal_transform()
+  obj$attribute <- attribute
+  class(obj) <- append("balance_dataset", class(obj))  
   return(obj)
-}
-
-balance <- function(obj, data) {
-  UseMethod("balance")
-}
-
-balance.default <- function(obj, data) {
-  return(list())
 }
 
 #balance_oversampling
@@ -32,7 +26,7 @@ balance_oversampling <- function(attribute) {
   return(obj)
 }
 
-balance.balance_oversampling <- function(obj, data) {
+transform.balance_oversampling <- function(obj, data) {
   loadlibrary("smotefamily")
   j <- match(obj$attribute, colnames(data))
   x <- sort((table(data[,obj$attribute]))) 
@@ -58,7 +52,7 @@ balance_subsampling <- function(attribute) {
   return(obj)
 }
 
-balance.balance_subsampling <- function(obj, data) {
+transform.balance_subsampling <- function(obj, data) {
   data <- data
   attribute <- obj$attribute
   x <- sort((table(data[,attribute]))) 
@@ -85,7 +79,7 @@ categ_mapping <- function(attribute) {
   return(obj)  
 }
 
-action.categ_mapping <- function(obj, data) {
+c.categ_mapping <- function(obj, data) {
   mdlattribute = formula(paste("~", paste(obj$attribute, "-1")))
   catmap <- model.matrix(mdlattribute, data=data)
   data <- cbind(data, catmap)
@@ -102,7 +96,7 @@ fit_curvature <- function() {
   return(obj)
 }
 
-action.fit_curvature <- function(obj, y) {
+transform.fit_curvature <- function(obj, y) {
   x <- 1:length(y)
   smodel = smooth.spline(x, y, df = obj$df)
   curvature = predict(smodel, x = x, deriv = obj$deriv)
@@ -141,7 +135,7 @@ smoothing <- function(n) {
   return(obj)
 }
 
-prepare.smoothing <- function(obj, data) {
+fit.smoothing <- function(obj, data) {
   v <- data
   interval <- obj$interval
   names(interval) <- NULL
@@ -155,7 +149,7 @@ prepare.smoothing <- function(obj, data) {
   return(obj)
 }
 
-action.smoothing <- function(obj, data) {
+transform.smoothing <- function(obj, data) {
   v <- data
   interval.adj <- obj$interval.adj
   vp <- cut(v, unique(interval.adj), FALSE, include.lowest=TRUE)
@@ -171,15 +165,15 @@ optimize.smoothing <- function(obj, data, do_plot=FALSE) {
   for (i in 1:n)
   {
     obj$n <- i
-    obj <- prepare(obj, data)
-    vm <- action(obj, data)
+    obj <- fit(obj, data)
+    vm <- transform(obj, data)
     mse <- mean((data - vm)^2, na.rm = TRUE) 
     row <- c(mse , i)
     opt <- rbind(opt, row)
   }
   colnames(opt)<-c("mean","num") 
   curv <- fit_curvature_max()
-  res <- action(curv, opt$mean)
+  res <- transform(curv, opt$mean)
   obj$n <- res$x
   if (do_plot)
     plot(curv, y=opt$mean, res)
@@ -193,7 +187,7 @@ smoothing_inter <- function(n) {
   return(obj)  
 }
 
-prepare.smoothing_inter <- function(obj, data) {
+fit.smoothing_inter <- function(obj, data) {
   v <- data
   n <- obj$n
   bp <- boxplot(v, range=1.5, plot = FALSE)
@@ -204,7 +198,7 @@ prepare.smoothing_inter <- function(obj, data) {
     bimin = min(v)
   }
   obj$interval <- seq(from = bimin, to = bimax, by = (bimax-bimin)/n)
-  obj <- prepare.smoothing(obj, data)
+  obj <- fit.smoothing(obj, data)
   return(obj)
 }
 
@@ -215,12 +209,12 @@ smoothing_freq <- function(n) {
   return(obj)  
 }
 
-prepare.smoothing_freq <- function(obj, data) {
+fit.smoothing_freq <- function(obj, data) {
   v <- data
   n <- obj$n
   p <- seq(from = 0, to = 1, by = 1/n)
   obj$interval <- quantile(v, p)
-  obj <- prepare.smoothing(obj, data)
+  obj <- fit.smoothing(obj, data)
   return(obj)
 }
 
@@ -231,14 +225,14 @@ smoothing_cluster <- function(n) {
   return(obj)  
 }
 
-prepare.smoothing_cluster <- function(obj, data) {
+fit.smoothing_cluster <- function(obj, data) {
   v <- data
   n <- obj$n
   km <- kmeans(x = v, centers = n)
   s <- sort(km$centers)
   s <- stats::filter(s,rep(1/2,2), sides=2)[1:(n-1)]
   obj$interval <- c(min(v), s, max(v))
-  obj <- prepare.smoothing(obj, data)
+  obj <- fit.smoothing(obj, data)
   return(obj)
 }
 
@@ -282,7 +276,7 @@ dt_pca <- function(attribute=NULL) {
   return(obj)
 }  
 
-prepare.dt_pca <- function(obj, data) {
+fit.dt_pca <- function(obj, data) {
   data <- data.frame(data)
   attribute <- obj$attribute
   if (!is.null(attribute)) {
@@ -300,7 +294,7 @@ prepare.dt_pca <- function(obj, data) {
   pca_res <- prcomp(data, center=TRUE, scale.=TRUE)
   y <-  cumsum(pca_res$sdev^2/sum(pca_res$sdev^2))
   curv <-  fit_curvature_min()
-  res <- action(curv, y)
+  res <- transform(curv, y)
   
   obj$pca.transf <- as.matrix(pca_res$rotation[, 1:res$x])
   obj$nums <- nums
@@ -308,7 +302,7 @@ prepare.dt_pca <- function(obj, data) {
   return(obj)
 }
 
-action.dt_pca <- function(obj, data) {
+transform.dt_pca <- function(obj, data) {
   attribute <- obj$attribute
   pca.transf <- obj$pca.transf
   nums <- obj$nums
@@ -337,7 +331,7 @@ outliers <- function(alpha = 1.5) {
   return(obj)
 }
 
-prepare.outliers <- function(obj, data) {
+fit.outliers <- function(obj, data) {
   lq1 <- NA
   hq3 <- NA
   if(is.matrix(data) || is.data.frame(data)) {
@@ -367,7 +361,7 @@ prepare.outliers <- function(obj, data) {
   return(obj)
 }
 
-action.outliers <- function(obj, data)
+transform.outliers <- function(obj, data)
 {
   idx <- FALSE
   lq1 <- obj$lq1
@@ -403,14 +397,6 @@ normalize <- function() {
   return(obj)
 }  
 
-deaction <- function(obj, ...) {
-  UseMethod("deaction")
-}
-
-deaction.default <- function(obj) {
-  return(obj)
-}
-
 # min-max normalization
 minmax <- function() {
   obj <- normalize()
@@ -418,7 +404,7 @@ minmax <- function() {
   return(obj)
 }  
 
-prepare.minmax <- function(obj, data) {
+fit.minmax <- function(obj, data) {
   minmax = data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
   minmax = rbind(minmax, rep(NA, ncol(minmax)))
   minmax = rbind(minmax, rep(NA, ncol(minmax)))
@@ -432,7 +418,7 @@ prepare.minmax <- function(obj, data) {
   return(obj)
 }
 
-action.minmax <- function(obj, data) {
+transform.minmax <- function(obj, data) {
   minmax <- obj$norm.set
   for (j in colnames(minmax)[minmax["numeric",]==1]) {
     if ((minmax["max", j] != minmax["min", j])) {
@@ -445,7 +431,7 @@ action.minmax <- function(obj, data) {
   return (data)
 }
 
-deaction.minmax <- function(obj, data) {
+inverse_transform.minmax <- function(obj, data) {
   minmax <- obj$norm.set
   for (j in colnames(minmax)[minmax["numeric",]==1]) {
     if ((minmax["max", j] != minmax["min", j])) {
@@ -467,7 +453,7 @@ zscore <- function(nmean=0, nsd=1) {
   return(obj)
 }  
 
-prepare.zscore <- function(obj, data) {
+fit.zscore <- function(obj, data) {
   nmean <- obj$nmean
   nsd <- obj$nsd
   zscore <- data.frame(t(ifelse(sapply(data, is.numeric), 1, 0)))
@@ -488,7 +474,7 @@ prepare.zscore <- function(obj, data) {
   return(obj)  
 }
 
-action.zscore <- function(obj, data) {
+transform.zscore <- function(obj, data) {
   zscore <- obj$norm.set
   for (j in colnames(zscore)[zscore["numeric",]==1]) {
     if ((zscore["sd", j]) > 0) {
@@ -501,7 +487,7 @@ action.zscore <- function(obj, data) {
   return (data)
 }
 
-deaction.zscore <- function(obj, data) {
+inverse_transform.zscore <- function(obj, data) {
   zscore <- obj$norm.set
   for (j in colnames(zscore)[zscore["numeric",]==1]) {
     if ((zscore["sd", j]) > 0) {
@@ -532,10 +518,10 @@ ts_gminmax <- function() {
   return(obj)
 }
 
-prepare.ts_gminmax <- function(obj, data) {
+fit.ts_gminmax <- function(obj, data) {
   out <- outliers()
-  out <- prepare(out, data)
-  data <- action(out, data)
+  out <- fit(out, data)
+  data <- transform(out, data)
   
   obj$gmin <- min(data)
   obj$gmax <- max(data)
@@ -543,7 +529,7 @@ prepare.ts_gminmax <- function(obj, data) {
   return(obj)
 }
 
-action.ts_gminmax <- function(obj, data, x=NULL) {
+transform.ts_gminmax <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     x <- (x-obj$gmin)/(obj$gmax-obj$gmin)
     return(x)
@@ -554,7 +540,7 @@ action.ts_gminmax <- function(obj, data, x=NULL) {
   }
 }
 
-deaction.ts_gminmax <- function(obj, data, x=NULL) {
+inverse_transform.ts_gminmax <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     x <- x * (obj$gmax-obj$gmin) + obj$gmin
     return(x)
@@ -572,13 +558,13 @@ ts_gminmax_diff <- function() {
   return(obj)
 }
 
-prepare.ts_gminmax_diff <- function(obj, data) {
+fit.ts_gminmax_diff <- function(obj, data) {
   data <- data[,2:ncol(data)]-data[,1:(ncol(data)-1)]
-  obj <- prepare.ts_gminmax(obj, data)
+  obj <- fit.ts_gminmax(obj, data)
   return(obj)
 }
 
-action.ts_gminmax_diff <- function(obj, data, x=NULL) {
+transform.ts_gminmax_diff <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     ref <- attr(data, "ref")
     sw <- attr(data, "sw")
@@ -600,7 +586,7 @@ action.ts_gminmax_diff <- function(obj, data, x=NULL) {
   }
 }
 
-deaction.ts_gminmax_diff <- function(obj, data, x=NULL) {
+inverse_transform.ts_gminmax_diff <- function(obj, data, x=NULL) {
   cnames <- attr(data, "cnames")
   ref <- attr(data, "ref")
   sw <- attr(data, "sw")
@@ -629,14 +615,14 @@ ts_swminmax <- function() {
   return(obj)
 }
 
-prepare.ts_swminmax <- function(obj, data) {
+fit.ts_swminmax <- function(obj, data) {
   out <- outliers()
-  out <- prepare(out, data)
-  data <- action(out, data)
+  out <- fit(out, data)
+  data <- transform(out, data)
   return(obj)
 }
 
-action.ts_swminmax <- function(obj, data, x=NULL) {
+transform.ts_swminmax <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     i_min <- attr(data, "i_min")
     i_max <- attr(data, "i_max")
@@ -653,7 +639,7 @@ action.ts_swminmax <- function(obj, data, x=NULL) {
   }
 }
 
-deaction.ts_swminmax <- function(obj, data, x=NULL) {
+inverse_transform.ts_swminmax <- function(obj, data, x=NULL) {
   i_min <- attr(data, "i_min")
   i_max <- attr(data, "i_max")
   if (!is.null(x)) {
@@ -675,14 +661,14 @@ ts_an <- function() {
   return(obj)
 }
 
-prepare.ts_an <- function(obj, data) {
+fit.ts_an <- function(obj, data) {
   input <- data[,1:(ncol(data)-1)]
   an <- apply(input, 1, mean)
   data <- data / an
   
   out <- outliers()
-  out <- prepare(out, data)
-  data <- action(out, data)
+  out <- fit(out, data)
+  data <- transform(out, data)
   
   obj$gmin <- min(data)
   obj$gmax <- max(data)
@@ -690,7 +676,7 @@ prepare.ts_an <- function(obj, data) {
   return(obj)
 }
 
-action.ts_an <- function(obj, data, x=NULL) {
+transform.ts_an <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     an <- attr(data, "an")
     x <- x / an
@@ -706,7 +692,7 @@ action.ts_an <- function(obj, data, x=NULL) {
   }
 }
 
-deaction.ts_an <- function(obj, data, x=NULL) {
+inverse_transform.ts_an <- function(obj, data, x=NULL) {
   an <- attr(data, "an")
   if (!is.null(x)) {
     x <- x * (obj$gmax-obj$gmin) + obj$gmin
@@ -844,7 +830,7 @@ feature_selection <- function(attribute) {
   return(obj)
 }
 
-action.feature_selection <- function(obj, data) {
+transform.feature_selection <- function(obj, data) {
   data = data[,c(obj$features, obj$attribute)]
   return(data)
 }
@@ -856,7 +842,7 @@ feature_selection_lasso <- function(attribute) {
   return(obj)
 }
 
-prepare.feature_selection_lasso <- function(obj, data) {
+fit.feature_selection_lasso <- function(obj, data) {
   data = data.frame(data)
   if (!is.numeric(data[,obj$attribute]))
     data[,obj$attribute] =  as.numeric(data[,obj$attribute])
@@ -889,7 +875,7 @@ feature_selection_fss <- function(attribute) {
   return(obj)
 }
 
-prepare.feature_selection_fss <- function(obj, data) {
+fit.feature_selection_fss <- function(obj, data) {
   loadlibrary("leaps")  
   data = data.frame(data)
   if (!is.numeric(data[,obj$attribute]))
@@ -922,7 +908,7 @@ feature_selection_ig <- function(attribute) {
   return(obj)
 }
 
-prepare.feature_selection_ig <- function(obj, data) {
+fit.feature_selection_ig <- function(obj, data) {
   loadlibrary("FSelector")
   loadlibrary("doBy")
   data <- data.frame(data)
@@ -936,7 +922,7 @@ prepare.feature_selection_ig <- function(obj, data) {
   tab$i <- row(tab)
   tab$import_acum <- cumsum(tab$attr_importance)
   myfit <- fit_curvature_min()
-  res <- action(myfit, tab$import_acum)
+  res <- transform(myfit, tab$import_acum)
   tab <- tab[tab$import_acum <= res$y, ]
   vec <- rownames(tab)
   
@@ -953,7 +939,7 @@ feature_selection_relief <- function(attribute) {
   return(obj)
 }
 
-prepare.feature_selection_relief <- function(obj, data) {
+fit.feature_selection_relief <- function(obj, data) {
   loadlibrary("FSelector")
   loadlibrary("doBy")
   
@@ -968,7 +954,7 @@ prepare.feature_selection_relief <- function(obj, data) {
   tab$i <- row(tab)
   tab$import_acum <- cumsum(tab$attr_importance)
   myfit <- fit_curvature_min()
-  res <- action(myfit, tab$import_acum)
+  res <- transform(myfit, tab$import_acum)
   tab <- tab[tab$import_acum <= res$y, ]
   vec <- rownames(tab)
   
