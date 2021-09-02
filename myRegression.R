@@ -239,7 +239,7 @@ fit.regression_cnn <- function(obj, data) {
     #summary(model)
     
     
-    history <- model %>% fit(
+    history <- model %>% keras::fit(
       x = data %>% dplyr::select(-y),
       y = data$y,
       epochs = epochs,
