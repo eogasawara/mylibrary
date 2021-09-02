@@ -1,4 +1,4 @@
-# version 1.2
+# version 1.5
 # depends myBasic.R
 # depends myPreprocessing.R
 
@@ -25,7 +25,7 @@ optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
   
   y <- t$data$y
   myfit <- fit_curvature_max()
-  res <- action(myfit, y)
+  res <- transform(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
   obj$k <- res$x
@@ -33,7 +33,7 @@ optimize.cluster_kmeans <- function(obj, data, kmax=20, do_plot=FALSE) {
   return(obj)
 }
 
-cluster.cluster_kmeans <- function(obj, data) {
+fit.cluster_kmeans <- function(obj, data) {
   loadlibrary("cluster")
   k <- obj$k
   cluster <- kmeans(x = data, centers = k)
@@ -65,7 +65,7 @@ optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
   
   y <- t$data$y
   myfit <- fit_curvature_max()
-  res <- action(myfit, y)
+  res <- transform(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
   obj$k <- res$x
@@ -73,7 +73,7 @@ optimize.cluster_pam <- function(obj, data, kmax=20, do_plot=FALSE) {
   return(obj)
 }
 
-cluster.cluster_pam <- function(obj, data) {
+fit.cluster_pam <- function(obj, data) {
   loadlibrary("cluster")
   cluster <- pam(data, obj$k)
   dist <- 0
@@ -98,7 +98,7 @@ cluster_dbscan <- function(eps, MinPts) {
   return(obj)
 }
 
-cluster.cluster_dbscan <- function(obj, data) {
+fit.cluster_dbscan <- function(obj, data) {
   loadlibrary("fpc")
   
   cluster <- fpc::dbscan(data, eps = obj$eps, MinPts = obj$MinPts)
@@ -115,7 +115,7 @@ optimize.cluster_dbscan <- function(obj, data, do_plot=FALSE) {
   
   y <- t
   myfit <- fit_curvature_max()
-  res <- action(myfit, y)
+  res <- transform(myfit, y)
   if (do_plot)
     plot(myfit, y, res)
   obj$eps <- res$y
