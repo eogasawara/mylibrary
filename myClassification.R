@@ -1,4 +1,4 @@
-# version 1.2
+# version 1.5
 # depends myBasic.R
 # depends myPreprocessing.R
 
@@ -21,7 +21,7 @@ adjust.factor <- function(value, ilevels, slevels) {
   return(value)
 }
 
-train.classification <- function(obj, data) {
+fit.classification <- function(obj, data) {
   obj <- start_log(obj) 
   obj$x <- setdiff(colnames(data), obj$attribute)  
   return(obj)
@@ -35,10 +35,10 @@ classification_majority <- function(attribute, slevels=NULL) {
   return(obj)
 }
 
-train.classification_majority <- function(obj, data) {
+fit.classification_majority <- function(obj, data) {
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
-  obj <- train.classification(obj, data)
+  obj <- fit.classification(obj, data)
   
   loadlibrary("RSNNS")
   y <- decodeClassLabels(data[,obj$attribute])
@@ -69,10 +69,10 @@ classification_dtree <- function(attribute, slevels=NULL) {
   return(obj)
 }
 
-train.classification_dtree <- function(obj, data) {
+fit.classification_dtree <- function(obj, data) {
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
-  obj <- train.classification(obj, data)
+  obj <- fit.classification(obj, data)
   
   loadlibrary("tree")
   regression <- formula(paste(obj$attribute, "  ~ ."))  
@@ -100,10 +100,10 @@ classification_nb <- function(attribute, slevels=NULL) {
   return(obj)
 }
 
-train.classification_nb <- function(obj, data) {
+fit.classification_nb <- function(obj, data) {
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
-  obj <- train.classification(obj, data)
+  obj <- fit.classification(obj, data)
   
   loadlibrary("e1071")
   regression <- formula(paste(obj$attribute, "  ~ ."))  
@@ -134,7 +134,7 @@ classification_rf <- function(attribute, slevels=NULL, mtry = NULL, ntree = seq(
   return(obj)
 }
 
-train.classification_rf <- function(obj, data) {
+fit.classification_rf <- function(obj, data) {
   
   internal_predict.classification_rf <- function(model, x) {
     prediction <- predict(model, x, type="prob")  
@@ -143,7 +143,7 @@ train.classification_rf <- function(obj, data) {
   
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
-  obj <- train.classification(obj, data)
+  obj <- fit.classification(obj, data)
   loadlibrary("randomForest")
   
   if (is.null(obj$mtry))
@@ -153,7 +153,7 @@ train.classification_rf <- function(obj, data) {
   y <- data[,obj$attribute]
   
   ranges <- list(mtry=obj$mtry, ntree=obj$ntree)
-  obj$model <- tune.classification(x = x, y = y, ranges = ranges, train.func = randomForest, pred.fun = internal_predict.classification_rf)
+  obj$model <- tune.classification(x = x, y = y, ranges = ranges, fit.func = randomForest, pred.fun = internal_predict.classification_rf)
   
   params <- attr(obj$model, "params") 
   msg <- sprintf("mtry=%d,ntree=%d", params$mtry, params$ntree)
@@ -182,8 +182,8 @@ classification_mlp <- function(attribute, slevels=NULL, size=NULL, decay=seq(0, 
   return(obj)
 }
 
-train.classification_mlp <- function(obj, data) {
-  internal_train.classification_mlp <- function (x, y, size, decay, maxit) {
+fit.classification_mlp <- function(obj, data) {
+  internal_fit.classification_mlp <- function (x, y, size, decay, maxit) {
     return (nnet(x,decodeClassLabels(y),size=size,decay=decay,maxit=maxit,trace=FALSE))
   }  
   
@@ -195,7 +195,7 @@ train.classification_mlp <- function(obj, data) {
   
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
-  obj <- train.classification(obj, data)
+  obj <- fit.classification(obj, data)
   loadlibrary("nnet")
   
   if (is.null(obj$size))
@@ -205,7 +205,7 @@ train.classification_mlp <- function(obj, data) {
   y <- data[,obj$attribute]
   
   ranges <- list(maxit=obj$maxit, decay = obj$decay, size=obj$size)
-  obj$model <- tune.classification(x = x, y = y, ranges = ranges, train.func = internal_train.classification_mlp, pred.fun = internal_predict.classification_mlp)
+  obj$model <- tune.classification(x = x, y = y, ranges = ranges, fit.func = internal_fit.classification_mlp, pred.fun = internal_predict.classification_mlp)
   
   params <- attr(obj$model, "params") 
   msg <- sprintf("size=%d,decay=%.2f", params$size, params$decay)
@@ -237,8 +237,8 @@ classification_svm <- function(attribute, slevels=NULL, epsilon=seq(0,1,0.2), co
   return(obj)
 }
 
-train.classification_svm <- function(obj, data) {
-  internal_train.classification_svm <- function (x, y, epsilon, cost, kernel) {
+fit.classification_svm <- function(obj, data) {
+  internal_fit.classification_svm <- function (x, y, epsilon, cost, kernel) {
     model <- svm(x, y, probability=TRUE, epsilon=epsilon, cost=cost, kernel=kernel) 
     attr(model, "slevels")  <- levels(y)
     return (model)
@@ -254,14 +254,14 @@ train.classification_svm <- function(obj, data) {
   
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
-  obj <- train.classification(obj, data)
+  obj <- fit.classification(obj, data)
   loadlibrary("e1071")
   
   x <- data[,obj$x]
   y <- data[,obj$attribute]
   
   ranges <- list(epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
-  obj$model <- tune.classification(x = x, y = y, ranges = ranges, train.func = internal_train.classification_svm, pred.fun = internal_predict.classification_svm)
+  obj$model <- tune.classification(x = x, y = y, ranges = ranges, fit.func = internal_fit.classification_svm, pred.fun = internal_predict.classification_svm)
   
   params <- attr(obj$model, "params") 
   msg <- sprintf("epsilon=%.1f,cost=%.3f", params$epsilon, params$cost)
@@ -292,9 +292,9 @@ classification_knn <- function(attribute, slevels=NULL, k=1:30) {
   return(obj)
 }
 
-train.classification_knn <- function(obj, data) {
+fit.classification_knn <- function(obj, data) {
   
-  internal_train.classification_knn <- function (x, y, k, ...) {
+  internal_fit.classification_knn <- function (x, y, k, ...) {
     model <- list(x=x, y=y, k=k)
     return (model)
   }
@@ -307,7 +307,7 @@ train.classification_knn <- function(obj, data) {
 
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
-  obj <- train.classification(obj, data)
+  obj <- fit.classification(obj, data)
   
   loadlibrary("class")
   
@@ -315,7 +315,7 @@ train.classification_knn <- function(obj, data) {
   y <- data[,obj$attribute]
   
   ranges <- list(k = obj$k, stub = 0)
-  obj$model <- tune.classification(x = x, y = y, ranges = ranges, train.func = internal_train.classification_knn, pred.fun = internal_predict.classification_knn)
+  obj$model <- tune.classification(x = x, y = y, ranges = ranges, fit.func = internal_fit.classification_knn, pred.fun = internal_predict.classification_knn)
   
   params <- attr(obj$model, "params") 
   msg <- sprintf("k=%d", params$k)
@@ -346,8 +346,8 @@ classification_cnn <- function(attribute, slevels=NULL, neurons=c(3,5,10,16,32),
   return(obj)
 }
 
-train.classification_cnn <- function(obj, data) {
-  internal_train.classification_cnn <- function(x, y, neurons, epochs, ...) {
+fit.classification_cnn <- function(obj, data) {
+  internal_fit.classification_cnn <- function(x, y, neurons, epochs, ...) {
     data <- adjust.data.frame(x)
     yhot <- decodeClassLabels(y)
     
@@ -385,7 +385,7 @@ train.classification_cnn <- function(obj, data) {
   
   data <- adjust.data.frame(data)
   data[,obj$attribute] <- adjust.factor(data[,obj$attribute], obj$ilevels, obj$slevels)
-  obj <- train.classification(obj, data)
+  obj <- fit.classification(obj, data)
   loadlibrary("dplyr")
   loadlibrary("tfdatasets")
   loadlibrary("tensorflow")
@@ -396,7 +396,7 @@ train.classification_cnn <- function(obj, data) {
   
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons = obj$neurons, epochs = obj$epochs)
-  obj$model <- tune.classification(x = x, y = y, ranges = ranges, train.func = internal_train.classification_cnn)
+  obj$model <- tune.classification(x = x, y = y, ranges = ranges, fit.func = internal_fit.classification_cnn)
   tf$get_logger()$setLevel('WARNING')
   
   params <- attr(obj$model, "params") 
@@ -426,7 +426,7 @@ classification.check_reproduce <- function() {
     set.seed(1)
 }
 
-tune.classification <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
+tune.classification <- function (x, y, ranges, folds=3, fit.func, pred.fun = predict) {
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
   accuracies <- rep(0,n)
@@ -442,7 +442,7 @@ tune.classification <- function (x, y, ranges, folds=3, train.func, pred.fun = p
         tt <- train_test_from_folds(folds, j)
         
         params <- append(list(x = x[tt$train$i,], y = y[tt$train$i]), as.list(ranges[i,]))
-        model <- do.call(train.func, params)
+        model <- do.call(fit.func, params)
         prediction <- pred.fun(model, x[tt$test$i,]) 
         accuracies[i] <- accuracies[i] + evaluation.classification(decodeClassLabels(y[tt$test$i]), prediction)$accuracy
       }
@@ -451,7 +451,7 @@ tune.classification <- function (x, y, ranges, folds=3, train.func, pred.fun = p
   }
   classification.check_reproduce()
   params <- append(list(x = x, y = y), as.list(ranges[i,]))
-  model <- do.call(train.func, params)
+  model <- do.call(fit.func, params)
   attr(model, "params") <- as.list(ranges[i,])
   return(model)
 }
