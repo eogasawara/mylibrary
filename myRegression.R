@@ -221,7 +221,7 @@ fit.regression_cnn <- function(obj, data) {
     
     spec <- feature_spec(data, y ~ . ) %>% 
       step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
-      fit()
+      keras::fit()
     
     input <- layer_input_from_dataset(data %>% dplyr::select(-y))
     

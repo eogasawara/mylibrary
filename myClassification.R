@@ -353,7 +353,7 @@ fit.classification_cnn <- function(obj, data) {
     
     spec <- feature_spec(cbind(data, y), y ~ . ) %>% 
       step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
-      fit()
+      keras::fit()
     
     input <- layer_input_from_dataset(data)
     
@@ -372,7 +372,7 @@ fit.classification_cnn <- function(obj, data) {
     )
     
     history <- model %>% 
-      fit(
+      keras::fit(
         x = data,
         y = yhot, 
         epochs = epochs, 
