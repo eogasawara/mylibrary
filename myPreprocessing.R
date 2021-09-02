@@ -79,7 +79,7 @@ categ_mapping <- function(attribute) {
   return(obj)  
 }
 
-c.categ_mapping <- function(obj, data) {
+transform.categ_mapping <- function(obj, data) {
   mdlattribute = formula(paste("~", paste(obj$attribute, "-1")))
   catmap <- model.matrix(mdlattribute, data=data)
   data <- cbind(data, catmap)
