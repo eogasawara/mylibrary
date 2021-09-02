@@ -69,8 +69,8 @@ predict.tsreg_arima <- function(obj, x, y = NULL, steps_ahead=NULL) {
 
 # setup for sliding window
 
-do_train <- function(obj, x, y = NULL) {
-  UseMethod("do_train")
+do_fit <- function(obj, x, y = NULL) {
+  UseMethod("do_fit")
 }
 
 do_predict <- function(obj, x) {
@@ -104,7 +104,7 @@ fit.tsreg_sw <- function(obj, x, y) {
   
   y <- transform(obj$preprocess, x, y)
   
-  obj <- do_train(obj, ts_as_matrix(x, obj$input_size), y)
+  obj <- do_fit(obj, ts_as_matrix(x, obj$input_size), y)
   
   obj <- register_log(obj, obj$msg)    
   return(obj)
