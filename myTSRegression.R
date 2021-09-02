@@ -1,4 +1,4 @@
-# version 1.2
+# version 1.5
 # depends myBasic.R
 # depends myPreprocessing.R
 
@@ -10,7 +10,7 @@ tsreg <- function() {
   return(obj)
 }
 
-train.tsreg <- function(obj, x, y) {
+fit.tsreg <- function(obj, x, y) {
   obj <- start_log(obj)   
   return(obj)
 }
@@ -30,8 +30,8 @@ tsreg_arima <- function() {
   return(obj)
 }
 
-train.tsreg_arima <- function(obj, x, y = NULL) {
-  obj <- train.tsreg(obj, x, y)
+fit.tsreg_arima <- function(obj, x, y = NULL) {
+  obj <- fit.tsreg(obj, x, y)
   
   loadlibrary("forecast")  
   obj$model <- auto.arima(x, allowdrift = TRUE, allowmean = TRUE) 
@@ -95,14 +95,14 @@ ts_as_matrix <- function(data, input_size) {
   return(result)
 }
 
-train.tsreg_sw <- function(obj, x, y) {
-  obj <- train.tsreg(obj, x, y)
+fit.tsreg_sw <- function(obj, x, y) {
+  obj <- fit.tsreg(obj, x, y)
   
-  obj$preprocess <- prepare(obj$preprocess, x)
+  obj$preprocess <- fit(obj$preprocess, x)
   
-  x <- action(obj$preprocess, x)
+  x <- transform(obj$preprocess, x)
   
-  y <- action(obj$preprocess, x, y)
+  y <- transform(obj$preprocess, x, y)
   
   obj <- do_train(obj, ts_as_matrix(x, obj$input_size), y)
   
@@ -112,9 +112,9 @@ train.tsreg_sw <- function(obj, x, y) {
 
 predict.tsreg_sw <- function(obj, x, steps_ahead=1) {
   if (steps_ahead == 1) {
-    x <- action(obj$preprocess, x)
+    x <- transform(obj$preprocess, x)
     y <- do_predict(obj, ts_as_matrix(x, obj$input_size))
-    y <- deaction(obj$preprocess, x, y)
+    y <- inverse_transform(obj$preprocess, x, y)
     return(y)
   }
   else {
@@ -124,10 +124,10 @@ predict.tsreg_sw <- function(obj, x, steps_ahead=1) {
     x <- x[1,]
     for (i in 1:steps_ahead) {
       colnames(x) <- cnames
-      x <- action(obj$preprocess, x)
+      x <- transform(obj$preprocess, x)
       y <- do_predict(obj, ts_as_matrix(x, obj$input_size))
-      x <- deaction(obj$preprocess, x)
-      y <- deaction(obj$preprocess, x, y)
+      x <- inverse_transform(obj$preprocess, x)
+      y <- inverse_transform(obj$preprocess, x, y)
       x <- cbind(x[,2:ncol(x)], y)
       prediction <- c(prediction, y)
     }
@@ -155,11 +155,11 @@ tsreg_rf <- function(preprocess, input_size, mtry = NULL, ntree = seq(5, 50, 5))
   return(obj)
 }
 
-do_train.tsreg_rf <- function(obj, x, y) {
+do_fit.tsreg_rf <- function(obj, x, y) {
   loadlibrary("randomForest")
 
   ranges <- list(mtry=obj$mtry, ntree=obj$ntree)
-  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = randomForest)
+  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, fit.func = randomForest)
   
   params <- attr(obj$model, "params") 
   obj$msg <- sprintf("mtry=%d,ntree=%d", params$mtry, params$ntree)
@@ -182,10 +182,10 @@ tsreg_mlp <- function(preprocess, input_size, size=NULL, decay=seq(0, 1, 0.0335)
   return(obj)
 }
 
-do_train.tsreg_mlp <- function(obj, x, y) {
+do_fit.tsreg_mlp <- function(obj, x, y) {
   loadlibrary("nnet")  
   ranges <- list(size = obj$size, decay=obj$decay, maxit = obj$maxit, linout=TRUE, trace = FALSE)
-  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = nnet)
+  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, fit.func = nnet)
   
   params <- attr(obj$model, "params") 
   obj$msg <- sprintf("size=%d,decay=%.2f", params$size, params$decay)
@@ -206,11 +206,11 @@ tsreg_svm <- function(preprocess, input_size, epsilon=seq(0,1,0.2), cost=seq(20,
   return(obj)
 }
 
-do_train.tsreg_svm <- function(obj, x, y) {
+do_fit.tsreg_svm <- function(obj, x, y) {
   loadlibrary("e1071")
   
   ranges <- list(epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
-  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = svm)
+  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, fit.func = svm)
   
   params <- attr(obj$model, "params") 
   obj$msg <- sprintf("epsilon=%.1f,cost=%.3f", params$epsilon, params$cost)
@@ -230,16 +230,16 @@ tsreg_elm <- function(preprocess, input_size, nhid=3:8, actfun = c('sig', 'radba
   return(obj)
 }
 
-ts_train.tsreg_elm <- function(x, y, nhid, actfun, ...) {
+ts_fit.tsreg_elm <- function(x, y, nhid, actfun, ...) {
   model <- elm_train(x, y, nhid = nhid, actfun = as.character(actfun), init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)  
   return(model)
 }
 
-do_train.tsreg_elm <- function(obj, x, y) {
+do_fit.tsreg_elm <- function(obj, x, y) {
   loadlibrary("elmNNRcpp")
   
   ranges <- list(nhid = obj$nhid, actfun = "purelin", init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
-  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = ts_train.tsreg_elm, pred.fun = elm_predict)
+  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, fit.func = ts_fit.tsreg_elm, pred.fun = elm_predict)
   
   params <- attr(obj$model, "params") 
   obj$msg <- sprintf("nhid=%d,actfun=%s", params$nhid, params$actfun)
@@ -265,8 +265,8 @@ tsreg_cnn <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs = 
   return(obj)
 }
 
-do_train.tsreg_cnn <- function(obj, x, y) {
-  internal_train.tsreg_cnn <- function(x, y, neurons, epochs, ...) {
+do_fit.tsreg_cnn <- function(obj, x, y) {
+  internal_fit.tsreg_cnn <- function(x, y, neurons, epochs, ...) {
     x <- adjust.data.frame(x)
     xy <- x
     xy$t0 <- y
@@ -312,7 +312,7 @@ do_train.tsreg_cnn <- function(obj, x, y) {
   
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons = obj$neurons, epochs = obj$epochs)
-  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = internal_train.tsreg_cnn, pred.fun = internal_predict.tsreg_cnn)
+  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, fit.func = internal_fit.tsreg_cnn, pred.fun = internal_predict.tsreg_cnn)
   tf$get_logger()$setLevel('WARNING')
   
   params <- attr(obj$model, "params") 
@@ -341,8 +341,8 @@ tsreg_lstm <- function(preprocess, input_size, neurons=c(3,5,10,16,32), epochs =
   return(obj)
 }
 
-do_train.tsreg_lstm <- function(obj, x, y) {
-  internal_train.tsreg_lstm <- function(x, y, neurons, epochs, ...) {
+do_fit.tsreg_lstm <- function(obj, x, y) {
+  internal_fit.tsreg_lstm <- function(x, y, neurons, epochs, ...) {
     batch.size <- 1
     size <- ncol(x)
     
@@ -391,7 +391,7 @@ do_train.tsreg_lstm <- function(obj, x, y) {
   
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons = obj$neurons, epochs = obj$epochs)
-  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, train.func = internal_train.tsreg_lstm, pred.fun = internal_predict.tsreg_lstm)
+  obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, fit.func = internal_fit.tsreg_lstm, pred.fun = internal_predict.tsreg_lstm)
   tf$get_logger()$setLevel('WARNING')
   
   params <- attr(obj$model, "params") 
@@ -420,7 +420,7 @@ tsreg.check_reproduce <- function() {
     set.seed(1)
 }
 
-tune.tsreg <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
+tune.tsreg <- function (x, y, ranges, folds=3, fit.func, pred.fun = predict) {
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
   errors <- rep(0,n)
@@ -434,7 +434,7 @@ tune.tsreg <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
         tsreg.check_reproduce()
         tt <- train_test_from_folds(folds, j)
         params <- append(list(x = x[tt$train$i,], y = y[tt$train$i,]), as.list(ranges[i,]))
-        model <- do.call(train.func, params)
+        model <- do.call(fit.func, params)
         prediction <- pred.fun(model, x[tt$test$i,]) 
         errors[i] <- errors[i] + evaluation.tsreg(y[tt$test$i,], prediction)$mse 
       }
@@ -443,7 +443,7 @@ tune.tsreg <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
   }
   params <- append(list(x = x, y = y), as.list(ranges[i,]))
   tsreg.check_reproduce()
-  model <- do.call(train.func, params)
+  model <- do.call(fit.func, params)
   attr(model, "params") <- as.list(ranges[i,])
   return(model)
 }
