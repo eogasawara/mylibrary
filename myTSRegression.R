@@ -273,7 +273,7 @@ do_fit.tsreg_cnn <- function(obj, x, y) {
     
     spec <- feature_spec(xy, t0 ~ . ) %>% 
       step_numeric_column(all_numeric(), normalizer_fn = scaler_standard()) %>% 
-      fit()
+      keras::fit()
     
     input <- layer_input_from_dataset(x)
     
@@ -289,7 +289,7 @@ do_fit.tsreg_cnn <- function(obj, x, y) {
       compile(loss = "mse", optimizer = optimizer_rmsprop(), 
               metrics = list("mean_absolute_error"))
     
-    history <- model %>% fit(
+    history <- model %>% keras::fit(
       x = x,
       y = y,
       epochs = epochs,
@@ -365,7 +365,7 @@ do_fit.tsreg_lstm <- function(obj, x, y) {
     model %>%
       compile(loss = 'mae', optimizer = 'adam')
     
-    history <- model %>% fit(x = x,
+    history <- model %>% keras::fit(x = x,
                              y = y,
                              batch_size = batch.size,
                              epochs = epochs,
