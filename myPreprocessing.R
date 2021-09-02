@@ -135,42 +135,42 @@ smoothing <- function(n) {
   return(obj)
 }
 
-fit.smoothing <- function(obj, data, optimize=FALSE, do_plot=FALSE) {
-  if (!optimize) {
-    v <- data
-    interval <- obj$interval
-    names(interval) <- NULL
-    interval[1] <- min(v)
-    interval[length(interval)] <- max(v)
-    interval.adj <- interval
-    interval.adj[1] <- -.Machine$double.xmax
-    interval.adj[length(interval)] <- .Machine$double.xmax  
-    obj$interval <- interval
-    obj$interval.adj <- interval.adj
-    return(obj)
+optimize.smoothing <- function(obj, data, do_plot=FALSE) {
+  n <- obj$n
+  opt <- data.frame()
+  interval <- list()
+  for (i in 1:n)
+  {
+    obj$n <- i
+    obj <- fit(obj, data)
+    vm <- transform(obj, data)
+    mse <- mean((data - vm)^2, na.rm = TRUE) 
+    row <- c(mse , i)
+    opt <- rbind(opt, row)
   }
-  else {
-    n <- obj$n
-    opt <- data.frame()
-    interval <- list()
-    for (i in 1:n)
-    {
-      obj$n <- i
-      obj <- fit(obj, data)
-      vm <- transform(obj, data)
-      mse <- mean((data - vm)^2, na.rm = TRUE) 
-      row <- c(mse , i)
-      opt <- rbind(opt, row)
-    }
-    colnames(opt)<-c("mean","num") 
-    curv <- fit_curvature_max()
-    res <- transform(curv, opt$mean)
-    obj$n <- res$x
-    if (do_plot)
-      plot(curv, y=opt$mean, res)
-    return(obj)
-  }
+  colnames(opt)<-c("mean","num") 
+  curv <- fit_curvature_max()
+  res <- transform(curv, opt$mean)
+  obj$n <- res$x
+  if (do_plot)
+    plot(curv, y=opt$mean, res)
+  return(obj)
 }
+
+fit.smoothing <- function(obj, data) {
+  v <- data
+  interval <- obj$interval
+  names(interval) <- NULL
+  interval[1] <- min(v)
+  interval[length(interval)] <- max(v)
+  interval.adj <- interval
+  interval.adj[1] <- -.Machine$double.xmax
+  interval.adj[length(interval)] <- .Machine$double.xmax  
+  obj$interval <- interval
+  obj$interval.adj <- interval.adj
+  return(obj)
+}
+
 
 transform.smoothing <- function(obj, data) {
   v <- data
