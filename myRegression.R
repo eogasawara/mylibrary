@@ -1,4 +1,4 @@
-# version 1.2
+# version 1.5
 # depends myBasic.R
 # depends myPreprocessing.R
 
@@ -10,7 +10,7 @@ regression <- function(attribute) {
   return(obj)
 }
 
-train.regression <- function(obj, data) {
+fit.regression <- function(obj, data) {
   obj <- start_log(obj) 
   obj$x <- setdiff(colnames(data), obj$attribute)  
   return(obj)
@@ -24,9 +24,9 @@ regression_dtree <- function(attribute) {
   return(obj)
 }
 
-train.regression_dtree <- function(obj, data) {
+fit.regression_dtree <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- train.regression(obj, data)  
+  obj <- fit.regression(obj, data)  
   loadlibrary("tree")
   
   regression <- formula(paste(obj$attribute, "  ~ ."))  
@@ -54,9 +54,9 @@ regression_rf <- function(attribute, mtry = NULL, ntree = seq(5, 50, 5)) {
   return(obj)
 }
 
-train.regression_rf <- function(obj, data) {
+fit.regression_rf <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- train.regression(obj, data)  
+  obj <- fit.regression(obj, data)  
   
   loadlibrary("randomForest")
   
@@ -67,7 +67,7 @@ train.regression_rf <- function(obj, data) {
   y <- data[,obj$attribute]
   
   ranges <- list(mtry=obj$mtry, ntree=obj$ntree)
-  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = randomForest)
+  obj$model <- tune.regression(x = x, y = y, ranges = ranges, fit.func = randomForest)
 
   params <- attr(obj$model, "params") 
   msg <- sprintf("mtry=%d,ntree=%d", params$mtry, params$ntree)
@@ -93,9 +93,9 @@ regression_mlp <- function(attribute, size=NULL, decay=seq(0, 1, 0.0335), maxit=
   return(obj)
 }
 
-train.regression_mlp <- function(obj, data) {
+fit.regression_mlp <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- train.regression(obj, data)  
+  obj <- fit.regression(obj, data)  
   
   loadlibrary("nnet")
   
@@ -105,7 +105,7 @@ train.regression_mlp <- function(obj, data) {
   x <- data[,obj$x]
   y <- data[,obj$attribute]
   ranges <- list(size = obj$size, decay = obj$decay, maxit=obj$maxit, linout=TRUE, trace = FALSE)
-  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = nnet)
+  obj$model <- tune.regression(x = x, y = y, ranges = ranges, fit.func = nnet)
 
   params <- attr(obj$model, "params") 
   msg <- sprintf("size=%d,decay=%.2f", params$size, params$decay)
@@ -134,9 +134,9 @@ regression_svm <- function(attribute, epsilon=seq(0,1,0.2), cost=seq(20,100,20),
   return(obj)
 }
 
-train.regression_svm <- function(obj, data) {
+fit.regression_svm <- function(obj, data) {
   data <- adjust.data.frame(data)
-  obj <- train.regression(obj, data)  
+  obj <- fit.regression(obj, data)  
   
   loadlibrary("e1071")
   
@@ -144,7 +144,7 @@ train.regression_svm <- function(obj, data) {
   y <- data[,obj$attribute]
   
   ranges <- list(epsilon=obj$epsilon, cost=obj$cost, kernel=obj$kernel)
-  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = svm)
+  obj$model <- tune.regression(x = x, y = y, ranges = ranges, fit.func = svm)
 
   params <- attr(obj$model, "params") 
   msg <- sprintf("epsilon=%.1f,cost=%.3f", params$epsilon, params$cost)
@@ -168,8 +168,8 @@ regression_knn <- function(attribute, k=1:30) {
   return(obj)
 }
 
-train.regression_knn <- function(obj, data) {
-  internal_train.regression_knn <- function (x, y, k, ...) {
+fit.regression_knn <- function(obj, data) {
+  internal_fit.regression_knn <- function (x, y, k, ...) {
     model <- list(x=x, y=y, k=k)
     return (model)
   }  
@@ -179,14 +179,14 @@ train.regression_knn <- function(obj, data) {
     return(prediction$pred)
   }  
   data <- adjust.data.frame(data)
-  obj <- train.regression(obj, data)  
+  obj <- fit.regression(obj, data)  
   loadlibrary("FNN")
   
   x <- as.matrix(data[,obj$x])
   y <- data[,obj$attribute]
   
   ranges <- list(k = obj$k, stub = 0)
-  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = internal_train.regression_knn, pred.fun = internal_predict.regression_knn)
+  obj$model <- tune.regression(x = x, y = y, ranges = ranges, fit.func = internal_fit.regression_knn, pred.fun = internal_predict.regression_knn)
 
   params <- attr(obj$model, "params") 
   msg <- sprintf("k=%d", params$k)
@@ -214,8 +214,8 @@ regression_cnn <- function(attribute, neurons=c(3,5,10,16,32), epochs = c(100, 1
   return(obj)
 }
 
-train.regression_cnn <- function(obj, data) {
-  internal_train.regression_cnn <- function(x, y, neurons, epochs, ...) {
+fit.regression_cnn <- function(obj, data) {
+  internal_fit.regression_cnn <- function(x, y, neurons, epochs, ...) {
     data <- adjust.data.frame(x)
     data$y <- y
     
@@ -252,7 +252,7 @@ train.regression_cnn <- function(obj, data) {
   }
   
   data <- adjust.data.frame(data)
-  obj <- train.regression(obj, data)  
+  obj <- fit.regression(obj, data)  
   
   loadlibrary("dplyr")
   loadlibrary("tfdatasets")
@@ -264,7 +264,7 @@ train.regression_cnn <- function(obj, data) {
   
   tf$get_logger()$setLevel('ERROR')
   ranges <- list(neurons=obj$neurons, epochs=obj$epochs)
-  obj$model <- tune.regression(x = x, y = y, ranges = ranges, train.func = internal_train.regression_cnn)
+  obj$model <- tune.regression(x = x, y = y, ranges = ranges, fit.func = internal_fit.regression_cnn)
   tf$get_logger()$setLevel('WARNING')
 
   params <- attr(obj$model, "params") 
@@ -290,7 +290,7 @@ regression.check_reproduce <- function() {
     set.seed(1)
 }
 
-tune.regression <- function (x, y, ranges, folds=3, train.func, pred.fun = predict) {
+tune.regression <- function (x, y, ranges, folds=3, fit.func, pred.fun = predict) {
   ranges <- expand.grid(ranges)
   n <- nrow(ranges)
   errors <- rep(0,n)
@@ -306,7 +306,7 @@ tune.regression <- function (x, y, ranges, folds=3, train.func, pred.fun = predi
         tt <- train_test_from_folds(folds, j)
         
         params <- append(list(x = x[tt$train$i,], y = y[tt$train$i]), as.list(ranges[i,]))
-        model <- do.call(train.func, params)
+        model <- do.call(fit.func, params)
         prediction <- pred.fun(model, x[tt$test$i,]) 
         errors[i] <- errors[i] + evaluation.regression(y[tt$test$i], prediction)$mse 
       }
@@ -315,7 +315,7 @@ tune.regression <- function (x, y, ranges, folds=3, train.func, pred.fun = predi
   }
   params <- append(list(x = x, y = y), as.list(ranges[i,]))
   regression.check_reproduce()
-  model <- do.call(train.func, params)
+  model <- do.call(fit.func, params)
   attr(model, "params") <- as.list(ranges[i,])
   return(model)
 }
