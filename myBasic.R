@@ -1,4 +1,4 @@
-# version 1.2
+# version 1.5
 
 if (!exists("repos_name"))
   repos_name <<- getOption("repos")[1]
@@ -16,9 +16,45 @@ loadlibrary <- function(packagename)
   }
 }
 
+### basic transformation functions
 
-### basic data strucutures
+dal_transform <- function() {
+  obj <- list()
+  attr(obj, "class") <- "dal_transform"  
+  return(obj)
+}
 
+#fit
+fit <- function(obj, ...) {
+  UseMethod("fit")
+}
+
+fit.default <- function(obj) {
+  return(obj)
+}
+
+
+#transform
+transform <- function(obj, ...) {
+  UseMethod("transform")
+}
+
+transform.default <- function(obj) {
+  return(NULL)
+}
+
+#inverse_transform
+
+inverse_transform <- function(obj, ...) {
+  UseMethod("inverse_transform")
+}
+
+inverse_transform.default <- function(obj) {
+  return(NULL)
+}
+
+
+### basic data structures for sliding windows
 
 # general functions
 adjust.matrix <- function(data) {
@@ -36,8 +72,6 @@ adjust.data.frame <- function(data) {
   else
     return(data)
 }
-
-
 
 ts_data <- function(y, sw=1) {
   #https://stackoverflow.com/questions/7532845/matrix-losing-class-attribute-in-r
@@ -133,77 +167,9 @@ ts_projection <- function(ts) {
 }
 
 
-### basic transformation functions
-
-dal_transform <- function() {
-  obj <- list()
-  attr(obj, "class") <- "dal_transform"  
-  return(obj)
-}
-
-#action
-
-action <- function(obj, ...) {
-  UseMethod("action")
-}
-
-action.default <- function(obj) {
-  return(NULL)
-}
-
-#deaction
-
-deaction <- function(obj, ...) {
-  UseMethod("deaction")
-}
-
-deaction.default <- function(obj) {
-  return(NULL)
-}
-
-#prepare
-
-prepare <- function(obj, ...) {
-  UseMethod("prepare")
-}
-
-prepare.default <- function(obj) {
-  return(obj)
-}
-
-#optimize
-
-optimize <- function(obj, ...) {
-  UseMethod("optimize")
-}
-
-optimize.default <- function(obj) {
-  return(obj)
-}
-
-#train
-
-train <- function(obj, ...) {
-  UseMethod("train")
-}
-
-train.default <- function(obj) {
-  return(NULL)
-}
-
-#cluster
-
-cluster <- function(obj, ...) {
-  UseMethod("cluster")
-}
-
-cluster.default <- function(obj) {
-  return(NULL)
-}
-
+### Basic log functions
 
 #start_log
-
 start_log <- function(obj) {
   UseMethod("start_log")
 }
@@ -214,7 +180,6 @@ start_log.default <- function(obj) {
 }
 
 #register_log
-
 register_log <- function(obj, msg, ref) {
   UseMethod("register_log")
 }

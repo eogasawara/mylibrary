@@ -2,9 +2,11 @@
 # depends myBasic.R
 
 # prepare -> fit
+# optimize -> fit
+# train -> fit
 # action -> transform
 # deaction -> inverse_transform
-# fit_transform (fit + transform em sequencia)
+# (*) -> fit_transform
 
 ### Balance Dataset
 
