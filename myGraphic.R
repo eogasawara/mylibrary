@@ -26,7 +26,21 @@ plot.size <-function(width, height) {
   options(repr.plot.width=width, repr.plot.height=height)    
 }
 
-plot.scatter <- function(data, label_x = "", label_y = "", colors = NULL) {
+plot.scatter <- function(series, label_series = "", label_x = "", label_y = "", colors = NULL) {
+  grf <- ggplot(data=series, aes(x = x, y = value, colour=variable, group=variable)) + geom_point(size=1)
+  if (!is.null(colors)) {
+    grf <- grf + scale_color_manual(values=colors)
+  }
+  grf <- grf + labs(color=label_series)
+  grf <- grf + xlab(label_x)
+  grf <- grf + ylab(label_y)
+  grf <- grf + theme_bw(base_size = 10)
+  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
+  grf <- grf + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
+  return(grf)
+}
+
+plot.points <- function(data, label_x = "", label_y = "", colors = NULL) {
   series <- melt(as.data.frame(data), id.vars = c(1))
   cnames <- colnames(data)[-1]
   colnames(series)[1] <- "x"
@@ -35,22 +49,6 @@ plot.scatter <- function(data, label_x = "", label_y = "", colors = NULL) {
     grf <- grf + scale_color_manual(values=colors)
   }
   grf <- grf + labs(color=cnames)
-  grf <- grf + xlab(label_x)
-  grf <- grf + ylab(label_y)
-  grf <- grf + theme_bw(base_size = 10)
-  grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
-  grf <- grf + theme(legend.title = element_blank()) + theme(legend.position = "bottom") + theme(legend.key = element_blank()) 
-  return(grf)
-}
-
-plot.scatter.class <- function(data, class_label, label_x = "", label_y = "", colors = NULL) {
-  colnames(data) <- c("x", "y", "variable")
-  data$variable <- as.factor(data$variable)
-  grf <- ggplot(data=data, aes(x = x, y = y, colour=variable, group=variable)) + geom_point(size=1)
-  if (!is.null(colors)) {
-    grf <- grf + scale_color_manual(values=colors)
-  }
-  grf <- grf + labs(color=levels(data$variable))
   grf <- grf + xlab(label_x)
   grf <- grf + ylab(label_y)
   grf <- grf + theme_bw(base_size = 10)
