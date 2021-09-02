@@ -33,7 +33,6 @@ fit.default <- function(obj) {
   return(obj)
 }
 
-
 #transform
 transform <- function(obj, ...) {
   UseMethod("transform")
@@ -52,6 +51,16 @@ inverse_transform <- function(obj, ...) {
 inverse_transform.default <- function(obj) {
   return(NULL)
 }
+
+#optimize
+optimize <- function(obj, ...) {
+  UseMethod("optimize")
+}
+
+optimize.default <- function(obj) {
+  return(obj)
+}
+
 
 
 ### basic data structures for sliding windows
