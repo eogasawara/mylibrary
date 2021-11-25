@@ -281,7 +281,7 @@ do_fit.tsreg_cnn <- function(obj, x, y) {
       layer_dense_features(dense_features(spec)) %>% 
       layer_dense(units = neurons, activation = "relu") %>% 
       layer_dense(units = neurons, activation = "relu") %>%
-      layer_dense(units = 1) 
+      layer_dense(units = 1, activation="sigmoid") 
     
     model <- keras_model(input, output)
     
@@ -360,10 +360,10 @@ do_fit.tsreg_lstm <- function(obj, x, y) {
                  return_sequences = FALSE,
                  stateful = TRUE) %>%
       layer_dropout(rate = 0.5) %>%
-      layer_dense(units = 1)
+      layer_dense(units = 1, activation="sigmoid")
     
     model %>%
-      compile(loss = 'mae', optimizer = 'adam')
+      compile(loss = 'mse', optimizer = 'adam')
     
     history <- model %>% keras::fit(x = x,
                              y = y,
