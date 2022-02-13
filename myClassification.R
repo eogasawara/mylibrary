@@ -3,6 +3,8 @@
 # depends myPreprocessing.R
 
 # classif
+
+
 classification <- function(attribute, slevels=NULL) {
   obj <- list()
   attr(obj, "class") <- "classification"  
@@ -498,3 +500,4 @@ roc_curve.evaluation.classification <- function(obj) {
   rocr <- performance(pred, "tpr", "fpr")  
   return (rocr)  
 }
+

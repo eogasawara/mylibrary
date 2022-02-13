@@ -1,7 +1,7 @@
 # version 1.2
 # no dependency
 
-if (is.null(repos_name))
+if (!exists("repos_name"))
   repos_name <- getOption("repos")[1]
 
 setrepos <- function(repos=repos) {
