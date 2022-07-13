@@ -664,8 +664,8 @@ ts_an <- function() {
 
 fit.ts_an <- function(obj, data) {
   input <- data[,1:(ncol(data)-1)]
-  an <- apply(input, 1, mean)
-  data <- data / an
+  an <- apply(input, 1, exp_mean) ##
+  data <- data - an #
   
   out <- outliers()
   out <- fit(out, data)
@@ -680,13 +680,13 @@ fit.ts_an <- function(obj, data) {
 transform.ts_an <- function(obj, data, x=NULL) {
   if (!is.null(x)) {
     an <- attr(data, "an")
-    x <- x / an
+    x <- x - an #
     x <- (x - obj$gmin) / (obj$gmax-obj$gmin)
     return(x)
   }
   else {
-    an <- apply(data, 1, mean)  
-    data <- data / an
+    an <- apply(data, 1, exp_mean) ##  
+    data <- data - an #
     data <- (data - obj$gmin) / (obj$gmax-obj$gmin) 
     attr(data, "an") <- an
     return (data)
@@ -697,12 +697,12 @@ inverse_transform.ts_an <- function(obj, data, x=NULL) {
   an <- attr(data, "an")
   if (!is.null(x)) {
     x <- x * (obj$gmax-obj$gmin) + obj$gmin
-    x <- x * an
+    x <- x + an #
     return(x)
   }
   else {
     data <- data * (obj$gmax-obj$gmin) + obj$gmin
-    data <- data * an
+    data <- data + an #
     attr(data, "an") <- an
     return (data)
   }

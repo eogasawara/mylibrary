@@ -35,8 +35,8 @@ fit.tsreg_arima <- function(obj, x, y = NULL) {
   
   loadlibrary("forecast")  
   obj$model <- auto.arima(x, allowdrift = TRUE, allowmean = TRUE) 
-  
-  obj <- register_log(obj)    
+  obj$msg <- as.character(obj$model)
+  obj <- register_log(obj, obj$msg)    
   return(obj)
 }
 
@@ -90,7 +90,13 @@ tsreg_sw <- function(preprocess, input_size) {
 }
 
 ts_as_matrix <- function(data, input_size) {
-  result <- data[,(ncol(data)-input_size+1):ncol(data)]
+  if (nrow(data)==1) {
+    result <- as.matrix(as.data.frame(data)[,(ncol(data)-input_size+1):ncol(data)])
+    class(result) <- class(data)    
+    attr(result, "sw") <- attr(data, "sw")  
+  }
+  else
+    result <- data[,(ncol(data)-input_size+1):ncol(data)]
   colnames(result) <- colnames(data)[(ncol(data)-input_size+1):ncol(data)]
   return(result)
 }
@@ -196,6 +202,7 @@ do_fit.tsreg_mlp <- function(obj, x, y) {
 #class tsreg_svm
 
 tsreg_svm <- function(preprocess, input_size, epsilon=seq(0,1,0.2), cost=seq(20,100,20), kernel="radial") {
+  #kernel = "radial", "poly", "linear", "sigmoid"
   obj <- tsreg_sw(preprocess, input_size)
   
   obj$kernel <- kernel
@@ -213,7 +220,7 @@ do_fit.tsreg_svm <- function(obj, x, y) {
   obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, fit.func = svm)
   
   params <- attr(obj$model, "params") 
-  obj$msg <- sprintf("epsilon=%.1f,cost=%.3f", params$epsilon, params$cost)
+  obj$msg <- sprintf("epsilon=%.2f,cost=%d", params$epsilon, params$cost)
   return(obj)
 }
 
@@ -238,7 +245,7 @@ ts_fit.tsreg_elm <- function(x, y, nhid, actfun, ...) {
 do_fit.tsreg_elm <- function(obj, x, y) {
   loadlibrary("elmNNRcpp")
   
-  ranges <- list(nhid = obj$nhid, actfun = "purelin", init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
+  ranges <- list(nhid = obj$nhid, actfun = obj$actfun, init_weights = "uniform_positive", bias = FALSE, verbose = FALSE)
   obj$model <- tune.tsreg(x = x, y = y, ranges = ranges, fit.func = ts_fit.tsreg_elm, pred.fun = elm_predict)
   
   params <- attr(obj$model, "params") 
