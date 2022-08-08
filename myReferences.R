@@ -137,20 +137,32 @@ cleanBib <- function(bib, doi=FALSE) {
   WriteBib(bib, bibfile)
 }
 
-qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib')
-print(qry, quote = FALSE)
+if (FALSE) {
+  qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib')
+  print(qry, quote = FALSE)
+}
 
-mapRf <- mapRefs('C:/Users/eduar/Downloads/Paper/references-org.bib', 'C:/Users/eduar/Downloads/Paper/references.bib')
+if (FALSE) {
+  mapRf <- mapRefs('C:/Users/eduar/Downloads/Paper/references-org.bib', 'C:/Users/eduar/Downloads/Paper/references.bib')
+  subMap('C:/Users/eduar/Downloads/Paper/main.tex', mapRf)
+}
 
-subMap('C:/Users/eduar/Downloads/Paper/main.tex', mapRf)
+if (FALSE) {
+  mapRf <- mapRefs('C:/Users/eduar/Downloads/Paper/references-org.bib', 'C:/Users/eduar/Downloads/Paper/references.bib')
+  subMaps('C:/Users/eduar/Downloads/Paper', mapRf)
+}
 
-subMaps('C:/Users/eduar/Downloads/Paper', mapRf)
 
-cleanBib('C:/Users/eduar/Downloads/Paper/references.bib')
+if (FALSE) {
+  cleanBib('C:/Users/eduar/Downloads/Paper/references.bib')
+}
 
-refs <- unusedRef('C:/Users/eduar/Downloads/Paper/main.tex', 'C:/Users/eduar/Downloads/Paper/references.bib')
+if (FALSE) {
+  refs <- unusedRef('C:/Users/eduar/Downloads/Paper/main.tex', 'C:/Users/eduar/Downloads/Paper/references.bib')
+  removeUnused('C:/Users/eduar/Downloads/Paper/references.bib', refs)
+}
 
-refs <- unusedRefs('C:/Users/eduar/Downloads/Paper', 'C:/Users/eduar/Downloads/Paper/references.bib')
-
-removeUnused('C:/Users/eduar/Downloads/Paper/references.bib', refs)
-
+if (FALSE) {
+  refs <- unusedRefs('C:/Users/eduar/Downloads/Paper', 'C:/Users/eduar/Downloads/Paper/references.bib')
+  removeUnused('C:/Users/eduar/Downloads/Paper/references.bib', refs)
+}
