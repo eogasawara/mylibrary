@@ -17,14 +17,16 @@ save_xls <- function(dataset, filename) {
   write_xlsx(dataset, path = filename, col_names = TRUE)
 }
 
-queryString <- function(bib) {
+queryString <- function(bib, doi=TRUE) {
   bib <- ReadBib(bib, check = FALSE)
   bib_df <- as.data.frame(bib)
   bib_df <- rownames_to_column(bib_df)
   bib_df$title <- adjust_text(bib_df$title, lower=TRUE)
   str <- sprintf("TITLE(\"%s\")", bib_df$title)
-  i <- !is.na(bib_df$doi)
-  str[i] <- sprintf("DOI(\"%s\")", bib_df$doi[i])
+  if (doi) {
+    i <- !is.na(bib_df$doi)
+    str[i] <- sprintf("DOI(\"%s\")", bib_df$doi[i])
+  }
   str <- paste(str, collapse = " OR ")
   return(str)
 }
@@ -138,7 +140,7 @@ cleanBib <- function(bib, doi=FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib')
+  qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib', doi=TRUE)
   print(qry, quote = FALSE)
 }
 
