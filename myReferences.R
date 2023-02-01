@@ -1,4 +1,19 @@
-source("https://raw.githubusercontent.com/eogasawara/mydal/master/dal_transform.R")
+if (!exists("repos_name"))
+  repos_name <<- getOption("repos")[1]
+
+setrepos <- function(repos=repos) {
+  repos_name <<- repos
+}
+
+loadlibrary <- function(packagename)
+{
+  if (!require(packagename, character.only = TRUE))
+  {
+    install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
+    require(packagename, character.only = TRUE)
+  }
+}
+
 loadlibrary("RefManageR")
 loadlibrary("tibble")
 loadlibrary("readxl")
@@ -140,7 +155,7 @@ cleanBib <- function(bib, doi=FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib', doi=TRUE)
+  qry <- queryString('C:/Users/eduar/Downloads/Paper/complemento.bib', doi=TRUE)
   print(qry, quote = FALSE)
 }
 
@@ -156,8 +171,22 @@ if (FALSE) {
 
 
 if (FALSE) {
+    x <- readLines('C:/Users/eduar/Downloads/Paper/references.bib')  
+  for (i in 1:length(x)) {
+    if (x[i] == "") {
+      print(i)
+      fileConn<-file('C:/Users/eduar/Downloads/Paper/references_aux.bib')
+      writeLines(x[1:i], fileConn)
+      close(fileConn)    
+      bib <- ReadBib('C:/Users/eduar/Downloads/Paper/references_aux.bib', check = FALSE)
+    }
+  }
+}
+
+if (FALSE) {
   cleanBib('C:/Users/eduar/Downloads/Paper/references.bib')
 }
+
 
 if (FALSE) {
   refs <- unusedRef('C:/Users/eduar/Downloads/Paper/main.tex', 'C:/Users/eduar/Downloads/Paper/references.bib')
