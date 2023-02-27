@@ -42,7 +42,7 @@ queryString <- function(bib, doi=TRUE) {
     i <- !is.na(bib_df$doi)
     str[i] <- sprintf("DOI(\"%s\")", bib_df$doi[i])
   }
-  str <- paste(str, collapse = " OR ")
+  str <- cat(str, sep = "\n OR ")
   return(str)
 }
 
@@ -155,7 +155,7 @@ cleanBib <- function(bib, doi=FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString('C:/Users/eduar/Downloads/Paper/complemento.bib', doi=TRUE)
+  qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib', doi=TRUE)
   print(qry, quote = FALSE)
 }
 
