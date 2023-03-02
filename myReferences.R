@@ -19,6 +19,7 @@ loadlibrary("tibble")
 loadlibrary("readxl")
 loadlibrary("writexl")
 loadlibrary("dplyr")
+loadlibrary("stringr")
 
 adjust_text <- function(x, lower=FALSE) {
   x <- gsub("\\{", "", x)
@@ -137,6 +138,19 @@ removeUnused <- function(bib, lst) {
   WriteBib(bib, bibfile)
 }
 
+checkErrors <- function(bibfile) {
+  x <- readLines(bibfile)  
+  auxbibfile <- str_replace(bibfile, ".bib", "_aux.bib")
+  for (i in 1:length(x)) {
+    if ((i > 1) && (x[i] == "")) {
+      print(i)
+      fileConn<-file(auxbibfile)
+      writeLines(x[1:i], fileConn)
+      close(fileConn)    
+      bib <- ReadBib(auxbibfile, check = FALSE)
+    }
+  }  
+}
 
 
 cleanBib <- function(bib, doi=FALSE) {
@@ -171,16 +185,7 @@ if (FALSE) {
 
 
 if (FALSE) {
-    x <- readLines('C:/Users/eduar/Downloads/Paper/references.bib')  
-  for (i in 1:length(x)) {
-    if (x[i] == "") {
-      print(i)
-      fileConn<-file('C:/Users/eduar/Downloads/Paper/references_aux.bib')
-      writeLines(x[1:i], fileConn)
-      close(fileConn)    
-      bib <- ReadBib('C:/Users/eduar/Downloads/Paper/references_aux.bib', check = FALSE)
-    }
-  }
+  checkErrors('C:/Users/eduar/Downloads/Paper/references.bib')
 }
 
 if (FALSE) {
