@@ -168,6 +168,17 @@ cleanBib <- function(bib, doi=FALSE) {
   WriteBib(bib, bibfile)
 }
 
+cleanBibs <- function(dir, doi=FALSE) {
+  bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  
+  for (bib in bibs) {
+    if (length(grep("backup", bib, ignore.case = TRUE)) == 0) {
+      cleanBib(bib, doi)
+    }
+  }
+}
+
+
 if (FALSE) {
   qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib', doi=TRUE)
   print(qry, quote = FALSE)
@@ -192,6 +203,9 @@ if (FALSE) {
   cleanBib('C:/Users/eduar/Downloads/Paper/references.bib')
 }
 
+if (FALSE) {
+  cleanBibs('C:/Users/eduar/Downloads/Paper')
+}
 
 if (FALSE) {
   refs <- unusedRef('C:/Users/eduar/Downloads/Paper/main.tex', 'C:/Users/eduar/Downloads/Paper/references.bib')
