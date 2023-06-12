@@ -179,6 +179,29 @@ cleanBibs <- function(dir, doi=FALSE) {
 }
 
 
+join_Bib <- function(bibA, bibB) {
+  bibA_df <- as.data.frame(ReadBib(bibA, check = FALSE))
+  bibA_df$code <- rownames(bibA_df)
+  bibB_df <- as.data.frame(ReadBib(bibB, check = FALSE))
+  bibB_df$code <- rownames(bibB_df)
+  bib_df <- merge(x = bibA_df, y = bibB_df, by = ("code"))
+  if (nrow(bib_df) > 0) {
+    print(sprintf("%s-%s", bibA, bibB))
+    print(bib_df$code)
+  }
+}
+
+if (TRUE) {
+  dir <- "C:/Users/eduar/Downloads/Paper"
+  bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  
+  for (i in 1:(length(bibs)-1)) {
+    for (j in (i+1):length(bibs)) {
+      join_Bib(bibs[i], bibs[j])
+    }
+  }
+}
+
 if (FALSE) {
   qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib', doi=TRUE)
   print(qry, quote = FALSE)
@@ -216,3 +239,7 @@ if (FALSE) {
   refs <- unusedRefs('C:/Users/eduar/Downloads/Paper', 'C:/Users/eduar/Downloads/Paper/references.bib')
   removeUnused('C:/Users/eduar/Downloads/Paper/references.bib', refs)
 }
+
+
+
+
