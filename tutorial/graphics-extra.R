@@ -11,7 +11,7 @@ plot_correlation <- function(data, colors="") {
 #'@return plot
 #'@examples
 #'@export
-plot.norm_dist <- function(vect, label_x = "", label_y = "",  colors)  {
+plot_norm_dist <- function(vect, label_x = "", label_y = "",  colors)  {
   data <- data.frame(value = vect)
   grf <- ggplot(data, aes(sample = value)) +
     stat_qq(color=colors) + xlab(label_x) + ylab(label_y) +
