@@ -1,1 +1,0 @@
-Olhar as funções fittestWavelet, fittestEMD e fittestMAS. Vocês vão encontrar exemplos básicos de utilização no documento.
