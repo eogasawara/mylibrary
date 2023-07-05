@@ -191,7 +191,7 @@ join_Bib <- function(bibA, bibB) {
   }
 }
 
-if (TRUE) {
+if (FALSE) {
   dir <- "C:/Users/eduar/Downloads/Paper"
   bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
   
