@@ -1,5 +1,16 @@
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myBasic.R")
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/myGraphic.R")
+source("https://raw.githubusercontent.com/cefet-rj-dal/daltoolbox-examples/main/jupyter.R")
+
+load_library("daltoolbox")
+load_library("ggplot2")
+load_library("dplyr")
+load_library("reshape")
+load_library("RColorBrewer")
+load_library("corrplot")
+load_library("WVPlots")
+load_library("GGally")
+load_library("aplpack")
+
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/tutorial/graphics-extra.R")
 
 colors <- brewer.pal(11, 'Paired')[c(2,4,6)]
 font <- theme(text = element_text(size=16))
@@ -32,79 +43,79 @@ head(res)
 
 
 
-grf <- plot.hist(wine %>% dplyr::select(Alcohol), 
+grf <- plot_hist(wine |> dplyr::select(Alcohol), 
           label_x = "Alcohol", color=colors[1]) + font
 plot(grf)
 
 regress <- colnames(wine)[-1]
 for (i in regress) {
-  grf <- plot.hist(wine %>% dplyr::select(i), 
+  grf <- plot_hist(wine |> dplyr::select(i), 
                    label_x = i, color=colors[1]) + font
   plot(grf)
 }
 
 
-grf <- plot.density(wine %>% dplyr::select(Alcohol), 
+grf <- plot_density(wine |> dplyr::select(Alcohol), 
                  label_x = "Alcohol", color=colors[1]) + font
 plot(grf)
 
 regress <- colnames(wine)[-1]
 for (i in regress) {
-  grf <- plot.density(wine %>% dplyr::select(i), 
+  grf <- plot_density(wine |> dplyr::select(i), 
                    label_x = i, color=colors[1]) + font
   plot(grf)
 }
 
-grf <- plot.density.class(wine %>% dplyr::select(Type, Alcohol), 
+grf <- plot_density_class(wine |> dplyr::select(Type, Alcohol), 
             class_label="Type", label_x = "Alcohol", color=colors[c(1:3)]) 
 plot(grf)
 
 regress <- colnames(wine)[-1]
 for (i in regress) {
-  grf <- plot.density.class(wine %>% dplyr::select(Type, i), 
+  grf <- plot_density_class(wine |> dplyr::select(Type, i), 
                             class_label="Type", label_x = i, color=colors[c(1:3)]) 
   plot(grf)
 }
 
 
 
-grf <- plot.boxplot(wine %>% dplyr::select(Alcohol), 
+grf <- plot_boxplot(wine |> dplyr::select(Alcohol), 
                     label_x = "Alcohol", color=colors[1]) + font
 plot(grf)
 
 
 regress <- colnames(wine)[-1]
 for (i in regress) {
-  grf <- plot.boxplot(wine %>% dplyr::select(i), 
+  grf <- plot_boxplot(wine |> dplyr::select(i), 
                       label_x = i, color=colors[1]) + font
   plot(grf)
 }
 
 
-grf <- plot.boxplot.class(wine %>% dplyr::select(Type, Alcohol), 
+grf <- plot_boxplot_class(wine |> dplyr::select(Type, Alcohol), 
            class_label="Type", label_x = "Alcohol", color=colors[c(1:3)]) 
 plot(grf)
 
 
 regress <- colnames(wine)[-1]
 for (i in regress) {
-  grf <- plot.boxplot.class(wine %>% dplyr::select(Type, i), 
+  grf <- plot_boxplot_class(wine |> dplyr::select(Type, i), 
                             class_label="Type", label_x = i, color=colors[c(1:3)]) 
   plot(grf)
 }
 
 
-plot.correlation(wine %>% 
+plot_correlation(wine |> 
                    dplyr::select(regress))
 
 
 wine$Type <- as.factor(wine$Type)
-grf <- plot.pair.adv(data=wine, cnames=regress, 
+grf <- plot_pair_adv(data=wine, cnames=regress, 
                         title="Wine", clabel='Type', colors=colors[1:3])
 grf
 
 wine$Type <- as.factor(wine$Type)
-grf <- plot.pair.adv(data=wine, cnames=regress[c(1,6,7,12)], 
+grf <- plot_pair_adv(data=wine, cnames=regress[c(1,6,7,12)], 
                      title="Wine", clabel='Type', colors=colors[1:3])
 grf
 
