@@ -5,7 +5,7 @@ setrepos <- function(repos=repos) {
   repos_name <<- repos
 }
 
-loadlibrary <- function(packagename)
+load_library <- function(packagename)
 {
   if (!require(packagename, character.only = TRUE))
   {
@@ -14,12 +14,12 @@ loadlibrary <- function(packagename)
   }
 }
 
-loadlibrary("RefManageR")
-loadlibrary("tibble")
-loadlibrary("readxl")
-loadlibrary("writexl")
-loadlibrary("dplyr")
-loadlibrary("stringr")
+load_library("RefManageR")
+load_library("tibble")
+load_library("readxl")
+load_library("writexl")
+load_library("dplyr")
+load_library("stringr")
 
 adjust_text <- function(x, lower=FALSE) {
   x <- gsub("\\{", "", x)
