@@ -33,6 +33,18 @@ save_xls <- function(dataset, filename) {
   write_xlsx(dataset, path = filename, col_names = TRUE)
 }
 
+urlDOI <- function(bib) {
+  bib <- ReadBib(bib, check = FALSE)
+  bib_df <- as.data.frame(bib)
+  bib_df <- rownames_to_column(bib_df)
+  bib_df$title <- adjust_text(bib_df$title, lower=TRUE)
+  str <- sprintf("https://doi.org/%s", bib_df$doi)
+  str <- str[!is.na(bib_df$doi)]
+  str <- cat(str, sep = "\n")
+  return(str)
+}
+
+
 queryString <- function(bib, doi=TRUE) {
   bib <- ReadBib(bib, check = FALSE)
   bib_df <- as.data.frame(bib)
@@ -179,6 +191,22 @@ cleanBibs <- function(dir, doi=FALSE) {
 }
 
 
+unionBibs <- function(dir, filename) {
+  bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  
+  all <- list()
+  for (bibfile in bibs) {
+    bib <- ReadBib(bibfile, check = FALSE)
+    #bib_df <- as.data.frame(bib)
+    #all <- rbind(all, bib)
+    all <- append(all, bib)
+  }
+  #all <- as.BibEntry(all)
+  WriteBib(all, filename)
+}
+
+
+
 join_Bib <- function(bibA, bibB) {
   bibA_df <- as.data.frame(ReadBib(bibA, check = FALSE))
   bibA_df$code <- rownames(bibA_df)
@@ -203,7 +231,13 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib', doi=TRUE)
+  qry <- urlDOI('C:/Users/eduar/Downloads/Paper/references.bib')
+  print(qry, quote = FALSE)
+}
+
+
+if (FALSE) {
+  qry <- queryString('C:/Users/eduar/Downloads/Paper/general.bib', doi=TRUE)
   print(qry, quote = FALSE)
 }
 
@@ -229,6 +263,11 @@ if (FALSE) {
 if (FALSE) {
   cleanBibs('C:/Users/eduar/Downloads/Paper')
 }
+
+if (FALSE) {
+  unionBibs('C:/Users/eduar/Downloads/Paper', 'C:/Users/eduar/Downloads/all.bib')
+}
+
 
 if (FALSE) {
   refs <- unusedRef('C:/Users/eduar/Downloads/Paper/main.tex', 'C:/Users/eduar/Downloads/Paper/references.bib')
