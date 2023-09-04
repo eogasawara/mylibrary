@@ -187,7 +187,7 @@ cleanBib <- function(bib, doi=FALSE) {
 cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
   bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
   if (diroutput != "") {
-    file.copy(bibs, diroutput)    
+    file.copy(bibs, diroutput, overwrite = TRUE)    
     bibs <- list.files(path = diroutput, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
   }
   
@@ -273,7 +273,7 @@ if (FALSE) {
   cleanBib("C:/Users/eduar/Downloads/Paper/references.bib")
 }
 
-if (FALSE) {
+if (TRUE) {
   cleanBibs("C:/Users/eduar/Downloads/Paper", diroutput="C:/Users/eduar/Downloads/Paper-clean")
 }
 
@@ -296,15 +296,17 @@ if (FALSE) {
   get_scholar_citations("Eduardo", "Ogasawara", "C:/Users/eduar/Downloads/articles.xlsx")
 }
 
-#WriteBib(bib, file="C:/Users/eduar/Downloads/Paper/Books.bib")
-
-bibfile <- "C:/Users/eduar/Downloads/Paper/change-point.bib"
-refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", bibfile)
-bib <- ReadBib(bibfile, check = FALSE)
-bibdf <- as.data.frame(bib)
-bibdf <- bibdf[rownames(bibdf) %in% refs,]
-bibdf$title <- gsub("\\{|\\}", "", bibdf$title)
-bibdf$id <- rownames(bibdf)
-bibdf <- bibdf |> select(id, title, doi)
-write_xlsx(bibdf, "C:/Users/eduar/Downloads/articles.xlsx")
+if (FALSE) {
+  #WriteBib(bib, file="C:/Users/eduar/Downloads/Paper/Books.bib")
+  
+  bibfile <- "C:/Users/eduar/Downloads/Paper/outliers.bib"
+  refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", bibfile)
+  bib <- ReadBib(bibfile, check = FALSE)
+  bibdf <- as.data.frame(bib)
+  bibdf <- bibdf[rownames(bibdf) %in% refs,]
+  bibdf$title <- gsub("\\{|\\}", "", bibdf$title)
+  bibdf$id <- rownames(bibdf)
+  bibdf <- bibdf |> select(id, title, doi)
+  write_xlsx(bibdf, "C:/Users/eduar/Downloads/articles.xlsx")
+}
 
