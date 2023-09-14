@@ -245,7 +245,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=FALSE)
+  qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=TRUE)
   print(qry, quote = FALSE)
 }
 
@@ -273,7 +273,7 @@ if (FALSE) {
   cleanBib("C:/Users/eduar/Downloads/Paper/references.bib")
 }
 
-if (TRUE) {
+if (FALSE) {
   cleanBibs("C:/Users/eduar/Downloads/Paper", diroutput="C:/Users/eduar/Downloads/Paper-clean")
 }
 
