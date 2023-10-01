@@ -278,7 +278,8 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/OneDrive - cefet-rj.br/book/all.bib")
+#  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/OneDrive - cefet-rj.br/book/all.bib")
+  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/Downloads/references.bib")
 }
 
 
