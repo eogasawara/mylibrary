@@ -5,7 +5,7 @@ setrepos <- function(repos=repos) {
   repos_name <<- repos
 }
 
-loadlibrary <- function(packagename)
+load_library <- function(packagename)
 {
   if (!require(packagename, character.only = TRUE))
   {
@@ -14,12 +14,13 @@ loadlibrary <- function(packagename)
   }
 }
 
-loadlibrary("RefManageR")
-loadlibrary("tibble")
-loadlibrary("readxl")
-loadlibrary("writexl")
-loadlibrary("dplyr")
-loadlibrary("stringr")
+load_library("RefManageR")
+load_library("tibble")
+load_library("readxl")
+load_library("writexl")
+load_library("dplyr")
+load_library("stringr")
+load_library("scholar")
 
 adjust_text <- function(x, lower=FALSE) {
   x <- gsub("\\{", "", x)
@@ -33,15 +34,30 @@ save_xls <- function(dataset, filename) {
   write_xlsx(dataset, path = filename, col_names = TRUE)
 }
 
+urlDOI <- function(bib) {
+  bib <- ReadBib(bib, check = FALSE)
+  bib_df <- as.data.frame(bib)
+  bib_df <- rownames_to_column(bib_df)
+  bib_df$title <- adjust_text(bib_df$title, lower=TRUE)
+  str <- sprintf("https://doi.org/%s", bib_df$doi)
+  str <- str[!is.na(bib_df$doi)]
+  str <- cat(str, sep = "\n")
+  return(str)
+}
+
+
 queryString <- function(bib, doi=TRUE) {
   bib <- ReadBib(bib, check = FALSE)
   bib_df <- as.data.frame(bib)
   bib_df <- rownames_to_column(bib_df)
   bib_df$title <- adjust_text(bib_df$title, lower=TRUE)
-  str <- sprintf("TITLE(\"%s\")", bib_df$title)
   if (doi) {
-    i <- !is.na(bib_df$doi)
-    str[i] <- sprintf("DOI(\"%s\")", bib_df$doi[i])
+    bib_df <- bib_df[!is.na(bib_df$doi),]
+    str <- sprintf("DOI(\"%s\")", bib_df$doi)
+  }
+  else {
+    bib_df <- bib_df[is.na(bib_df$doi),]
+    str <- sprintf("TITLE(\"%s\")", bib_df$title)
   }
   str <- cat(str, sep = "\n OR ")
   return(str)
@@ -168,8 +184,12 @@ cleanBib <- function(bib, doi=FALSE) {
   WriteBib(bib, bibfile)
 }
 
-cleanBibs <- function(dir, doi=FALSE) {
+cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
   bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  if (diroutput != "") {
+    file.copy(bibs, diroutput, overwrite = TRUE)    
+    bibs <- list.files(path = diroutput, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  }
   
   for (bib in bibs) {
     if (length(grep("backup", bib, ignore.case = TRUE)) == 0) {
@@ -177,6 +197,22 @@ cleanBibs <- function(dir, doi=FALSE) {
     }
   }
 }
+
+
+unionBibs <- function(dir, filename) {
+  bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  
+  all <- list()
+  for (bibfile in bibs) {
+    bib <- ReadBib(bibfile, check = FALSE)
+    #bib_df <- as.data.frame(bib)
+    #all <- rbind(all, bib)
+    all <- append(all, bib)
+  }
+  #all <- as.BibEntry(all)
+  WriteBib(all, filename)
+}
+
 
 
 join_Bib <- function(bibA, bibB) {
@@ -191,6 +227,12 @@ join_Bib <- function(bibA, bibB) {
   }
 }
 
+get_scholar_citations <- function(first, last, filename) {
+  id <- get_scholar_id(first_name = first, last_name = last)
+  p <- get_publications(id)
+  write_xlsx(p, filename)
+}
+
 if (FALSE) {
   dir <- "C:/Users/eduar/Downloads/Paper"
   bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
@@ -203,43 +245,69 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString('C:/Users/eduar/Downloads/Paper/references.bib', doi=TRUE)
+  qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=TRUE)
   print(qry, quote = FALSE)
 }
 
 if (FALSE) {
-  mapRf <- mapRefs('C:/Users/eduar/Downloads/Paper/references-org.bib', 'C:/Users/eduar/Downloads/Paper/references.bib')
-  subMap('C:/Users/eduar/Downloads/Paper/main.tex', mapRf)
+  qry <- urlDOI("C:/Users/eduar/Downloads/Paper/references.bib")
+  print(qry, quote = FALSE)
 }
 
 if (FALSE) {
-  mapRf <- mapRefs('C:/Users/eduar/Downloads/Paper/references-org.bib', 'C:/Users/eduar/Downloads/Paper/references.bib')
-  subMaps('C:/Users/eduar/Downloads/Paper', mapRf)
+  mapRf <- mapRefs("C:/Users/eduar/Downloads/Paper/references-org.bib", "C:/Users/eduar/Downloads/Paper/references.bib")
+  subMap("C:/Users/eduar/Downloads/Paper/main.tex", mapRf)
+}
+
+if (FALSE) {
+  mapRf <- mapRefs("C:/Users/eduar/Downloads/Paper/references-org.bib", "C:/Users/eduar/Downloads/Paper/references.bib")
+  subMaps("C:/Users/eduar/Downloads/Paper", mapRf)
 }
 
 
 if (FALSE) {
-  checkErrors('C:/Users/eduar/Downloads/Paper/references.bib')
+  checkErrors("C:/Users/eduar/Downloads/Paper/references.bib")
 }
 
 if (FALSE) {
-  cleanBib('C:/Users/eduar/Downloads/Paper/references.bib')
+  cleanBib("C:/Users/eduar/Downloads/Paper/references.bib")
 }
 
 if (FALSE) {
-  cleanBibs('C:/Users/eduar/Downloads/Paper')
+  cleanBibs("C:/Users/eduar/Downloads/Paper", diroutput="C:/Users/eduar/Downloads/Paper-clean")
 }
 
 if (FALSE) {
-  refs <- unusedRef('C:/Users/eduar/Downloads/Paper/main.tex', 'C:/Users/eduar/Downloads/Paper/references.bib')
-  removeUnused('C:/Users/eduar/Downloads/Paper/references.bib', refs)
+#  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/OneDrive - cefet-rj.br/book/all.bib")
+  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/Downloads/references.bib")
+}
+
+
+if (FALSE) {
+  refs <- unusedRef("C:/Users/eduar/Downloads/Paper/main.tex", "C:/Users/eduar/Downloads/Paper/references.bib")
+  removeUnused("C:/Users/eduar/Downloads/Paper/references.bib", refs)
 }
 
 if (FALSE) {
-  refs <- unusedRefs('C:/Users/eduar/Downloads/Paper', 'C:/Users/eduar/Downloads/Paper/references.bib')
-  removeUnused('C:/Users/eduar/Downloads/Paper/references.bib', refs)
+  refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/Downloads/Paper/references.bib")
+  removeUnused("C:/Users/eduar/Downloads/Paper/references.bib", refs)
 }
 
+if (FALSE) {
+  get_scholar_citations("Eduardo", "Ogasawara", "C:/Users/eduar/Downloads/articles.xlsx")
+}
 
-
+if (FALSE) {
+  #WriteBib(bib, file="C:/Users/eduar/Downloads/Paper/Books.bib")
+  
+  bibfile <- "C:/Users/eduar/Downloads/Paper/outliers.bib"
+  refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", bibfile)
+  bib <- ReadBib(bibfile, check = FALSE)
+  bibdf <- as.data.frame(bib)
+  bibdf <- bibdf[rownames(bibdf) %in% refs,]
+  bibdf$title <- gsub("\\{|\\}", "", bibdf$title)
+  bibdf$id <- rownames(bibdf)
+  bibdf <- bibdf |> select(id, title, doi)
+  write_xlsx(bibdf, "C:/Users/eduar/Downloads/articles.xlsx")
+}
 
