@@ -274,12 +274,12 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  cleanBibs("C:/Users/eduar/Downloads/Paper", diroutput="C:/Users/eduar/Downloads/Paper-clean")
+  cleanBibs("C:/Users/eduar/Downloads/Paper")
 }
 
 if (FALSE) {
 #  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/OneDrive - cefet-rj.br/book/all.bib")
-  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/Downloads/references.bib")
+  unionBibs("C:/Users/eduar/Downloads/Source", "C:/Users/eduar/Downloads/Paper/references.bib")
 }
 
 
