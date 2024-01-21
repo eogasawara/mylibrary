@@ -51,12 +51,13 @@ queryString <- function(bib, doi=TRUE) {
   bib_df <- as.data.frame(bib)
   bib_df <- rownames_to_column(bib_df)
   bib_df$title <- adjust_text(bib_df$title, lower=TRUE)
-  if (doi) {
+  if (doi && !is.null(bib_df$doi)) {
     bib_df <- bib_df[!is.na(bib_df$doi),]
     str <- sprintf("DOI(\"%s\")", bib_df$doi)
   }
   else {
-    bib_df <- bib_df[is.na(bib_df$doi),]
+    if (!is.null(bib_df$doi))
+      bib_df <- bib_df[is.na(bib_df$doi),]
     str <- sprintf("TITLE(\"%s\")", bib_df$title)
   }
   str <- cat(str, sep = "\n OR ")
@@ -104,7 +105,7 @@ subMap <- function(tex, mapRefs) {
 subMaps <- function(dir, mapRefs) {
   texs <- list.files(path = dir, pattern = ".tex$", full.names = TRUE, recursive = TRUE)
   for (tex in texs) {
-    if (length(grep("backup", tex, ignore.case = TRUE)) == 0)
+    if (length(grep("backup", tex, fixed = TRUE, ignore.case = TRUE)) == 0)
       subMap(tex, mapRefs)
   }
 }
@@ -119,7 +120,7 @@ unusedRef <- function(tex, bib) {
   bib <- rownames_to_column(bib)
   for (i in 1:nrow(bib)) {
     cod <- bib$rowname[i]
-    if (length(grep(cod, tex, ignore.case = TRUE)) == 0)
+    if (length(grep(cod, tex, fixed = TRUE, ignore.case = TRUE)) == 0)
       lst <- append(lst, cod)
   }
   return(lst)  
@@ -135,7 +136,7 @@ unusedRefs <- function(dir, bib) {
   texs <- list.files(path = dir, pattern = ".tex$", full.names = TRUE, recursive = TRUE)
   
   for (tex in texs) {
-    if (length(grep("backup", tex, ignore.case = TRUE)) == 0) {
+    if (length(grep("backup", tex, fixed = TRUE, ignore.case = TRUE)) == 0) {
       lst <- unusedRef(tex, bibfile)
       all <- all[(all %in% lst)] 
     }
@@ -192,7 +193,7 @@ cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
   }
   
   for (bib in bibs) {
-    if (length(grep("backup", bib, ignore.case = TRUE)) == 0) {
+    if (length(grep("backup", bib, fixed = TRUE, ignore.case = TRUE)) == 0) {
       cleanBib(bib, doi)
     }
   }
@@ -245,7 +246,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=TRUE)
+  qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=FALSE)
   print(qry, quote = FALSE)
 }
 
