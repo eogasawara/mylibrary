@@ -1,0 +1,40 @@
+Considere dois métodos A e B, onde desejamos comparar os seus desempenhos.
+
+```{r}
+#dado sintético 
+set.seed(1)
+trials <- 30
+MethodA <- rnorm(trials, mean=10, sd = 2)
+MethodB <- rnorm(trials, mean=11, sd = 2)
+```
+
+```{r}
+data <- data.frame(MethodA, MethodB)
+head(data)
+boxplot(data)
+```
+
+```{r}
+res <- wilcox.test(MethodA, MethodB, paired=TRUE, exact=FALSE)
+res
+```
+
+Análise do Effect Size
+
+```{r}
+library(rstatix)
+```
+
+Execute este mesmo experimento com menos tentativas (trials) (5, 10)
+
+```{r}
+methods = c(rep("MethodA", length(MethodA)), rep("MethodB", length(MethodB)))
+data_effect = data.frame(methods, y = c(MethodA, MethodB))
+```
+
+```{r}
+wilcox_effsize(y ~ methods, paired=TRUE, data=data_effect)
+```
+
+Altere as médias para avaliar a magnitude do efeito.
+

@@ -1,14 +1,14 @@
-source("https://raw.githubusercontent.com/cefet-rj-dal/daltoolbox-examples/main/jupyter.R")
 
-load_library("daltoolbox")
-load_library("ggplot2")
-load_library("dplyr")
-load_library("reshape")
-load_library("RColorBrewer")
-load_library("corrplot")
-load_library("WVPlots")
-load_library("GGally")
-load_library("aplpack")
+
+library(daltoolbox)
+library(ggplot2)
+library(dplyr)
+library(reshape)
+library(RColorBrewer)
+library(corrplot)
+library(WVPlots)
+library(GGally)
+library(aplpack)
 
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/master/tutorial/graphics-extra.R")
 

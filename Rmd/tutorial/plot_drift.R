@@ -1,11 +1,11 @@
-source("https://raw.githubusercontent.com/cefet-rj-dal/daltoolbox-examples/main/jupyter.R")
 
-load_library("daltoolbox")
-load_library("RColorBrewer")
-load_library("dplyr")
-load_library("ggplot2")
+
+library(daltoolbox)
+library(RColorBrewer)
+library(dplyr)
+library(ggplot2)
 load_library("gridExtra")
-load_library("reshape")
+library(reshape)
 
 col.set <- brewer.pal(11, 'Spectral')
 mycolors <- col.set[c(1,10,3)]
