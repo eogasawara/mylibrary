@@ -1,8 +1,3 @@
----
-title: An R Markdown document converted from "Rmd/tutorial/tut_r_short_course.ipynb"
-output: html_document
----
-
 ### Part 1
 
 
@@ -1175,7 +1170,7 @@ end_time - start_time
 ```
 
 ```
-## Time difference of 8.658953 secs
+## Time difference of 8.137975 secs
 ```
 
 #### Convert the entire data.frame
@@ -1194,7 +1189,7 @@ end_time - start_time
 ```
 
 ```
-## Time difference of 0.4507401 secs
+## Time difference of 0.2768168 secs
 ```
 
 #### apply family

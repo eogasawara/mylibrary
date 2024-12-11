@@ -1,8 +1,3 @@
----
-title: An R Markdown document converted from "Rmd/tutorial/tut_r_course.ipynb"
-output: html_document
----
-
 #### Installation of R packages
 
 
@@ -1069,7 +1064,7 @@ end_time - start_time
 ```
 
 ```
-## Time difference of 0.003582001 secs
+## Time difference of 0.002957344 secs
 ```
 
 ```r
@@ -1094,7 +1089,7 @@ end_time - start_time
 ```
 
 ```
-## Time difference of 8.370247 secs
+## Time difference of 8.424716 secs
 ```
 
 #### convert the entire column
@@ -1113,7 +1108,7 @@ end_time - start_time
 ```
 
 ```
-## Time difference of 0.445226 secs
+## Time difference of 0.4608033 secs
 ```
 
 #### apply family

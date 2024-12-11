@@ -1,8 +1,3 @@
----
-title: An R Markdown document converted from "Rmd/tutorial/tut_r_short_course.ipynb"
-output: html_document
----
-
 ### Part 1
 
 ```{r}

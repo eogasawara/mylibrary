@@ -341,11 +341,11 @@ s1 <- cspade(x, parameter = list(support = 0.4), control = list(verbose = TRUE))
 ## summary  : FALSE
 ## tidLists : FALSE
 ## 
-## preprocessing ... 1 partition(s), 0 MB [0.003s]
+## preprocessing ... 1 partition(s), 0 MB [0.007s]
 ## mining transactions ... 0 MB [0.002s]
-## reading sequences ... [0.007s]
+## reading sequences ... [0.009s]
 ## 
-## total elapsed time: 0.012s
+## total elapsed time: 0.018s
 ```
 
 ```r
