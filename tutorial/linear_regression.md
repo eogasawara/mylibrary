@@ -8,64 +8,8 @@
 
 
 library(daltoolbox)
-```
-
-```
-## Registered S3 method overwritten by 'quantmod':
-##   method            from
-##   as.zoo.data.frame zoo
-```
-
-```
-## 
-## Attaching package: 'daltoolbox'
-```
-
-```
-## The following object is masked from 'package:base':
-## 
-##     transform
-```
-
-```r
 library(MASS)
 library(plotly)
-```
-
-```
-## Loading required package: ggplot2
-```
-
-```
-## 
-## Attaching package: 'plotly'
-```
-
-```
-## The following object is masked from 'package:ggplot2':
-## 
-##     last_plot
-```
-
-```
-## The following object is masked from 'package:MASS':
-## 
-##     select
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     filter
-```
-
-```
-## The following object is masked from 'package:graphics':
-## 
-##     layout
-```
-
-```r
 library(reshape2)
 ```
 
@@ -329,13 +273,13 @@ head(train)
 ```
 
 ```
-##     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species versicolor
-## 42           4.5         2.3          1.3         0.3      other          0
-## 5            5.0         3.6          1.4         0.2      other          0
-## 122          5.6         2.8          4.9         2.0      other          0
-## 26           5.0         3.0          1.6         0.2      other          0
-## 66           6.7         3.1          4.4         1.4 versicolor          1
-## 4            4.6         3.1          1.5         0.2      other          0
+##     Sepal.Length Sepal.Width Petal.Length Petal.Width Species versicolor
+## 140          6.9         3.1          5.4         2.1   other          0
+## 126          7.2         3.2          6.0         1.8   other          0
+## 14           4.3         3.0          1.1         0.1   other          0
+## 116          6.4         3.2          5.3         2.3   other          0
+## 16           5.7         4.4          1.5         0.4   other          0
+## 15           5.8         4.0          1.2         0.2   other          0
 ```
 
 This dataset is unbalanced using this perspective. If the prediction for $versicolor$ is higher than its probability, it can be classified as $versicolor$. 
@@ -347,7 +291,7 @@ print(t)
 ```
 
 ```
-## [1] 0.35
+## [1] 0.2833333
 ```
 
 The creation of the logistic regression model using all independent variables uses $glm$ function.
@@ -369,8 +313,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 56 11
-##   1 22 31
+##   0 63  9
+##   1 23 25
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -385,8 +329,8 @@ table(res, test$versicolor)
 ```
 ##        
 ## res      0  1
-##   FALSE 15  1
-##   TRUE   7  7
+##   FALSE 10  3
+##   TRUE   4 13
 ```
 
 Creation of the logistic regression model using the independent variables with lower entropy during binning transformation.  
@@ -408,8 +352,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 61  8
-##   1 17 34
+##   0 65 10
+##   1 21 24
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -424,7 +368,7 @@ table(res, test$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 15  0
-##   1  7  8
+##   0 13  1
+##   1  1 15
 ```
 
