@@ -10,8 +10,37 @@
 library(daltoolbox)
 
 library(arules)
+```
+
+```
+## Loading required package: Matrix
+```
+
+```
+## 
+## Attaching package: 'arules'
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     abbreviate, write
+```
+
+```r
 library(arulesViz)
 library(arulesSequences)
+```
+
+```
+## 
+## Attaching package: 'arulesSequences'
+```
+
+```
+## The following object is masked from 'package:arules':
+## 
+##     itemsets
 ```
 
 
@@ -343,9 +372,9 @@ s1 <- cspade(x, parameter = list(support = 0.4), control = list(verbose = TRUE))
 ## 
 ## preprocessing ... 1 partition(s), 0 MB [0.007s]
 ## mining transactions ... 0 MB [0.002s]
-## reading sequences ... [0.009s]
+## reading sequences ... [0.007s]
 ## 
-## total elapsed time: 0.018s
+## total elapsed time: 0.016s
 ```
 
 ```r
