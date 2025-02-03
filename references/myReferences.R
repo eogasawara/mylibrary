@@ -150,6 +150,7 @@ removeUnused <- function(bib, lst) {
   bib_df <- as.data.frame(bib)
   
   x <- rownames(bib_df)
+  
   bib_df <- bib_df[!(x %in% lst),]
   bib <- as.BibEntry(bib_df)
   WriteBib(bib, bibfile)
@@ -286,6 +287,7 @@ if (FALSE) {
 
 if (FALSE) {
   refs <- unusedRef("C:/Users/eduar/Downloads/Paper/main.tex", "C:/Users/eduar/Downloads/Paper/references.bib")
+  print(refs)
   removeUnused("C:/Users/eduar/Downloads/Paper/references.bib", refs)
 }
 
