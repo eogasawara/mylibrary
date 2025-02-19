@@ -61,7 +61,7 @@ res
 Situação #2: Se quer comparar se as medidas individuais de A e B. Neste caso a comparação é pareada. 
 
 ```{r}
-res <- t.test(MethodA, MethodB, paired=TRUE)
+res <- wilcox.test(MethodA, MethodB, paired=TRUE)
 res
 ```
 

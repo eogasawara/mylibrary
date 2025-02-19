@@ -126,22 +126,17 @@ Situação #2: Se quer comparar se as medidas individuais de A e B. Neste caso a
 
 
 ```r
-res <- t.test(MethodA, MethodB, paired=TRUE)
+res <- wilcox.test(MethodA, MethodB, paired=TRUE)
 res
 ```
 
 ```
 ## 
-## 	Paired t-test
+## 	Wilcoxon signed rank exact test
 ## 
 ## data:  MethodA and MethodB
-## t = 0.976, df = 29, p-value = 0.3371
-## alternative hypothesis: true mean difference is not equal to 0
-## 95 percent confidence interval:
-##  -1.303921  3.684384
-## sample estimates:
-## mean difference 
-##        1.190231
+## V = 314, p-value = 0.0961
+## alternative hypothesis: true location shift is not equal to 0
 ```
 
 Execute este mesmo experimento com menos tentativas (trials) (5, 10)
