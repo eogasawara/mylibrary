@@ -1,0 +1,182 @@
+# Regression
+
+```{r}
+# DAL ToolBox
+# version 1.0.77
+
+
+
+library(daltoolbox)
+library(MASS)
+library(plotly)
+library(reshape2)
+```
+
+## Dataset
+Both independent and dependent variables are numeric. 
+
+```{r}
+head(Boston)
+```
+
+## Fitting a first model
+Explaining house price using lower status population variable.
+
+$lm$ builds the model.
+
+$summary$ describes the significance of the built model.
+
+```{r}
+lm.fit = lm(medv ~ lstat, data = Boston)
+
+summary(lm.fit)
+```
+
+## prediction
+The $predict$ function makes predictions from the adjusted model.
+
+The predictions can be presented with either $confidence$ and $prediction$ intervals. 
+
+These intervals can be analyzed at https://statisticsbyjim.com/hypothesis-testing/confidence-prediction-tolerance-intervals/
+
+```{r}
+predict(lm.fit, data.frame(lstat =(c(5, 10, 15))), interval = "confidence")
+predict(lm.fit, data.frame(lstat =(c(5, 10, 15))), interval = "prediction")
+```
+
+## Plotting the regression model
+
+It is a good practice to plot the regression model. It enables us to have a feeling of its quality.
+
+```{r}
+axis_x <- seq(min(Boston$lstat), max(Boston$lstat), by = 0.5)
+axis_y <- predict(lm.fit, data.frame(lstat=axis_x))
+
+data_adj = data.frame(lstat=axis_x, medv=axis_y)
+
+ggplot(Boston) + geom_point(aes(x = lstat, y = medv)) + geom_line(data=data_adj,aes(x=lstat,y=medv), color="Blue") + theme_bw(base_size = 10) 
+```
+
+# Polynomial regression
+
+It is possible to introduce polynomial dimensions of independent data. 
+
+```{r}
+lm.fit_p =lm(medv~lstat+I(lstat^2), data=Boston)
+summary (lm.fit_p)
+```
+
+## Plotting the polynomial regression model
+
+It seems to be better adjusted with the data. Is it significant?
+
+```{r}
+axis_x <- seq(min(Boston$lstat), max(Boston$lstat), by = 0.5)
+axis_x2 <- axis_x^2
+axis_y <- predict(lm.fit_p, data.frame(lstat=axis_x, `I(lstat^2)`=axis_x2))
+
+
+data_adj = data.frame(lstat=axis_x, medv=axis_y)
+ggplot(Boston) + geom_point(aes(x = lstat, y = medv)) + geom_line(data=data_adj,aes(x=lstat,y=medv), color="Blue") + theme_bw(base_size = 10) 
+```
+
+## ANOVA test
+
+It is possible to check if a built model is significantly better than another model using the ANOVA test. 
+
+The null hypothesis is that both models are not different ($\operatorname{p-value} > 5\%$). The alternative hypothesis says that they are different ($\operatorname{p-value} < 5\%$). 
+
+```{r}
+anova(lm.fit, lm.fit_p)
+```
+
+# Multiple regression
+
+It is possible to use more than one dimension as independent data for the regression model. 
+
+```{r}
+lm.fit2 =lm(medv~lstat+age, data=Boston)
+summary (lm.fit2)
+```
+
+## Checking the significance of the model
+
+```{r}
+anova(lm.fit ,lm.fit2)
+```
+
+# Logistic Regression
+In this example the predicted dependent variable is categorical.
+
+```{r}
+head(iris)
+```
+
+To make the problem simpler, let us assume that we intend to predict if a species is $versicolor$ or if it is $other$ species. 
+
+```{r}
+data <- iris
+data$versicolor <- as.integer(data$Species=="versicolor")
+data$Species <- c('other', 'versicolor')[data$versicolor+1]
+```
+
+Using preprocessing functions, we separate both training and test data. 
+
+```{r}
+tt <- daltoolbox::train_test(daltoolbox::sample_random(), data)
+train <- tt$train
+test <- tt$test
+head(train)
+```
+
+This dataset is unbalanced using this perspective. If the prediction for $versicolor$ is higher than its probability, it can be classified as $versicolor$. 
+
+```{r}
+t <- mean(train$versicolor)
+print(t)
+```
+
+The creation of the logistic regression model using all independent variables uses $glm$ function.
+
+```{r}
+pred <- glm(versicolor ~ .-Species, data=train, family = binomial)
+```
+
+The quality of adjustment using training data is measured using the confusion table. 
+
+```{r}
+res <- predict(pred, train, type="response")
+res <- as.integer(res >= t)
+table(res, train$versicolor)
+```
+
+The quality of prediction using the test data is measured using the confusion table. 
+
+```{r}
+res <- predict(pred, test, type="response")
+res <- res >= t
+table(res, test$versicolor)
+```
+
+Creation of the logistic regression model using the independent variables with lower entropy during binning transformation.  
+
+```{r}
+pred <- glm(versicolor ~ Petal.Length + Petal.Width, data=train, family = binomial)
+```
+
+The quality of adjustment using training data is measured using the confusion table. 
+
+```{r}
+res <- predict(pred, train, type="response")
+res <- as.integer(res >= t)
+table(res, train$versicolor)
+```
+
+The quality of prediction using the test data is measured using the confusion table. 
+
+```{r}
+res <- predict(pred, test, type="response")
+res <- as.integer(res >= t)
+table(res, test$versicolor)
+```
+
