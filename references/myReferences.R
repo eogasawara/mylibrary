@@ -1,26 +1,11 @@
-if (!exists("repos_name"))
-  repos_name <<- getOption("repos")[1]
-
-setrepos <- function(repos=repos) {
-  repos_name <<- repos
-}
-
-load_library <- function(packagename)
-{
-  if (!require(packagename, character.only = TRUE))
-  {
-    install.packages(packagename, repos=repos_name, dep=TRUE, verbose = FALSE)
-    require(packagename, character.only = TRUE)
-  }
-}
-
-load_library("RefManageR")
-load_library("tibble")
-load_library("readxl")
-load_library("writexl")
-load_library("dplyr")
-load_library("stringr")
-load_library("scholar")
+Sys.setlocale("LC_ALL", "en_US.UTF-8")
+library(RefManageR)
+library(tibble)
+library(readxl)
+library(writexl)
+library(dplyr)
+library(stringr)
+library(scholar)
 
 adjust_text <- function(x, lower=FALSE) {
   x <- gsub("\\{", "", x)
@@ -153,7 +138,11 @@ removeUnused <- function(bib, lst) {
   
   bib_df <- bib_df[!(x %in% lst),]
   bib <- as.BibEntry(bib_df)
-  WriteBib(bib, bibfile)
+  #WriteBib(bib, bibfile)
+  
+  con <- file(bibfile, encoding = "UTF-8", open = "w")
+  writeLines(toBibtex(bib), con = con)
+  close(con)  
 }
 
 checkErrors <- function(bibfile) {
@@ -170,10 +159,32 @@ checkErrors <- function(bibfile) {
   }  
 }
 
-
+sanitize_bibtex_text <- function(x) {
+  x <- gsub("Ł", "L", x)
+  x <- gsub("ł", "l", x)
+  x <- gsub("–", "-", x)
+  x <- gsub("—", "--", x)  # travessão
+  x <- gsub("“|”", "\"", x)
+  x <- gsub("’", "'", x)
+  x <- gsub("á", "a", x)
+  x <- gsub("â", "a", x)
+  x <- gsub("ã", "a", x)
+  x <- gsub("ç", "c", x)
+  x <- gsub("é", "e", x)
+  x <- gsub("ê", "e", x)
+  x <- gsub("í", "i", x)
+  x <- gsub("ó", "o", x)
+  Encoding(x) <- "UTF-8"
+  return(x)
+}
 cleanBib <- function(bib, doi=FALSE) {
   bibfile <- bib
-  bib <- ReadBib(bibfile, check = FALSE)
+  
+  bib_lines <- sanitize_bibtex_text(readLines(bibfile, encoding = "UTF-8"))
+  tmp <- tempfile(fileext = ".bib")
+  writeLines(bib_lines, tmp)
+  bib <- RefManageR::ReadBib(tmp, check = FALSE)
+  
   bib_df <- as.data.frame(bib)
   bib_df$abstract <- NA
   bib_df$keywords <- NA
@@ -182,8 +193,15 @@ cleanBib <- function(bib, doi=FALSE) {
   bib_df$copyright <- NA
   if (doi)
     bib_df$doi <- NA
+
+  # Reconstrução e escrita
   bib <- as.BibEntry(bib_df)
-  WriteBib(bib, bibfile)
+  bib_str <- toBibtex(bib)
+  bib_str <- sanitize_bibtex_text(bib_str)
+  
+  con <- file(bibfile, encoding = "UTF-8", open = "w")
+  writeLines(bib_str, con = con, sep = "\n")
+  close(con)
 }
 
 cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
@@ -199,6 +217,62 @@ cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
     }
   }
 }
+
+strip_inner_braces <- function(text) {
+  chars <- strsplit(text, "")[[1]]
+  output <- character()
+  level <- 0
+  for (char in chars) {
+    if (char == "{") {
+      level <- level + 1
+      if (level == 1) output <- c(output, char)  # mantém chave externa
+    } else if (char == "}") {
+      if (level == 1) output <- c(output, char)  # mantém chave externa
+      level <- level - 1
+    } else {
+      output <- c(output, char)
+    }
+  }
+  paste(output, collapse = "")
+}
+
+sanitize_bib_field <- function(lines, field = "title") {
+  output <- c()
+  i <- 1
+  field_pattern <- paste0("^\\s*", field, "\\s*=\\s*\\{")
+  
+  while (i <= length(lines)) {
+    line <- lines[i]
+    
+    if (grepl(field_pattern, line)) {
+      full_line <- line
+      brace_level <- stringr::str_count(line, "\\{") - stringr::str_count(line, "\\}")
+      i <- i + 1
+      while (brace_level > 0 && i <= length(lines)) {
+        full_line <- paste0(full_line, lines[i])
+        brace_level <- brace_level + stringr::str_count(lines[i], "\\{") - stringr::str_count(lines[i], "\\}")
+        i <- i + 1
+      }
+      
+      # Extrair conteúdo entre chaves externas
+      value <- sub(paste0("^.*", field, "\\s*=\\s*\\{"), "", full_line)
+      value <- sub("\\},?\\s*$", "", value)
+      value_clean <- strip_inner_braces(value)
+      output <- c(output, sprintf("  %s = {%s},", field, value_clean))
+    } else {
+      output <- c(output, line)
+      i <- i + 1
+    }
+  }
+  
+  return(output)
+}
+
+lines <- readLines("C:/Users/eduar/Downloads/Paper/bibliografia-org.bib", encoding = "UTF-8")
+for (campo in c("title", "booktitle", "journal", "publisher")) {
+  lines <- sanitize_bib_field(lines, field = campo)
+}
+writeLines(lines, "C:/Users/eduar/Downloads/Paper/bibliografia.bib", useBytes = TRUE)
 
 
 unionBibs <- function(dir, filename) {
@@ -247,7 +321,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=TRUE)
+  qry <- queryString("C:/Users/eduar/Downloads/Paper/bibliografia.bib", doi=TRUE)
   print(qry, quote = FALSE)
 }
 
@@ -262,7 +336,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  mapRf <- mapRefs("C:/Users/eduar/Downloads/Paper/references-org.bib", "C:/Users/eduar/Downloads/Paper/references.bib")
+  mapRf <- mapRefs("C:/Users/eduar/Downloads/Paper/bibliografia-org.bib", "C:/Users/eduar/Downloads/Paper/bibliografia.bib")
   subMaps("C:/Users/eduar/Downloads/Paper", mapRf)
 }
 
@@ -272,7 +346,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  cleanBib("C:/Users/eduar/Downloads/Paper/references.bib")
+  cleanBib("C:/Users/eduar/Downloads/Paper/bibliografia.bib")
 }
 
 if (FALSE) {
