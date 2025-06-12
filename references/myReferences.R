@@ -1,4 +1,3 @@
-Sys.setlocale("LC_ALL", "en_US.UTF-8")
 library(RefManageR)
 library(tibble)
 library(readxl)
@@ -129,20 +128,39 @@ unusedRefs <- function(dir, bib) {
   return(all)  
 }
 
-removeUnused <- function(bib, lst) {
-  bibfile <- bib
-  bib <- ReadBib(bibfile, check = FALSE)
-  bib_df <- as.data.frame(bib)
+removeUnused <- function(bib,lst) {
+  lines <- readLines(bib, encoding = "UTF-8", warn = FALSE)
+  output <- c()
+  i <- 1
   
-  x <- rownames(bib_df)
+  while (i <= length(lines)) {
+    line <- lines[i]
+    
+    if (grepl("^@", line)) {
+      entry_start <- i
+      entry_type <- sub("^@([a-zA-Z]+)\\{.*", "\\1", line)
+      entry_key <- sub("^@[a-zA-Z]+\\{([^,]+),.*", "\\1", line)
+      
+      # Acumula a entrada até as chaves estarem balanceadas
+      brace_level <- stringr::str_count(line, "\\{") - stringr::str_count(line, "\\}")
+      i <- i + 1
+      entry_lines <- line
+      while (brace_level > 0 && i <= length(lines)) {
+        entry_lines <- c(entry_lines, lines[i])
+        brace_level <- brace_level + stringr::str_count(lines[i], "\\{") - stringr::str_count(lines[i], "\\}")
+        i <- i + 1
+      }
+      
+      if (!(entry_key %in% lst)) {
+        output <- c(output, entry_lines, "")  # mantém a entrada
+      }
+    } else {
+      # linha fora de entrada (provavelmente espaço)
+      i <- i + 1
+    }
+  }
   
-  bib_df <- bib_df[!(x %in% lst),]
-  bib <- as.BibEntry(bib_df)
-  #WriteBib(bib, bibfile)
-  
-  con <- file(bibfile, encoding = "UTF-8", open = "w")
-  writeLines(toBibtex(bib), con = con)
-  close(con)  
+  writeLines(output, bib, useBytes = TRUE)
 }
 
 checkErrors <- function(bibfile) {
@@ -157,65 +175,6 @@ checkErrors <- function(bibfile) {
       bib <- ReadBib(auxbibfile, check = FALSE)
     }
   }  
-}
-
-sanitize_bibtex_text <- function(x) {
-  x <- gsub("Ł", "L", x)
-  x <- gsub("ł", "l", x)
-  x <- gsub("–", "-", x)
-  x <- gsub("—", "--", x)  # travessão
-  x <- gsub("“|”", "\"", x)
-  x <- gsub("’", "'", x)
-  x <- gsub("á", "a", x)
-  x <- gsub("â", "a", x)
-  x <- gsub("ã", "a", x)
-  x <- gsub("ç", "c", x)
-  x <- gsub("é", "e", x)
-  x <- gsub("ê", "e", x)
-  x <- gsub("í", "i", x)
-  x <- gsub("ó", "o", x)
-  Encoding(x) <- "UTF-8"
-  return(x)
-}
-cleanBib <- function(bib, doi=FALSE) {
-  bibfile <- bib
-  
-  bib_lines <- sanitize_bibtex_text(readLines(bibfile, encoding = "UTF-8"))
-  tmp <- tempfile(fileext = ".bib")
-  writeLines(bib_lines, tmp)
-  bib <- RefManageR::ReadBib(tmp, check = FALSE)
-  
-  bib_df <- as.data.frame(bib)
-  bib_df$abstract <- NA
-  bib_df$keywords <- NA
-  bib_df$url[bib$bibtype!="Misc"] <- NA
-  bib_df$note <- NA
-  bib_df$copyright <- NA
-  if (doi)
-    bib_df$doi <- NA
-
-  # Reconstrução e escrita
-  bib <- as.BibEntry(bib_df)
-  bib_str <- toBibtex(bib)
-  bib_str <- sanitize_bibtex_text(bib_str)
-  
-  con <- file(bibfile, encoding = "UTF-8", open = "w")
-  writeLines(bib_str, con = con, sep = "\n")
-  close(con)
-}
-
-cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
-  bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
-  if (diroutput != "") {
-    file.copy(bibs, diroutput, overwrite = TRUE)    
-    bibs <- list.files(path = diroutput, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
-  }
-  
-  for (bib in bibs) {
-    if (length(grep("backup", bib, fixed = TRUE, ignore.case = TRUE)) == 0) {
-      cleanBib(bib, doi)
-    }
-  }
 }
 
 strip_inner_braces <- function(text) {
@@ -236,7 +195,7 @@ strip_inner_braces <- function(text) {
   paste(output, collapse = "")
 }
 
-sanitize_bib_field <- function(lines, field = "title") {
+sanitize_bib_field <- function(lines, field = "title", clean = FALSE) {
   output <- c()
   i <- 1
   field_pattern <- paste0("^\\s*", field, "\\s*=\\s*\\{")
@@ -245,6 +204,18 @@ sanitize_bib_field <- function(lines, field = "title") {
     line <- lines[i]
     
     if (grepl(field_pattern, line)) {
+      # Procurar tipo da entrada anterior (ex: @article{...})
+      entry_type <- ""
+      j <- i - 1
+      while (j > 0) {
+        if (grepl("^@\\w+", lines[j])) {
+          entry_type <- tolower(sub("^@([a-zA-Z]+)\\{.*", "\\1", lines[j]))
+          break
+        }
+        j <- j - 1
+      }
+      
+      # Acumula linhas até fechar chaves corretamente
       full_line <- line
       brace_level <- stringr::str_count(line, "\\{") - stringr::str_count(line, "\\}")
       i <- i + 1
@@ -254,52 +225,55 @@ sanitize_bib_field <- function(lines, field = "title") {
         i <- i + 1
       }
       
-      # Extrair conteúdo entre chaves externas
-      value <- sub(paste0("^.*", field, "\\s*=\\s*\\{"), "", full_line)
-      value <- sub("\\},?\\s*$", "", value)
-      value_clean <- strip_inner_braces(value)
-      output <- c(output, sprintf("  %s = {%s},", field, value_clean))
+      should_clean <- clean
+      if (clean && field == "url") {
+        # Só limpa URL se tipo for inproceedings ou article
+        should_clean <- entry_type %in% c("inproceedings", "article")
+      }
+      
+      if (should_clean) {
+        output <- c(output, sprintf("  %s = {},", field))
+      } else {
+        value <- sub(paste0("^.*", field, "\\s*=\\s*\\{"), "", full_line)
+        value <- sub("\\},?\\s*$", "", value)
+        value_clean <- strip_inner_braces(value)
+        output <- c(output, sprintf("  %s = {%s},", field, value_clean))
+      }
     } else {
       output <- c(output, line)
       i <- i + 1
     }
   }
-  
   return(output)
 }
 
-lines <- readLines("C:/Users/eduar/Downloads/Paper/bibliografia-org.bib", encoding = "UTF-8")
-for (campo in c("title", "booktitle", "journal", "publisher")) {
-  lines <- sanitize_bib_field(lines, field = campo)
-}
-writeLines(lines, "C:/Users/eduar/Downloads/Paper/bibliografia.bib", useBytes = TRUE)
-
-
-unionBibs <- function(dir, filename) {
-  bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
-  
-  all <- list()
-  for (bibfile in bibs) {
-    bib <- ReadBib(bibfile, check = FALSE)
-    #bib_df <- as.data.frame(bib)
-    #all <- rbind(all, bib)
-    all <- append(all, bib)
+cleanBib <- function(bib, doi=FALSE) {
+  lines <- readLines(bib, encoding = "UTF-8")
+  for (campo in c("title", "booktitle", "journal", "publisher")) {
+    lines <- sanitize_bib_field(lines, field = campo)
   }
-  #all <- as.BibEntry(all)
-  WriteBib(all, filename)
+  for (campo in c("abstract", "keywords", "note", "copyright", "url")) {
+    lines <- sanitize_bib_field(lines, field = campo, clean = TRUE)
+  }
+  if (doi) {
+    for (campo in c("doi")) {
+      lines <- sanitize_bib_field(lines, field = campo, clean = TRUE)
+    }
+  }
+  writeLines(lines, bib, useBytes = TRUE)
 }
 
-
-
-join_Bib <- function(bibA, bibB) {
-  bibA_df <- as.data.frame(ReadBib(bibA, check = FALSE))
-  bibA_df$code <- rownames(bibA_df)
-  bibB_df <- as.data.frame(ReadBib(bibB, check = FALSE))
-  bibB_df$code <- rownames(bibB_df)
-  bib_df <- merge(x = bibA_df, y = bibB_df, by = ("code"))
-  if (nrow(bib_df) > 0) {
-    print(sprintf("%s-%s", bibA, bibB))
-    print(bib_df$code)
+cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
+  bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  if (diroutput != "") {
+    file.copy(bibs, diroutput, overwrite = TRUE)    
+    bibs <- list.files(path = diroutput, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  }
+  
+  for (bib in bibs) {
+    if (length(grep("backup", bib, fixed = TRUE, ignore.case = TRUE)) == 0) {
+      cleanBib(bib, doi)
+    }
   }
 }
 
@@ -321,7 +295,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  qry <- queryString("C:/Users/eduar/Downloads/Paper/bibliografia.bib", doi=TRUE)
+  qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=FALSE)
   print(qry, quote = FALSE)
 }
 
@@ -366,25 +340,12 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/Downloads/Paper/references.bib")
-  removeUnused("C:/Users/eduar/Downloads/Paper/references.bib", refs)
+  refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/Downloads/Paper/bibliografia.bib")
+  print(refs)
+  removeUnused("C:/Users/eduar/Downloads/Paper/bibliografia.bib", refs)
 }
 
 if (FALSE) {
   get_scholar_citations("Eduardo", "Ogasawara", "C:/Users/eduar/Downloads/articles.xlsx")
-}
-
-if (FALSE) {
-  #WriteBib(bib, file="C:/Users/eduar/Downloads/Paper/Books.bib")
-  
-  bibfile <- "C:/Users/eduar/Downloads/Paper/outliers.bib"
-  refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", bibfile)
-  bib <- ReadBib(bibfile, check = FALSE)
-  bibdf <- as.data.frame(bib)
-  bibdf <- bibdf[rownames(bibdf) %in% refs,]
-  bibdf$title <- gsub("\\{|\\}", "", bibdf$title)
-  bibdf$id <- rownames(bibdf)
-  bibdf <- bibdf |> select(id, title, doi)
-  write_xlsx(bibdf, "C:/Users/eduar/Downloads/articles.xlsx")
 }
 
