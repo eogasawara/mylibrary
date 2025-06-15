@@ -232,7 +232,7 @@ sanitize_bib_field <- function(lines, field = "title", clean = FALSE) {
       }
       
       if (should_clean) {
-        output <- c(output, sprintf("  %s = {},", field))
+        output <- output
       } else {
         value <- sub(paste0("^.*", field, "\\s*=\\s*\\{"), "", full_line)
         value <- sub("\\},?\\s*$", "", value)
@@ -310,7 +310,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  mapRf <- mapRefs("C:/Users/eduar/Downloads/Paper/bibliografia-org.bib", "C:/Users/eduar/Downloads/Paper/bibliografia.bib")
+  mapRf <- mapRefs("C:/Users/eduar/Downloads/Paper/references-org.bib", "C:/Users/eduar/Downloads/Paper/references.bib")
   subMaps("C:/Users/eduar/Downloads/Paper", mapRf)
 }
 
@@ -320,7 +320,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  cleanBib("C:/Users/eduar/Downloads/Paper/bibliografia.bib")
+  cleanBib("C:/Users/eduar/Downloads/Paper/references.bib")
 }
 
 if (FALSE) {
@@ -340,9 +340,9 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/Downloads/Paper/bibliografia.bib")
+  refs <- unusedRefs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/Downloads/Paper/references.bib")
   print(refs)
-  removeUnused("C:/Users/eduar/Downloads/Paper/bibliografia.bib", refs)
+  removeUnused("C:/Users/eduar/Downloads/Paper/references.bib", refs)
 }
 
 if (FALSE) {
