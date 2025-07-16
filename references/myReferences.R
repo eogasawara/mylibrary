@@ -295,6 +295,9 @@ if (FALSE) {
 }
 
 if (FALSE) {
+  qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=TRUE)
+  print(qry, quote = FALSE)
+  
   qry <- queryString("C:/Users/eduar/Downloads/Paper/references.bib", doi=FALSE)
   print(qry, quote = FALSE)
 }
