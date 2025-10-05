@@ -1,11 +1,31 @@
-library(RefManageR)
-library(tibble)
-library(readxl)
-library(writexl)
-library(dplyr)
-library(stringr)
-library(scholar)
+# ================================
+# Utilitários para gerenciar .bib/.tex e citações
+# - Limpeza e normalização de campos BibTeX
+# - Geração de strings de consulta (por DOI ou título)
+# - Mapeamento de chaves bibliográficas antigas -> novas
+# - Substituições em arquivos .tex
+# - Detecção e remoção de referências não utilizadas
+# - Exportação de publicações do Google Scholar
+# ================================
 
+# ---- Pacotes usados (carregamento explícito) ----
+library(RefManageR)  # leitura e manipulação de arquivos .bib (ReadBib, etc.)
+library(tibble)      # utilitários de tibble (rownames_to_column)
+library(readxl)      # leitura de planilhas Excel (não utilizado diretamente aqui)
+library(writexl)     # escrita de planilhas Excel (write_xlsx)
+library(dplyr)       # verbos de data wrangling (filter, select, etc.)
+library(stringr)     # contagem/substituição com regex (str_count, str_replace)
+library(scholar)     # consulta a perfis Google Scholar (get_scholar_id, get_publications)
+
+# -----------------------------------------------
+# Função: adjust_text
+# Objetivo: remover chaves { } de um texto e, opcionalmente, convertê-lo para minúsculas.
+# Parâmetros:
+#   x     : vetor/char de entrada
+#   lower : se TRUE, converte para minúsculas
+# Retorno: character (mesmo conteúdo sem { } e possivelmente em minúsculas)
+# Observação: útil para normalizar títulos vindos de BibTeX, que muitas vezes usam { } para preservar caixa.
+# -----------------------------------------------
 adjust_text <- function(x, lower=FALSE) {
   x <- gsub("\\{", "", x)
   x <- gsub("\\}", "", x)
@@ -14,10 +34,28 @@ adjust_text <- function(x, lower=FALSE) {
   return(as.character(x))
 }
 
+# -----------------------------------------------
+# Função: save_xls
+# Objetivo: salvar um data frame/tibble em arquivo .xlsx.
+# Parâmetros:
+#   dataset  : data.frame/tibble a ser salvo
+#   filename : caminho/arquivo de saída (.xlsx)
+# Retorno: nenhum (efeito colateral: arquivo criado)
+# -----------------------------------------------
 save_xls <- function(dataset, filename) {
   write_xlsx(dataset, path = filename, col_names = TRUE)
 }
 
+# -----------------------------------------------
+# Função: urlDOI
+# Objetivo: imprimir (via cat) URLs https://doi.org/<doi> para cada entrada com DOI no .bib.
+# Parâmetros:
+#   bib : caminho do arquivo .bib
+# Retorno: o mesmo vetor passado a cat (invisível); saída principal é impressa no console, 1 por linha.
+# Observações:
+#   - Remove registros sem DOI (NA).
+#   - Normaliza o título (ajuste não afeta a URL; fica como efeito colateral no data frame local).
+# -----------------------------------------------
 urlDOI <- function(bib) {
   bib <- ReadBib(bib, check = FALSE)
   bib_df <- as.data.frame(bib)
@@ -29,7 +67,18 @@ urlDOI <- function(bib) {
   return(str)
 }
 
-
+# -----------------------------------------------
+# Função: queryString
+# Objetivo: gerar uma string de consulta para buscas (por ex., em bases externas),
+#           preferindo DOI quando disponível.
+# Parâmetros:
+#   bib : caminho do arquivo .bib
+#   doi : se TRUE, cria consultas no formato DOI("..."); se FALSE, usa TITLE("...")
+# Retorno: o mesmo vetor passado a cat (invisível); saída principal é impressa (separada por " OR ").
+# Regras:
+#   - Se doi==TRUE: filtra entradas com DOI e gera DOI("...").
+#   - Se doi==FALSE: se houver DOI, remove-as e usa TITLE("titulo normalizado").
+# -----------------------------------------------
 queryString <- function(bib, doi=TRUE) {
   bib <- ReadBib(bib, check = FALSE)
   bib_df <- as.data.frame(bib)
@@ -48,6 +97,17 @@ queryString <- function(bib, doi=TRUE) {
   return(str)
 }
 
+# -----------------------------------------------
+# Função: mapRefs
+# Objetivo: mapear chaves (rowname) entre dois .bib (antigo -> novo) com base no título normalizado.
+# Parâmetros:
+#   bib_old : caminho do .bib antigo
+#   bib_new : caminho do .bib novo
+# Retorno: data.frame com colunas 'from' (chave antiga) e 'to' (chave nova).
+# Comportamento extra:
+#   - Imprime chaves do arquivo antigo que não encontraram correspondência no novo (nmatch).
+# Dependência: títulos precisam coincidir após normalização (minúsculas e sem { }).
+# -----------------------------------------------
 mapRefs <- function(bib_old, bib_new) {
   bib_old <- ReadBib(bib_old, check = FALSE)
   bib_old_df <- as.data.frame(bib_old)
@@ -59,33 +119,55 @@ mapRefs <- function(bib_old, bib_new) {
   bib_new_df <- rownames_to_column(bib_new_df)
   bib_new_df$title <- adjust_text(bib_new_df$title, lower=TRUE)
   
+  # Junção por título normalizado
   bib <- merge(bib_old_df, bib_new_df, by="title")
   
+  # Identifica chaves antigas sem match
   nmatch <- bib_old_df |> filter(!(rowname %in% bib$rowname.x)) |> select(rowname, title)
-
+  
   if (nrow(nmatch) > 0)
     print(nmatch)
   
+  # Mantém apenas mapeamento 'from' (antigo) -> 'to' (novo)
   bib <- bib |> select(from=rowname.x, to=rowname.y)
-
+  
   return(bib)
 }
 
+# -----------------------------------------------
+# Função: subMap
+# Objetivo: aplicar um mapeamento de chaves (from->to) dentro de um arquivo .tex.
+# Parâmetros:
+#   tex     : caminho do arquivo .tex a ser alterado
+#   mapRefs : data.frame com colunas 'from' e 'to' (como retornado por mapRefs)
+# Retorno: nenhum (efeito colateral: sobrescreve o .tex com substituições)
+# Observações:
+#   - Substitui TODAS as ocorrências de cada 'from' por 'to' via gsub.
+# -----------------------------------------------
 subMap <- function(tex, mapRefs) {
   texfile <- tex
   data <- readLines(con <- file(texfile, encoding = "UTF-8"))
   close(con)
-
+  
   for (i in 1:nrow(mapRefs)) {
     from <- mapRefs$from[i]
     to <- mapRefs$to[i]
     data <- gsub(from, to, data)    
   }
-
+  
   writeLines(data, con <- file(texfile, encoding = "UTF-8"))
   close(con)  
 }
 
+# -----------------------------------------------
+# Função: subMaps
+# Objetivo: aplicar subMap a todos os arquivos .tex dentro de um diretório (recursivo),
+#           ignorando caminhos que contenham "backup".
+# Parâmetros:
+#   dir     : diretório raiz
+#   mapRefs : data.frame com colunas 'from' e 'to'
+# Retorno: nenhum (efeito colateral: sobrescreve arquivos .tex)
+# -----------------------------------------------
 subMaps <- function(dir, mapRefs) {
   texs <- list.files(path = dir, pattern = ".tex$", full.names = TRUE, recursive = TRUE)
   for (tex in texs) {
@@ -94,11 +176,21 @@ subMaps <- function(dir, mapRefs) {
   }
 }
 
+# -----------------------------------------------
+# Função: unusedRef
+# Objetivo: identificar chaves do .bib que NÃO aparecem em um arquivo .tex.
+# Parâmetros:
+#   tex : caminho do .tex
+#   bib : caminho do .bib
+# Retorno: vetor de chaves (rowname) não usadas no .tex.
+# Observações:
+#   - A busca por ocorrência é textual (grep), case-insensitive e literal.
+# -----------------------------------------------
 unusedRef <- function(tex, bib) {
   tex <- readLines(con <- file(tex, encoding = "UTF-8"))
   close(con)
   lst <- NULL
-
+  
   bib <- ReadBib(bib, check = FALSE)
   bib <- as.data.frame(bib)  
   bib <- rownames_to_column(bib)
@@ -110,6 +202,18 @@ unusedRef <- function(tex, bib) {
   return(lst)  
 }
 
+# -----------------------------------------------
+# Função: unusedRefs
+# Objetivo: identificar chaves do .bib não utilizadas em NENHUM .tex do diretório (recursivo),
+#           ignorando arquivos/caminhos com "backup".
+# Parâmetros:
+#   dir : diretório com .tex
+#   bib : caminho do .bib
+# Retorno: vetor de chaves não usadas em todos os .tex.
+# Lógica:
+#   - Começa com "all" = todas as chaves do .bib.
+#   - Para cada .tex, calcula unusedRef; mantém em "all" apenas as que continuam não usadas.
+# -----------------------------------------------
 unusedRefs <- function(dir, bib) {
   bibfile <- bib
   bib <- ReadBib(bibfile, check = FALSE)
@@ -128,6 +232,17 @@ unusedRefs <- function(dir, bib) {
   return(all)  
 }
 
+# -----------------------------------------------
+# Função: removeUnused
+# Objetivo: reescrever um .bib removendo entradas cujas chaves constam em 'lst'.
+# Parâmetros:
+#   bib : caminho do arquivo .bib de entrada/saída (sobrescrito)
+#   lst : vetor de chaves a remover
+# Retorno: nenhum (efeito colateral: arquivo .bib sobrescrito sem as entradas removidas)
+# Implementação:
+#   - Varre linhas manualmente, acumulando cada entrada @type{key,...} até fechar chaves.
+#   - Mantém balanço de chaves via contagem com stringr::str_count.
+# -----------------------------------------------
 removeUnused <- function(bib,lst) {
   lines <- readLines(bib, encoding = "UTF-8", warn = FALSE)
   output <- c()
@@ -163,6 +278,16 @@ removeUnused <- function(bib,lst) {
   writeLines(output, bib, useBytes = TRUE)
 }
 
+# -----------------------------------------------
+# Função: checkErrors
+# Objetivo: depurar possíveis erros de parsing no .bib, salvando um arquivo parcial
+#           até a linha i (quando há linha vazia) e tentando ler com ReadBib.
+# Parâmetros:
+#   bibfile : caminho do .bib
+# Retorno: nenhum (efeito colateral: cria arquivo *_aux.bib; imprime índices de linhas vazias)
+# Observação:
+#   - Útil para identificar ponto de falha no parsing (por ex., entradas malformadas).
+# -----------------------------------------------
 checkErrors <- function(bibfile) {
   x <- readLines(bibfile)  
   auxbibfile <- str_replace(bibfile, ".bib", "_aux.bib")
@@ -177,6 +302,14 @@ checkErrors <- function(bibfile) {
   }  
 }
 
+# -----------------------------------------------
+# Função: strip_inner_braces
+# Objetivo: remover chaves internas de um texto preservando apenas o par mais externo.
+# Parâmetros:
+#   text : string de entrada
+# Retorno: string sem chaves internas
+# Uso: normalizar campos como 'title' que vêm com {Proteção de Caixa} em BibTeX.
+# -----------------------------------------------
 strip_inner_braces <- function(text) {
   chars <- strsplit(text, "")[[1]]
   output <- character()
@@ -195,6 +328,22 @@ strip_inner_braces <- function(text) {
   paste(output, collapse = "")
 }
 
+# -----------------------------------------------
+# Função: sanitize_bib_field
+# Objetivo: limpar/normalizar um campo específico nas entradas do .bib.
+# Parâmetros:
+#   lines : vetor de linhas do .bib
+#   field : nome do campo a tratar (ex.: "title", "journal", "url", "doi", ...)
+#   clean : se TRUE, remove o campo (ou, no caso de 'url', remove somente para tipos específicos)
+# Retorno: vetor de linhas atualizado
+# Regras:
+#   - Quando clean==FALSE: remove chaves internas do valor e reescreve o campo como 'field = {valor_limpo},'
+#   - Quando clean==TRUE:
+#       * Para field == "url": só limpa (i.e., remove) se o tipo da entrada for 'inproceedings' ou 'article'
+#       * Para os demais campos: remove o campo sempre
+# Implementação:
+#   - Faz parsing leve por balanço de chaves para capturar valores multilinha do campo-alvo.
+# -----------------------------------------------
 sanitize_bib_field <- function(lines, field = "title", clean = FALSE) {
   output <- c()
   i <- 1
@@ -232,8 +381,10 @@ sanitize_bib_field <- function(lines, field = "title", clean = FALSE) {
       }
       
       if (should_clean) {
+        # Remove o campo (não adiciona nada ao output)
         output <- output
       } else {
+        # Mantém o campo, removendo apenas chaves internas
         value <- sub(paste0("^.*", field, "\\s*=\\s*\\{"), "", full_line)
         value <- sub("\\},?\\s*$", "", value)
         value_clean <- strip_inner_braces(value)
@@ -247,6 +398,18 @@ sanitize_bib_field <- function(lines, field = "title", clean = FALSE) {
   return(output)
 }
 
+# -----------------------------------------------
+# Função: cleanBib
+# Objetivo: limpar um arquivo .bib, padronizando campos textuais e removendo campos desnecessários.
+# Parâmetros:
+#   bib : caminho do .bib a ser limpo (sobrescrito)
+#   doi : se TRUE, também remove o campo 'doi'
+# Retorno: nenhum (efeito colateral: sobrescreve o .bib)
+# Regras:
+#   - Normaliza {title, booktitle, journal, publisher} removendo chaves internas.
+#   - Remove {abstract, keywords, note, copyright, url} (URL removida para 'article' e 'inproceedings').
+#   - Se doi==TRUE, remove 'doi'.
+# -----------------------------------------------
 cleanBib <- function(bib, doi=FALSE) {
   lines <- readLines(bib, encoding = "UTF-8")
   for (campo in c("title", "booktitle", "journal", "publisher")) {
@@ -263,6 +426,17 @@ cleanBib <- function(bib, doi=FALSE) {
   writeLines(lines, bib, useBytes = TRUE)
 }
 
+# -----------------------------------------------
+# Função: cleanBibs
+# Objetivo: aplicar cleanBib a todos os .bib de um diretório (recursivo),
+#           opcionalmente copiando-os antes para um diretório de saída.
+# Parâmetros:
+#   dir       : diretório raiz de busca
+#   doi       : repassa o parâmetro 'doi' para cleanBib
+#   diroutput : se não vazio, copia os .bib para lá e limpa a cópia
+# Retorno: nenhum (efeito colateral: arquivos sobrescritos)
+# Observação: ignora arquivos/pastas com "backup" no caminho.
+# -----------------------------------------------
 cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
   bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
   if (diroutput != "") {
@@ -277,12 +451,202 @@ cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
   }
 }
 
+# -----------------------------------------------
+# Função: get_scholar_citations
+# Objetivo: obter publicações de um autor no Google Scholar e exportar para .xlsx.
+# Parâmetros:
+#   first    : primeiro nome
+#   last     : sobrenome
+#   filename : caminho do .xlsx de saída
+# Retorno: nenhum (efeito colateral: arquivo .xlsx salvo)
+# Observações:
+#   - Usa scholar::get_scholar_id e scholar::get_publications.
+#   - Requer que o pesquisador exista no Scholar e possa ser desambiguado.
+# -----------------------------------------------
 get_scholar_citations <- function(first, last, filename) {
   id <- get_scholar_id(first_name = first, last_name = last)
   p <- get_publications(id)
   write_xlsx(p, filename)
 }
 
+# ================================
+# Expandir includes LaTeX in-place
+# Suporta: \input{...}, \include{...}, \import{dir}{file}, \subimport{dir}{file}
+# ================================
+
+# Leitura segura em UTF-8 (retorna string única com quebras de linha)
+.read_tex <- function(path) {
+  lines <- readLines(file(path, encoding = "UTF-8"), warn = FALSE)
+  paste(lines, collapse = "\n")
+}
+
+# Escrita segura em UTF-8
+.write_tex <- function(text, path) {
+  con <- file(path, open = "w", encoding = "UTF-8")
+  on.exit(close(con), add = TRUE)
+  writeLines(text, con, useBytes = TRUE)
+}
+
+# Normaliza caminho com base no diretório atual + extensão .tex se ausente
+.resolve_path <- function(base_dir, rel, default_ext = ".tex") {
+  rel <- trimws(rel)
+  # remove aspas acidentais
+  rel <- gsub('^"(.*)"$', "\\1", rel)
+  rel <- gsub("^'(.*)'$", "\\1", rel)
+  
+  # Se caminho terminar com / ou não tiver extensão, adiciona .tex
+  if (!grepl("\\.[A-Za-z0-9]+$", rel)) {
+    # evita adicionar .tex após caminhos com barra final
+    if (grepl("/$", rel)) rel <- sub("/$", "", rel)
+    rel <- paste0(rel, default_ext)
+  }
+  # Caminho relativo ao base_dir
+  full <- file.path(base_dir, rel)
+  # Normaliza sem falhar caso não exista ainda (mustWork = FALSE)
+  normalizePath(full, winslash = "/", mustWork = FALSE)
+}
+
+# Expansão recursiva de includes dentro de uma STRING de conteúdo
+.expand_includes_text <- function(text, base_dir, visited) {
+  # Padrões:
+  # 1) \input{file} ou \include{file} (aceita [opcionais])
+  pat_in <- "\\\\(input|include)\\s*(\\[[^\\]]*\\])?\\s*\\{([^}]+)\\}"
+  # 2) \import{dir}{file} e \subimport{dir}{file}
+  pat_imp <- "\\\\(import|subimport)\\s*\\{([^}]+)\\}\\s*\\{([^}]+)\\}"
+  
+  repeat {
+    # Busca próximo match (o mais cedo) entre os dois padrões
+    m_in  <- regexpr(pat_in,  text, perl = TRUE)
+    m_imp <- regexpr(pat_imp, text, perl = TRUE)
+    
+    # Se nenhum encontrado, terminou
+    if (m_in[1] == -1 && m_imp[1] == -1) break
+    
+    use_import <- FALSE
+    if (m_in[1] == -1) use_import <- TRUE
+    else if (m_imp[1] == -1) use_import <- FALSE
+    else use_import <- (m_imp[1] < m_in[1])  # escolhe o que aparece primeiro
+    
+    if (!use_import) {
+      # \input / \include
+      start <- as.integer(m_in[1])
+      len   <- attr(m_in, "match.length")
+      end   <- start + len - 1
+      
+      # Capturas
+      caps <- regmatches(text, m_in, invert = FALSE)
+      # Extrai grupos nomeados pela regex
+      # caps contém a substring inteira; vamos reexecutar com regexec para grupos:
+      mm <- regexec(pat_in, caps, perl = TRUE)
+      gg <- regmatches(caps, mm)[[1]]
+      # gg[2] = comando (input/include)
+      # gg[3] = opcional [..] (possível NA)
+      # gg[4] = caminho
+      rel_file <- gg[4]
+      inc_path <- .resolve_path(base_dir, rel_file)
+      
+      # Evita loops de inclusão
+      key <- normalizePath(inc_path, winslash = "/", mustWork = FALSE)
+      if (key %in% visited) {
+        replacement <- sprintf("%%%% [LaTeX-Expand] Skipped circular include: %s\n", inc_path)
+      } else if (!file.exists(inc_path)) {
+        replacement <- sprintf("%%%% [LaTeX-Expand] Missing file: %s\n", inc_path)
+      } else {
+        child_base <- dirname(inc_path)
+        child_text <- .read_tex(inc_path)
+        # Expande recursivamente o conteúdo incluído
+        replacement <- .expand_includes_text(child_text, child_base, c(visited, key))
+      }
+      
+      # Substitui no texto original
+      pre  <- substr(text, 1, start - 1)
+      post <- substr(text, end + 1, nchar(text))
+      text <- paste0(pre, replacement, post)
+      
+    } else {
+      # \import{dir}{file} / \subimport{dir}{file}
+      start <- as.integer(m_imp[1])
+      len   <- attr(m_imp, "match.length")
+      end   <- start + len - 1
+      
+      caps <- regmatches(text, m_imp, invert = FALSE)
+      mm <- regexec(pat_imp, caps, perl = TRUE)
+      gg <- regmatches(caps, mm)[[1]]
+      # gg[2] = comando (import/subimport)
+      # gg[3] = dir
+      # gg[4] = file
+      rel_dir  <- gg[3]
+      rel_file <- gg[4]
+      
+      # Base do import: base_dir + rel_dir
+      import_base <- .resolve_path(base_dir, file.path(rel_dir, ""), default_ext = "")
+      # .resolve_path pode adicionar extensão se faltar; forçamos diretório:
+      import_base <- sub("[/\\\\]?$", "", import_base)
+      
+      inc_path <- .resolve_path(import_base, rel_file)
+      
+      key <- normalizePath(inc_path, winslash = "/", mustWork = FALSE)
+      if (key %in% visited) {
+        replacement <- sprintf("%%%% [LaTeX-Expand] Skipped circular import: %s\n", inc_path)
+      } else if (!file.exists(inc_path)) {
+        replacement <- sprintf("%%%% [LaTeX-Expand] Missing file: %s\n", inc_path)
+      } else {
+        child_base <- dirname(inc_path)
+        child_text <- .read_tex(inc_path)
+        replacement <- .expand_includes_text(child_text, child_base, c(visited, key))
+      }
+      
+      pre  <- substr(text, 1, start - 1)
+      post <- substr(text, end + 1, nchar(text))
+      text <- paste0(pre, replacement, post)
+    }
+  }
+  
+  text
+}
+
+# --------------------------
+# Função principal de usuário
+# --------------------------
+# expand_tex_includes(
+#   input_file   : arquivo .tex principal
+#   output_file   : opcional; se NULL, sobrescreve tex_path
+#   dry_run    : se TRUE, não grava em disco; retorna o texto expandido
+# )
+expand_tex_includes <- function(input_file, output_file = NULL, dry_run = FALSE) {
+  if (!file.exists(input_file)) stop("Arquivo .tex não encontrado: ", input_file)
+  input_file <- normalizePath(input_file, winslash = "/", mustWork = TRUE)
+  base_dir <- dirname(input_file)
+  
+  root <- .read_tex(input_file)
+  expanded <- .expand_includes_text(
+    root,
+    base_dir,
+    visited = normalizePath(input_file, winslash = "/", mustWork = TRUE)
+  )
+  
+  if (isTRUE(dry_run)) return(expanded)
+  
+  if (is.null(output_file)) {
+    output_file <- input_file
+  }
+  .write_tex(expanded, output_file)
+  invisible(output_file)
+}
+
+
+# --------------------------
+# Exemplo de uso:
+# --------------------------
+# expanded_text <- expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex", dry_run = TRUE)
+# expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex")                       # sobrescreve
+# expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex", "C:/tmp/main_flat.tex")
+
+
+# -----------------------------------------------
+# Blocos de uso (desativados com if (FALSE)) — exemplos de chamadas
+# - Mantidos como referência; ative trocando FALSE por TRUE e ajustando caminhos.
+# -----------------------------------------------
 if (FALSE) {
   dir <- "C:/Users/eduar/Downloads/Paper"
   bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
@@ -317,7 +681,6 @@ if (FALSE) {
   subMaps("C:/Users/eduar/Downloads/Paper", mapRf)
 }
 
-
 if (FALSE) {
   checkErrors("C:/Users/eduar/Downloads/Paper/references.bib")
 }
@@ -331,10 +694,9 @@ if (FALSE) {
 }
 
 if (FALSE) {
-#  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/OneDrive - cefet-rj.br/book/all.bib")
+  #  unionBibs("C:/Users/eduar/Downloads/Paper", "C:/Users/eduar/OneDrive - cefet-rj.br/book/all.bib")
   unionBibs("C:/Users/eduar/Downloads/Source", "C:/Users/eduar/Downloads/Paper/references.bib")
 }
-
 
 if (FALSE) {
   refs <- unusedRef("C:/Users/eduar/Downloads/Paper/main.tex", "C:/Users/eduar/Downloads/Paper/references.bib")
@@ -351,4 +713,21 @@ if (FALSE) {
 if (FALSE) {
   get_scholar_citations("Eduardo", "Ogasawara", "C:/Users/eduar/Downloads/articles.xlsx")
 }
+
+if (FALSE) {
+  # Expande todas as inclusões do LaTeX (input/include/import/subimport)
+  # e salva em um novo arquivo sem sobrescrever o original
+  expand_tex_includes(
+    input_file  = "C:/Users/eduar/Downloads/Paper/main.tex",
+    output_file = "C:/Users/eduar/Downloads/Paper/main_expanded.tex"
+  )
+  
+  # Se quiser apenas ver o resultado expandido em memória (sem salvar):
+  expanded_text <- expand_tex_includes(
+    input_file = "C:/Users/eduar/Downloads/Paper/main.tex",
+    dry_run    = TRUE
+  )
+  print(substr(expanded_text, 1, 500))  # mostra os primeiros 500 caracteres
+}
+
 
