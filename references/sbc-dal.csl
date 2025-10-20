@@ -350,8 +350,8 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
     </layout>
   </citation>
   <!--Bibliografia-->
-  <!--et al. aparece a partir de 15 autores-->
-  <bibliography hanging-indent="false" et-al-min="15" et-al-use-first="1" entry-spacing="1">
+  <!--et al. aparece a partir de 20 autores-->
+  <bibliography hanging-indent="false" et-al-min="20" et-al-use-first="1" entry-spacing="1">
     <sort>
       <key macro="author"/>
       <!--Puxa o autor primeiro-->
