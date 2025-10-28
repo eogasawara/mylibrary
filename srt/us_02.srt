@@ -1,0 +1,7 @@
+1
+00:00:00,000 --> 00:00:05,000
+It was developed through collaboration
+
+2
+00:00:05,000 --> 00:00:10,000
+between CEFET/RJ, LNCC and INRIA.
