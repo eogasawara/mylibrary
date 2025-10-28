@@ -1,7 +1,51 @@
 1
-00:00:00,000 --> 00:00:05,000
-Ao final desta apresentação, você verá como
+00:00:00,000 --> 00:00:04,846
+A principal inovação do DAL Toolbox é a aplicação do conceito de
 
 2
-00:00:05,000 --> 00:00:10,000
-o DAL Toolbox pode acelerar a pesquisa.
+00:00:04,846 --> 00:00:09,692
+Linhas de Experimentos. As Linhas de Experimentos se inspiram nas Linhas de
+
+3
+00:00:09,692 --> 00:00:14,538
+Produto de Software, possibilitando a reutilização sistemática e a variação controlada em
+
+4
+00:00:14,538 --> 00:00:19,385
+fluxos de trabalho. Na prática, isso significa que cada componente de um
+
+5
+00:00:19,385 --> 00:00:24,231
+fluxo de trabalho — transformação, modelagem, avaliação — pode ser opcional, intercambiável ou
+
+6
+00:00:24,231 --> 00:00:29,077
+parametrizado. Essa flexibilidade permite configurar famílias inteiras de experimentos a partir de
+
+7
+00:00:29,077 --> 00:00:33,923
+uma única estrutura-base. Isso muda fundamentalmente a forma como cientistas de dados
+
+8
+00:00:33,923 --> 00:00:38,769
+exploram alternativas: em vez de construir novos pipelines do zero, eles evoluem
+
+9
+00:00:38,769 --> 00:00:43,615
+os fluxos de trabalho passo a passo. A variabilidade e a opcionalidade garantem
+
+10
+00:00:43,615 --> 00:00:48,462
+que os fluxos de trabalho se adaptem a diferentes necessidades sem perder
+
+11
+00:00:48,462 --> 00:00:53,308
+a integridade central. O resultado é uma pesquisa mais eficiente, reprodutível e
+
+12
+00:00:53,308 --> 00:00:58,154
+comparável entre experimentos. Assim, as Linhas de Experimentos transformam o design de
+
+13
+00:00:58,154 --> 00:01:03,000
+fluxos de trabalho de um processo rígido em uma metodologia sistemática e transparente.

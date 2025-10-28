@@ -1,0 +1,47 @@
+1
+00:00:00,000 --> 00:00:04,833
+DAL Toolbox offers practical functionality across the entire
+
+2
+00:00:04,833 --> 00:00:09,667
+machine learning pipeline. For transformations, users can perform min-max
+
+3
+00:00:09,667 --> 00:00:14,500
+scaling, z-score normalization, PCA, and feature selection. For
+
+4
+00:00:14,500 --> 00:00:19,333
+modeling, the toolbox supports algorithms like KNN, linear regression,
+
+5
+00:00:19,333 --> 00:00:24,167
+Random Forest, and SVM. Clustering options include K-Means,
+
+6
+00:00:24,167 --> 00:00:29,000
+providing accessible methods for segmentation tasks. Visualization covers scatter
+
+7
+00:00:29,000 --> 00:00:33,833
+plots for relationships, histograms for distributions, and line
+
+8
+00:00:33,833 --> 00:00:38,667
+plots for time series. The unified API ensures that
+
+9
+00:00:38,667 --> 00:00:43,500
+switching between models or transformations requires minimal code
+
+10
+00:00:43,500 --> 00:00:48,333
+changes. This makes experimentation both flexible and consistent. Overall,
+
+11
+00:00:48,333 --> 00:00:53,167
+DAL Toolbox provides a cohesive set of tools
+
+12
+00:00:53,167 --> 00:00:58,000
+designed to work harmoniously within the Experiment Lines framework.

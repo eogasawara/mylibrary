@@ -1,0 +1,43 @@
+1
+00:00:00,000 --> 00:00:04,818
+O estudo de caso ilustra o DAL Toolbox em ação utilizando dados
+
+2
+00:00:04,818 --> 00:00:09,636
+meteorológicos de aeroportos da Flórida. A tarefa consistiu na previsão de chuvas,
+
+3
+00:00:09,636 --> 00:00:14,455
+explorando variáveis como temperatura, velocidade do vento, umidade e cobertura do céu.
+
+4
+00:00:14,455 --> 00:00:19,273
+O baseline inicial utilizou o algoritmo KNN diretamente sobre as variáveis brutas,
+
+5
+00:00:19,273 --> 00:00:24,091
+sem pré-processamento. Em seguida, aplicou-se o SVM com PCA, o que trouxe
+
+6
+00:00:24,091 --> 00:00:28,909
+ganhos em redução de dimensionalidade e robustez. Na etapa seguinte, o fluxo
+
+7
+00:00:28,909 --> 00:00:33,727
+de trabalho evoluiu para um Random Forest com normalização. Por fim, foi
+
+8
+00:00:33,727 --> 00:00:38,545
+implantado um Random Forest ajustado, com otimização de hiperparâmetros. Cada configuração foi
+
+9
+00:00:38,545 --> 00:00:43,364
+construída a partir da anterior, demonstrando como as Linhas de Experimentos permitem
+
+10
+00:00:43,364 --> 00:00:48,182
+a evolução sistemática dos fluxos de trabalho. Este caso comprova a reprodutibilidade
+
+11
+00:00:48,182 --> 00:00:53,000
+e a flexibilidade do DAL Toolbox em aplicações reais de ciência de dados.

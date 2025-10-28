@@ -1,0 +1,47 @@
+1
+00:00:00,000 --> 00:00:04,750
+O DAL Toolbox representa um avanço no enfrentamento dos desafios de reprodutibilidade,
+
+2
+00:00:04,750 --> 00:00:09,500
+transparência e experimentação sistemática em ciência de dados. Seu caráter open-source incentiva
+
+3
+00:00:09,500 --> 00:00:14,250
+o desenvolvimento colaborativo e a adaptação às necessidades emergentes. Para a pesquisa,
+
+4
+00:00:14,250 --> 00:00:19,000
+acelera a descoberta ao reduzir o tempo gasto na construção e na
+
+5
+00:00:19,000 --> 00:00:23,750
+depuração de pipelines. Para a indústria, faz a ponte entre pipelines de
+
+6
+00:00:23,750 --> 00:00:28,500
+pesquisa e sistemas de produção, garantindo transições mais suaves. Sua base em Linhas
+
+7
+00:00:28,500 --> 00:00:33,250
+de Experimentos assegura que os fluxos de trabalho sejam não apenas reprodutíveis,
+
+8
+00:00:33,250 --> 00:00:38,000
+mas também sistematicamente variáveis. Essa flexibilidade é essencial para projetos modernos de
+
+9
+00:00:38,000 --> 00:00:42,750
+aprendizado de máquina que exigem rápida iteração. O futuro está na expansão
+
+10
+00:00:42,750 --> 00:00:47,500
+da adoção, no crescimento do ecossistema e no fortalecimento da integração com
+
+11
+00:00:47,500 --> 00:00:52,250
+outras plataformas. O convite está aberto: explore o repositório no GitHub, contribua
+
+12
+00:00:52,250 --> 00:00:57,000
+e junte-se a uma comunidade que promove uma ciência de dados mais reprodutível.

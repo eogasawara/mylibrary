@@ -1,0 +1,47 @@
+1
+00:00:00,000 --> 00:00:04,833
+Diversas plataformas já conhecidas oferecem suporte a fluxos de trabalho em
+
+2
+00:00:04,833 --> 00:00:09,667
+aprendizado de máquina, cada uma com seus pontos fortes e fracos.
+
+3
+00:00:09,667 --> 00:00:14,500
+WEKA e Orange são excelentes para fins educacionais, graças às interfaces
+
+4
+00:00:14,500 --> 00:00:19,333
+amigáveis, mas carecem de flexibilidade para experimentos dinâmicos. RapidMiner e KNIME
+
+5
+00:00:19,333 --> 00:00:24,167
+fornecem fluxos de trabalho gráficos modulares, porém, seus pipelines muitas vezes
+
+6
+00:00:24,167 --> 00:00:29,000
+sacrificam a transparência. Scikit-learn e Spark MLlib são poderosos e amplamente
+
+7
+00:00:29,000 --> 00:00:33,833
+adotados, mas não oferecem suporte sistemático à experimentação. Em contraste, o
+
+8
+00:00:33,833 --> 00:00:38,667
+DAL Toolbox combina as forças da transparência, modularidade e variabilidade sistemática.
+
+9
+00:00:38,667 --> 00:00:43,500
+Sua base em Linhas de Experimentos permite comparações reprodutíveis e uma
+
+10
+00:00:43,500 --> 00:00:48,333
+exploração estruturada. Isso posiciona o DAL Toolbox como uma alternativa leve,
+
+11
+00:00:48,333 --> 00:00:53,167
+mas poderosa, especialmente para pesquisadores focados na reprodutibilidade de fluxos de
+
+12
+00:00:53,167 --> 00:00:58,000
+trabalho. Ele encontra um equilíbrio entre usabilidade, flexibilidade e rigor científico.

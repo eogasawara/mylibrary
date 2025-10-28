@@ -1,0 +1,75 @@
+1
+00:00:00,000 --> 00:00:04,842
+The performance comparison illustrates how each model iteration contributed
+
+2
+00:00:04,842 --> 00:00:09,684
+to refining the rainfall prediction pipeline. The baseline KNN classifier
+
+3
+00:00:09,684 --> 00:00:14,526
+was simple and interpretable, but it showed weak predictive accuracy
+
+4
+00:00:14,526 --> 00:00:19,368
+and struggled with noisy data. The SVM combined with PCA
+
+5
+00:00:19,368 --> 00:00:24,211
+provided significant improvements by reducing dimensionality and capturing non-linear
+
+6
+00:00:24,211 --> 00:00:29,053
+relationships, which led to stronger recall values. Random Forest introduced
+
+7
+00:00:29,053 --> 00:00:33,895
+an ensemble strategy that balanced precision and recall more effectively,
+
+8
+00:00:33,895 --> 00:00:38,737
+offering a robust middle ground between complexity and performance. Finally,
+
+9
+00:00:38,737 --> 00:00:43,579
+the tuned Random Forest with optimized hyperparameters achieved the best
+
+10
+00:00:43,579 --> 00:00:48,421
+overall results, with an F1 score of 0.948. This
+
+11
+00:00:48,421 --> 00:00:53,263
+result demonstrates that systematic exploration through Experiment Lines is far
+
+12
+00:00:53,263 --> 00:00:58,105
+superior to isolated, one-off experiments. Each step in the workflow
+
+13
+00:00:58,105 --> 00:01:02,947
+was not discarded but built upon the knowledge gained from
+
+14
+00:01:02,947 --> 00:01:07,789
+earlier iterations. This approach showcases how DAL Toolbox promotes reproducibility:
+
+15
+00:01:07,789 --> 00:01:12,632
+every change, every experiment, is documented and comparable. The
+
+16
+00:01:12,632 --> 00:01:17,474
+results confirm that Experiment Lines not only improve model accuracy
+
+17
+00:01:17,474 --> 00:01:22,316
+but also accelerate the research process by structuring how alternatives
+
+18
+00:01:22,316 --> 00:01:27,158
+are tested. In practice, this methodology supports both academic research
+
+19
+00:01:27,158 --> 00:01:32,000
+and industry applications where high performance and reproducibility are essential.

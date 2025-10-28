@@ -1,7 +1,47 @@
 1
-00:00:00,000 --> 00:00:05,000
-It was developed through collaboration
+00:00:00,000 --> 00:00:04,833
+Today’s data-driven world involves high-frequency and high-volume streams across
 
 2
-00:00:05,000 --> 00:00:10,000
-between CEFET/RJ, LNCC and INRIA.
+00:00:04,833 --> 00:00:09,667
+domains like finance, healthcare, urban mobility, and IoT. Traditional approaches
+
+3
+00:00:09,667 --> 00:00:14,500
+struggle with the scale and heterogeneity of these datasets. Constructing
+
+4
+00:00:14,500 --> 00:00:19,333
+workflows that are both complete and reproducible remains a major
+
+5
+00:00:19,333 --> 00:00:24,167
+bottleneck. A key issue lies in integration: data scientists often
+
+6
+00:00:24,167 --> 00:00:29,000
+juggle multiple libraries with different interfaces and dependencies. This increases
+
+7
+00:00:29,000 --> 00:00:33,833
+the learning curve and leads to fragmented solutions. Transparency
+
+8
+00:00:33,833 --> 00:00:38,667
+is another challenge: workflows must be clear and interpretable, not
+
+9
+00:00:38,667 --> 00:00:43,500
+hidden inside opaque pipelines. Reusability is also essential—components should be
+
+10
+00:00:43,500 --> 00:00:48,333
+easy to transfer between projects. Finally, workflows must support variability,
+
+11
+00:00:48,333 --> 00:00:53,167
+allowing researchers to try multiple configurations without starting from scratch.
+
+12
+00:00:53,167 --> 00:00:58,000
+DAL Toolbox was designed precisely to address these pain points.

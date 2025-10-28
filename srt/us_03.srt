@@ -1,7 +1,51 @@
 1
-00:00:00,000 --> 00:00:05,000
-By the end of this talk, you
+00:00:00,000 --> 00:00:04,846
+The core innovation of DAL Toolbox is the application
 
 2
-00:00:05,000 --> 00:00:10,000
-will see how DAL Toolbox can accelerate research.
+00:00:04,846 --> 00:00:09,692
+of Experiment Lines. Experiment Lines borrow ideas from Software Product
+
+3
+00:00:09,692 --> 00:00:14,538
+Lines, enabling systematic reuse and controlled variation in workflows.
+
+4
+00:00:14,538 --> 00:00:19,385
+In practice, this means that each component of a workflow—transformation,
+
+5
+00:00:19,385 --> 00:00:24,231
+modeling, evaluation—can be optional, interchangeable, or parameterized. This flexibility
+
+6
+00:00:24,231 --> 00:00:29,077
+allows us to configure entire families of experiments from a
+
+7
+00:00:29,077 --> 00:00:33,923
+single base structure. It fundamentally changes how data scientists
+
+8
+00:00:33,923 --> 00:00:38,769
+explore alternatives: instead of building new pipelines from scratch, they
+
+9
+00:00:38,769 --> 00:00:43,615
+evolve workflows step by step. Variability and optionality ensure
+
+10
+00:00:43,615 --> 00:00:48,462
+that workflows can adapt to different needs while preserving their
+
+11
+00:00:48,462 --> 00:00:53,308
+core integrity. The result is more efficient research, reproducibility,
+
+12
+00:00:53,308 --> 00:00:58,154
+and comparability across experiments. Experiment Lines thus transform workflow design
+
+13
+00:00:58,154 --> 00:01:03,000
+from a rigid process into a systematic and transparent methodology.

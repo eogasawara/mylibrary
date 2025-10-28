@@ -1,0 +1,43 @@
+1
+00:00:00,000 --> 00:00:04,818
+O DAL Toolbox é mais do que uma biblioteca isolada
+
+2
+00:00:04,818 --> 00:00:09,636
+— é a fundação de um ecossistema em expansão. Seu design
+
+3
+00:00:09,636 --> 00:00:14,455
+modular garante que os componentes independentes possam ser reutilizados, modificados e
+
+4
+00:00:14,455 --> 00:00:19,273
+estendidos. A transparência é enfatizada, mantendo os fluxos de trabalho explícitos
+
+5
+00:00:19,273 --> 00:00:24,091
+e interpretáveis. A reutilização entre projetos reduz o tempo de desenvolvimento
+
+6
+00:00:24,091 --> 00:00:28,909
+e aumenta a produtividade. A reprodutibilidade assegura resultados consistentes em diferentes
+
+7
+00:00:28,909 --> 00:00:33,727
+equipes e contextos. Além da toolbox central, extensões como o Harbinger
+
+8
+00:00:33,727 --> 00:00:38,545
+oferecem suporte à detecção de eventos em séries temporais, enquanto o
+
+9
+00:00:38,545 --> 00:00:43,364
+TSPredIT é voltado para previsão. O daltoolboxdp amplia a integração com
+
+10
+00:00:43,364 --> 00:00:48,182
+pré-processamento baseado em Python. Juntas, essas bibliotecas demonstram como o DAL
+
+11
+00:00:48,182 --> 00:00:53,000
+Toolbox atende a diversas necessidades analíticas, mantendo uma base experimental comum.

@@ -1,0 +1,43 @@
+1
+00:00:00,000 --> 00:00:04,818
+The architecture of DAL Toolbox follows a modular design
+
+2
+00:00:04,818 --> 00:00:09,636
+with clear separation of concerns. Each module—transformation, classification, regression,
+
+3
+00:00:09,636 --> 00:00:14,455
+clustering, and visualization—serves a distinct purpose. Transformations include operations
+
+4
+00:00:14,455 --> 00:00:19,273
+like normalization, scaling, and dimensionality reduction. Classification and regression
+
+5
+00:00:19,273 --> 00:00:24,091
+modules support supervised learning tasks for both categorical and
+
+6
+00:00:24,091 --> 00:00:28,909
+continuous outputs. Clustering enables unsupervised discovery of structures and
+
+7
+00:00:28,909 --> 00:00:33,727
+patterns in data. Visualization tools allow users to interpret
+
+8
+00:00:33,727 --> 00:00:38,545
+results through plots, histograms, scatter plots, and time series
+
+9
+00:00:38,545 --> 00:00:43,364
+analysis. All modules interoperate seamlessly through a unified API.
+
+10
+00:00:43,364 --> 00:00:48,182
+This modularity not only simplifies maintenance but also allows
+
+11
+00:00:48,182 --> 00:00:53,000
+easy extension and integration with external libraries such as Scikit-learn.
