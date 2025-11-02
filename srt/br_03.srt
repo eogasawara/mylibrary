@@ -1,51 +1,31 @@
 1
-00:00:00,000 --> 00:00:04,846
-A principal inovação do DAL Toolbox é a aplicação do conceito de
+00:00:00,000 --> 00:00:04,750
+Neste exemplo, introduzimos artificialmente um valor ausente no conjunto de dados iris.
 
 2
-00:00:04,846 --> 00:00:09,692
-Linhas de Experimentos. As Linhas de Experimentos se inspiram nas Linhas de
+00:00:04,750 --> 00:00:09,500
+Em seguida, utilizamos a função na.omit para remover as linhas que contêm valores
 
 3
-00:00:09,692 --> 00:00:14,538
-Produto de Software, possibilitando a reutilização sistemática e a variação controlada em
+00:00:09,500 --> 00:00:14,250
+NA. O tamanho do conjunto de dados muda de 150 para 149 linhas.
 
 4
-00:00:14,538 --> 00:00:19,385
-fluxos de trabalho. Na prática, isso significa que cada componente de um
+00:00:14,250 --> 00:00:19,000
+Essa abordagem simples garante que nenhum NA permaneça nos dados. No entanto, é
 
 5
-00:00:19,385 --> 00:00:24,231
-fluxo de trabalho — transformação, modelagem, avaliação — pode ser opcional, intercambiável ou
+00:00:19,000 --> 00:00:23,750
+importante destacar que informações valiosas podem ser perdidas. A remoção de linhas reduz
 
 6
-00:00:24,231 --> 00:00:29,077
-parametrizado. Essa flexibilidade permite configurar famílias inteiras de experimentos a partir de
+00:00:23,750 --> 00:00:28,500
+o tamanho da amostra, o que pode afetar os resultados. Esse método é
 
 7
-00:00:29,077 --> 00:00:33,923
-uma única estrutura-base. Isso muda fundamentalmente a forma como cientistas de dados
+00:00:28,500 --> 00:00:33,250
+adequado para uma análise exploratória rápida, mas nem sempre é indicado para aplicações
 
 8
-00:00:33,923 --> 00:00:38,769
-exploram alternativas: em vez de construir novos pipelines do zero, eles evoluem
-
-9
-00:00:38,769 --> 00:00:43,615
-os fluxos de trabalho passo a passo. A variabilidade e a opcionalidade garantem
-
-10
-00:00:43,615 --> 00:00:48,462
-que os fluxos de trabalho se adaptem a diferentes necessidades sem perder
-
-11
-00:00:48,462 --> 00:00:53,308
-a integridade central. O resultado é uma pesquisa mais eficiente, reprodutível e
-
-12
-00:00:53,308 --> 00:00:58,154
-comparável entre experimentos. Assim, as Linhas de Experimentos transformam o design de
-
-13
-00:00:58,154 --> 00:01:03,000
-fluxos de trabalho de um processo rígido em uma metodologia sistemática e transparente.
+00:00:33,250 --> 00:00:38,000
+em produção. O código completo está disponível no repositório GitHub da DAL Toolbox.

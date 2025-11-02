@@ -1,47 +1,31 @@
 1
-00:00:00,000 --> 00:00:04,833
-Several well-known platforms already support machine learning workflows, each
+00:00:00,000 --> 00:00:04,625
+Using the DAL Toolbox, we apply the categ_mapping function to the
 
 2
-00:00:04,833 --> 00:00:09,667
-with strengths and weaknesses. WEKA and Orange are excellent
+00:00:04,625 --> 00:00:09,250
+Species column of the iris dataset. This transformation creates three binary
 
 3
-00:00:09,667 --> 00:00:14,500
-for education, thanks to user-friendly interfaces, but they lack flexibility
+00:00:09,250 --> 00:00:13,875
+columns, one for each species. Each row receives a value of
 
 4
-00:00:14,500 --> 00:00:19,333
-for dynamic experiments. RapidMiner and KNIME provide modular graphical
+00:00:13,875 --> 00:00:18,500
+one in the correct column and zero in the others. This
 
 5
-00:00:19,333 --> 00:00:24,167
-workflows, but their pipelines often sacrifice transparency. Scikit-learn and
+00:00:18,500 --> 00:00:23,125
+guarantees that categories are represented independently. The mapping object can be
 
 6
-00:00:24,167 --> 00:00:29,000
-Spark MLlib are powerful and widely adopted, yet they lack
+00:00:23,125 --> 00:00:27,750
+reused consistently across training and test sets. This is essential for
 
 7
-00:00:29,000 --> 00:00:33,833
-systematic support for experimentation. In contrast, DAL Toolbox combines
+00:00:27,750 --> 00:00:32,375
+reproducible experiments and deployment. The slide shows only part of the
 
 8
-00:00:33,833 --> 00:00:38,667
-the strengths of transparency, modularity, and systematic variability. Its
-
-9
-00:00:38,667 --> 00:00:43,500
-foundation on Experiment Lines allows for reproducible comparisons and structured
-
-10
-00:00:43,500 --> 00:00:48,333
-exploration. This positions DAL Toolbox as a lightweight yet
-
-11
-00:00:48,333 --> 00:00:53,167
-powerful alternative, especially for researchers focused on workflow reproducibility.
-
-12
-00:00:53,167 --> 00:00:58,000
-It strikes a balance between usability, flexibility, and scientific rigor.
+00:00:32,375 --> 00:00:37,000
+implementation. The complete code is available in the DAL Toolbox GitHub repository.

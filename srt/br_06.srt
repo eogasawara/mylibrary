@@ -1,47 +1,31 @@
 1
-00:00:00,000 --> 00:00:04,833
-Diversas plataformas já conhecidas oferecem suporte a fluxos de trabalho em
+00:00:00,000 --> 00:00:04,625
+Usando a DAL Toolbox, aplicamos a função categ_mapping à coluna Species do
 
 2
-00:00:04,833 --> 00:00:09,667
-aprendizado de máquina, cada uma com seus pontos fortes e fracos.
+00:00:04,625 --> 00:00:09,250
+conjunto de dados iris. Essa transformação cria três colunas binárias, uma para
 
 3
-00:00:09,667 --> 00:00:14,500
-WEKA e Orange são excelentes para fins educacionais, graças às interfaces
+00:00:09,250 --> 00:00:13,875
+cada espécie. Cada linha recebe o valor 1 na coluna correspondente e
 
 4
-00:00:14,500 --> 00:00:19,333
-amigáveis, mas carecem de flexibilidade para experimentos dinâmicos. RapidMiner e KNIME
+00:00:13,875 --> 00:00:18,500
+0 nas demais. Isso garante que as categorias sejam representadas de forma
 
 5
-00:00:19,333 --> 00:00:24,167
-fornecem fluxos de trabalho gráficos modulares, porém, seus pipelines muitas vezes
+00:00:18,500 --> 00:00:23,125
+independente. O objeto de mapeamento pode ser reutilizado de maneira consistente entre
 
 6
-00:00:24,167 --> 00:00:29,000
-sacrificam a transparência. Scikit-learn e Spark MLlib são poderosos e amplamente
+00:00:23,125 --> 00:00:27,750
+os conjuntos de treino e teste — algo essencial para experimentos reprodutíveis
 
 7
-00:00:29,000 --> 00:00:33,833
-adotados, mas não oferecem suporte sistemático à experimentação. Em contraste, o
+00:00:27,750 --> 00:00:32,375
+e para a implantação em produção. O slide mostra apenas uma parte
 
 8
-00:00:33,833 --> 00:00:38,667
-DAL Toolbox combina as forças da transparência, modularidade e variabilidade sistemática.
-
-9
-00:00:38,667 --> 00:00:43,500
-Sua base em Linhas de Experimentos permite comparações reprodutíveis e uma
-
-10
-00:00:43,500 --> 00:00:48,333
-exploração estruturada. Isso posiciona o DAL Toolbox como uma alternativa leve,
-
-11
-00:00:48,333 --> 00:00:53,167
-mas poderosa, especialmente para pesquisadores focados na reprodutibilidade de fluxos de
-
-12
-00:00:53,167 --> 00:00:58,000
-trabalho. Ele encontra um equilíbrio entre usabilidade, flexibilidade e rigor científico.
+00:00:32,375 --> 00:00:37,000
+da implementação; o código completo está disponível no repositório GitHub da DAL Toolbox.

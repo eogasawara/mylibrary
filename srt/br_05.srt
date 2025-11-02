@@ -1,47 +1,31 @@
 1
-00:00:00,000 --> 00:00:04,833
-O DAL Toolbox oferece funcionalidades práticas ao longo de todo o
+00:00:00,000 --> 00:00:04,875
+A maioria dos algoritmos requer entradas numéricas. Categorias brutas, como cores
 
 2
-00:00:04,833 --> 00:00:09,667
-pipeline de aprendizado de máquina. Para transformações, os usuários podem realizar
+00:00:04,875 --> 00:00:09,750
+ou rótulos, não podem ser processadas diretamente. Se as categorias forem codificadas
 
 3
-00:00:09,667 --> 00:00:14,500
-escalonamento min-max, normalização z-score, análise de componentes principais (PCA) e seleção de
+00:00:09,750 --> 00:00:14,625
+como números inteiros, os algoritmos podem assumir uma ordem falsa. Por exemplo,
 
 4
-00:00:14,500 --> 00:00:19,333
-atributos. Para modelagem, a toolbox suporta algoritmos como KNN, regressão linear,
+00:00:14,625 --> 00:00:19,500
+“vermelho = 1, azul = 2, verde = 3” implica que azul
 
 5
-00:00:19,333 --> 00:00:24,167
-Random Forest e SVM. Nas opções de clustering, inclui o K-Means,
+00:00:19,500 --> 00:00:24,375
+é maior que vermelho. Isso introduz relações que não existem. A
 
 6
-00:00:24,167 --> 00:00:29,000
-oferecendo métodos acessíveis para tarefas de segmentação. Na parte de visualização, estão
+00:00:24,375 --> 00:00:29,250
+codificação one-hot resolve esse problema criando colunas binárias separadas. Cada coluna representa
 
 7
-00:00:29,000 --> 00:00:33,833
-disponíveis diagramas de dispersão para analisar relações, histogramas para distribuições e
+00:00:29,250 --> 00:00:34,125
+a presença de uma categoria específica. Essa transformação é fundamental para modelos
 
 8
-00:00:33,833 --> 00:00:38,667
-gráficos de linha para séries temporais. A API unificada garante que
-
-9
-00:00:38,667 --> 00:00:43,500
-a troca entre modelos ou transformações exija mudanças mínimas de código. Isso
-
-10
-00:00:43,500 --> 00:00:48,333
-torna a experimentação ao mesmo tempo flexível e consistente. De forma
-
-11
-00:00:48,333 --> 00:00:53,167
-geral, o DAL Toolbox fornece um conjunto coeso de ferramentas, projetadas
-
-12
-00:00:53,167 --> 00:00:58,000
-para funcionar de maneira harmoniosa dentro do framework de Linhas de Experimentos.
+00:00:34,125 --> 00:00:39,000
+lineares e redes neurais. Sem ela, os modelos podem aprender padrões incorretos.

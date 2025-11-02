@@ -638,9 +638,12 @@ expand_tex_includes <- function(input_file, output_file = NULL, dry_run = FALSE)
 # --------------------------
 # Exemplo de uso:
 # --------------------------
-# expanded_text <- expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex", dry_run = TRUE)
-# expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex")                       # sobrescreve
-# expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex", "C:/tmp/main_flat.tex")
+
+if (FALSE) {
+  expanded_text <- expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex", dry_run = TRUE)
+  expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex")                       # sobrescreve
+  expand_tex_includes("C:/Users/eduar/Downloads/Paper/main.tex", "C:/Users/eduar/Downloads/Paper/main_full.tex")
+}
 
 
 # -----------------------------------------------
@@ -682,7 +685,7 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  checkErrors("C:/Users/eduar/Downloads/Paper/references.bib")
+  checkErrors("C:/Users/eduar/Downloads/Paper/references-org.bib")
 }
 
 if (FALSE) {

@@ -1,43 +1,31 @@
 1
-00:00:00,000 --> 00:00:04,818
-The case study illustrates DAL Toolbox in action using
+00:00:00,000 --> 00:00:04,750
+One-hot encoding is the safest default choice for most algorithms.
 
 2
-00:00:04,818 --> 00:00:09,636
-meteorological data from Florida airports. The task was rainfall
+00:00:04,750 --> 00:00:09,500
+It prevents false order and works with linear and neural models.
 
 3
-00:00:09,636 --> 00:00:14,455
-prediction, leveraging features like temperature, wind speed, humidity, and
+00:00:09,500 --> 00:00:14,250
+Its drawback is high dimensionality when categories are many. Label
 
 4
-00:00:14,455 --> 00:00:19,273
-sky coverage. The initial baseline used KNN directly on raw
+00:00:14,250 --> 00:00:19,000
+encoding is simpler but risky for models sensitive to ordering. It
 
 5
-00:00:19,273 --> 00:00:24,091
-features without preprocessing. Next, SVM was applied with PCA,
+00:00:19,000 --> 00:00:23,750
+is suitable for tree-based models that do not assume numeric order.
 
 6
-00:00:24,091 --> 00:00:28,909
-improving dimensionality reduction and robustness. The workflow then evolved
+00:00:23,750 --> 00:00:28,500
+Target encoding replaces categories with aggregated values. This works well
 
 7
-00:00:28,909 --> 00:00:33,727
-into a Random Forest classifier with normalization. Finally, a
+00:00:28,500 --> 00:00:33,250
+with high-cardinality variables. However, it may cause data leakage if applied
 
 8
-00:00:33,727 --> 00:00:38,545
-tuned Random Forest was deployed with hyperparameter optimization. Each configuration
-
-9
-00:00:38,545 --> 00:00:43,364
-built upon the previous one, showing how Experiment Lines
-
-10
-00:00:43,364 --> 00:00:48,182
-enable systematic workflow evolution. This case demonstrates the reproducibility
-
-11
-00:00:48,182 --> 00:00:53,000
-and flexibility of DAL Toolbox in real-world data science applications.
+00:00:33,250 --> 00:00:38,000
+incorrectly. Choosing the right encoding depends on the model and dataset.

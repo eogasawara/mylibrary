@@ -1,75 +1,27 @@
 1
-00:00:00,000 --> 00:00:04,842
-A comparação de desempenho ilustra como cada iteração do modelo contribuiu
+00:00:00,000 --> 00:00:04,714
+A limpeza de dados é a base para um aprendizado de máquina confiável. A remoção de
 
 2
-00:00:04,842 --> 00:00:09,684
-para refinar o pipeline de previsão de chuvas. O classificador KNN
+00:00:04,714 --> 00:00:09,429
+valores ausentes é rápida, mas pode reduzir o tamanho do conjunto de dados e introduzir viés.
 
 3
-00:00:09,684 --> 00:00:14,526
-inicial era simples e interpretável, mas apresentou baixa acurácia preditiva e dificuldade
+00:00:09,429 --> 00:00:14,143
+O mapeamento de variáveis categóricas garante que as variáveis sejam representadas corretamente. A estratégia de codificação
 
 4
-00:00:14,526 --> 00:00:19,368
-em lidar com dados ruidosos. O SVM combinado com PCA trouxe
+00:00:14,143 --> 00:00:18,857
+deve estar alinhada ao algoritmo escolhido: a one-hot é segura para a maioria dos modelos, enquanto
 
 5
-00:00:19,368 --> 00:00:24,211
-melhorias significativas ao reduzir a dimensionalidade e capturar relações não lineares, o
+00:00:18,857 --> 00:00:23,571
+a label encoding funciona bem com modelos baseados em árvores. A target encoding exige cuidado para
 
 6
-00:00:24,211 --> 00:00:29,053
-que resultou em valores de recall mais elevados. O Random Forest
+00:00:23,571 --> 00:00:28,286
+evitar vazamento de informação (data leakage). As decisões de pré-processamento devem sempre refletir o tipo de
 
 7
-00:00:29,053 --> 00:00:33,895
-introduziu uma estratégia de comitê (ensemble), equilibrando melhor precisão e recall,
-
-8
-00:00:33,895 --> 00:00:38,737
-oferecendo um ponto intermediário robusto entre complexidade e desempenho. Por fim, o
-
-9
-00:00:38,737 --> 00:00:43,579
-Random Forest ajustado com otimização de hiperparâmetros atingiu os melhores resultados
-
-10
-00:00:43,579 --> 00:00:48,421
-gerais, com um F1-score de 0,948. Esse resultado demonstra que a exploração
-
-11
-00:00:48,421 --> 00:00:53,263
-sistemática por meio das Linhas de Experimentos é muito superior a
-
-12
-00:00:53,263 --> 00:00:58,105
-experimentos isolados e pontuais. Cada etapa do fluxo de trabalho não foi
-
-13
-00:00:58,105 --> 00:01:02,947
-descartada, mas construída a partir do conhecimento obtido nas iterações anteriores.
-
-14
-00:01:02,947 --> 00:01:07,789
-Essa abordagem evidencia como o DAL Toolbox promove a reprodutibilidade: cada
-
-15
-00:01:07,789 --> 00:01:12,632
-alteração, cada experimento, é documentado e comparável. Os resultados confirmam que as
-
-16
-00:01:12,632 --> 00:01:17,474
-Linhas de Experimentos não apenas aumentam a acurácia dos modelos, mas
-
-17
-00:01:17,474 --> 00:01:22,316
-também aceleram o processo de pesquisa ao estruturar a forma como as
-
-18
-00:01:22,316 --> 00:01:27,158
-alternativas são testadas. Na prática, essa metodologia apoia tanto a pesquisa
-
-19
-00:01:27,158 --> 00:01:32,000
-acadêmica quanto aplicações na indústria, onde alto desempenho e reprodutibilidade são essenciais.
+00:00:28,286 --> 00:00:33,000
+dado e o contexto da análise. Ao aplicar essas etapas, garantimos entradas limpas e modelos confiáveis.

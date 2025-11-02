@@ -1,47 +1,31 @@
 1
-00:00:00,000 --> 00:00:04,833
-O mundo atual, orientado por dados, envolve fluxos de alta frequência e alto
+00:00:00,000 --> 00:00:05,000
+Valores ausentes surgem frequentemente de erros em pesquisas, falhas de sensores ou
 
 2
-00:00:04,833 --> 00:00:09,667
-volume em domínios como finanças, saúde, mobilidade urbana e IoT. As abordagens tradicionais
+00:00:05,000 --> 00:00:10,000
+registros incompletos. Compreender a causa é fundamental para escolher a estratégia correta. Se
 
 3
-00:00:09,667 --> 00:00:14,500
-têm dificuldades em lidar com a escala e a heterogeneidade desses conjuntos de dados.
+00:00:10,000 --> 00:00:15,000
+a ausência de dados não for aleatória, a análise pode se tornar
 
 4
-00:00:14,500 --> 00:00:19,333
-A construção de fluxos de trabalho que sejam ao mesmo tempo completos e
+00:00:15,000 --> 00:00:20,000
+enviesada — por exemplo, certos grupos podem omitir respostas de forma sistemática. Algoritmos
 
 5
-00:00:19,333 --> 00:00:24,167
-reprodutíveis continua sendo um grande gargalo. Um ponto crítico está na integração: cientistas
+00:00:20,000 --> 00:00:25,000
+que recebem valores NA costumam falhar ou produzir resultados incorretos sem aviso.
 
 6
-00:00:24,167 --> 00:00:29,000
-de dados frequentemente precisam lidar com múltiplas bibliotecas que possuem interfaces e dependências diferentes.
+00:00:25,000 --> 00:00:30,000
+O pré-processamento garante que os modelos possam ser treinados sem interrupções. Existem duas
 
 7
-00:00:29,000 --> 00:00:33,833
-Isso aumenta a curva de aprendizado e leva a soluções fragmentadas. A transparência
+00:00:30,000 --> 00:00:35,000
+estratégias principais: remoção e imputação. Cada uma tem seus prós e contras,
 
 8
-00:00:33,833 --> 00:00:38,667
-também é um desafio: os fluxos de trabalho devem ser claros e interpretáveis,
-
-9
-00:00:38,667 --> 00:00:43,500
-e não ficar escondidos dentro de pipelines opacos. A reutilização é igualmente essencial —
-
-10
-00:00:43,500 --> 00:00:48,333
-os componentes precisam ser facilmente transferíveis entre projetos. Por fim, os fluxos de
-
-11
-00:00:48,333 --> 00:00:53,167
-trabalho devem suportar variabilidade, permitindo que pesquisadores testem múltiplas configurações sem precisar começar
-
-12
-00:00:53,167 --> 00:00:58,000
-do zero. O DAL Toolbox foi projetado exatamente para responder a esses pontos críticos.
+00:00:35,000 --> 00:00:40,000
+e a escolha depende do conjunto de dados e do contexto do problema.

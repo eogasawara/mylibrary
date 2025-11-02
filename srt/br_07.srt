@@ -1,43 +1,31 @@
 1
-00:00:00,000 --> 00:00:04,818
-O estudo de caso ilustra o DAL Toolbox em ação utilizando dados
+00:00:00,000 --> 00:00:04,750
+A codificação one-hot é a opção padrão mais segura para a maioria dos algoritmos. Ela
 
 2
-00:00:04,818 --> 00:00:09,636
-meteorológicos de aeroportos da Flórida. A tarefa consistiu na previsão de chuvas,
+00:00:04,750 --> 00:00:09,500
+evita ordens falsas e funciona bem com modelos lineares e redes neurais. Seu ponto negativo é
 
 3
-00:00:09,636 --> 00:00:14,455
-explorando variáveis como temperatura, velocidade do vento, umidade e cobertura do céu.
+00:00:09,500 --> 00:00:14,250
+a alta dimensionalidade quando há muitas categorias. A codificação por rótulos (label encoding) é mais
 
 4
-00:00:14,455 --> 00:00:19,273
-O baseline inicial utilizou o algoritmo KNN diretamente sobre as variáveis brutas,
+00:00:14,250 --> 00:00:19,000
+simples, mas arriscada em modelos sensíveis à ordem numérica. Ela é adequada para modelos baseados em
 
 5
-00:00:19,273 --> 00:00:24,091
-sem pré-processamento. Em seguida, aplicou-se o SVM com PCA, o que trouxe
+00:00:19,000 --> 00:00:23,750
+árvores, que não assumem relação de ordem entre os valores. Já a codificação por alvo (target
 
 6
-00:00:24,091 --> 00:00:28,909
-ganhos em redução de dimensionalidade e robustez. Na etapa seguinte, o fluxo
+00:00:23,750 --> 00:00:28,500
+encoding) substitui as categorias por valores agregados e funciona bem em variáveis com alta cardinalidade.
 
 7
-00:00:28,909 --> 00:00:33,727
-de trabalho evoluiu para um Random Forest com normalização. Por fim, foi
+00:00:28,500 --> 00:00:33,250
+No entanto, pode causar vazamento de informação (data leakage) se aplicada de forma incorreta. A escolha
 
 8
-00:00:33,727 --> 00:00:38,545
-implantado um Random Forest ajustado, com otimização de hiperparâmetros. Cada configuração foi
-
-9
-00:00:38,545 --> 00:00:43,364
-construída a partir da anterior, demonstrando como as Linhas de Experimentos permitem
-
-10
-00:00:43,364 --> 00:00:48,182
-a evolução sistemática dos fluxos de trabalho. Este caso comprova a reprodutibilidade
-
-11
-00:00:48,182 --> 00:00:53,000
-e a flexibilidade do DAL Toolbox em aplicações reais de ciência de dados.
+00:00:33,250 --> 00:00:38,000
+da técnica ideal de codificação depende do modelo utilizado e das características do conjunto de dados.

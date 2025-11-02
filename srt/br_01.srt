@@ -1,55 +1,31 @@
 1
-00:00:00,000 --> 00:00:05,000
-Esta apresentação introduz o DAL Toolbox, uma biblioteca open-source abrangente, projetada
+00:00:00,000 --> 00:00:04,750
+A qualidade dos dados é a base de qualquer projeto de aprendizado
 
 2
-00:00:05,000 --> 00:00:10,000
-para tornar os fluxos de trabalho em análise de dados mais modulares,
+00:00:04,750 --> 00:00:09,500
+de máquina. Sem uma limpeza e representação adequadas, os algoritmos não conseguem
 
 3
-00:00:10,000 --> 00:00:15,000
-transparentes e reprodutíveis. Ela foi desenvolvida em colaboração entre o CEFET/RJ,
+00:00:09,500 --> 00:00:14,250
+produzir resultados confiáveis. A limpeza de dados remove sistematicamente erros, inconsistências e ruídos
 
 4
-00:00:15,000 --> 00:00:20,000
-o LNCC e o INRIA, refletindo um esforço de pesquisa internacional. A
+00:00:14,250 --> 00:00:19,000
+dos conjuntos de dados brutos. A representação garante que os algoritmos possam
 
 5
-00:00:20,000 --> 00:00:25,000
-toolbox está disponível abertamente no GitHub, reforçando seu caráter colaborativo e
+00:00:19,000 --> 00:00:23,750
+interpretar as variáveis de forma significativa. A DAL Toolbox oferece funções que
 
 6
-00:00:25,000 --> 00:00:30,000
-acadêmico. Nosso objetivo aqui é explicar por que o DAL Toolbox foi
+00:00:23,750 --> 00:00:28,500
+tornam essas etapas reprodutíveis. Nesta apresentação, abordaremos o tratamento de valores ausentes e
 
 7
-00:00:30,000 --> 00:00:35,000
-criado, qual problema ele resolve e como apoia a experimentação sistemática. A
+00:00:28,500 --> 00:00:33,250
+a codificação de variáveis categóricas — os dois problemas mais comuns encontrados
 
 8
-00:00:35,000 --> 00:00:40,000
-base da toolbox é o conceito de Linhas de Experimentos, adaptado
-
-9
-00:00:40,000 --> 00:00:45,000
-das Linhas de Produto de Software. Esse framework permite que pesquisadores e
-
-10
-00:00:45,000 --> 00:00:50,000
-profissionais criem famílias de experimentos, em vez de pipelines isolados. Ele
-
-11
-00:00:50,000 --> 00:00:55,000
-aborda os desafios críticos da análise de dados moderna: a crescente complexidade,
-
-12
-00:00:55,000 --> 00:01:00,000
-a necessidade de reprodutibilidade e a integração entre diversas ferramentas. Ao
-
-13
-00:01:00,000 --> 00:01:05,000
-final desta apresentação, você verá como o DAL Toolbox pode acelerar a
-
-14
-00:01:05,000 --> 00:01:10,000
-pesquisa, melhorar a transparência e apoiar a adoção em nível de produção.
+00:00:33,250 --> 00:00:38,000
+durante o pré-processamento. Ao tratá-los corretamente, estabelecemos a base para modelos mais precisos.

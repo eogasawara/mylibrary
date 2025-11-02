@@ -1,43 +1,31 @@
 1
-00:00:00,000 --> 00:00:04,818
-The architecture of DAL Toolbox follows a modular design
+00:00:00,000 --> 00:00:04,875
+Removing missing values is fast and convenient. It can be
 
 2
-00:00:04,818 --> 00:00:09,636
-with clear separation of concerns. Each module—transformation, classification, regression,
+00:00:04,875 --> 00:00:09,750
+done in a single line of code. However, this speed comes
 
 3
-00:00:09,636 --> 00:00:14,455
-clustering, and visualization—serves a distinct purpose. Transformations include operations
+00:00:09,750 --> 00:00:14,625
+at the cost of precision. Entire rows may be discarded even
 
 4
-00:00:14,455 --> 00:00:19,273
-like normalization, scaling, and dimensionality reduction. Classification and regression
+00:00:14,625 --> 00:00:19,500
+if only one value is missing. If missingness follows a systematic
 
 5
-00:00:19,273 --> 00:00:24,091
-modules support supervised learning tasks for both categorical and
+00:00:19,500 --> 00:00:24,375
+pattern, deletion amplifies bias. For example, if high-income individuals skip
 
 6
-00:00:24,091 --> 00:00:28,909
-continuous outputs. Clustering enables unsupervised discovery of structures and
+00:00:24,375 --> 00:00:29,250
+income questions, results become skewed. This method works best when missingness
 
 7
-00:00:28,909 --> 00:00:33,727
-patterns in data. Visualization tools allow users to interpret
+00:00:29,250 --> 00:00:34,125
+is rare and random. For production systems, imputation is often a
 
 8
-00:00:33,727 --> 00:00:38,545
-results through plots, histograms, scatter plots, and time series
-
-9
-00:00:38,545 --> 00:00:43,364
-analysis. All modules interoperate seamlessly through a unified API.
-
-10
-00:00:43,364 --> 00:00:48,182
-This modularity not only simplifies maintenance but also allows
-
-11
-00:00:48,182 --> 00:00:53,000
-easy extension and integration with external libraries such as Scikit-learn.
+00:00:34,125 --> 00:00:39,000
+better choice. Always balance speed and reliability when choosing this strategy
