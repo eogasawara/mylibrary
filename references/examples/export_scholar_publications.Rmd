@@ -1,0 +1,33 @@
+---
+title: "Export Google Scholar Publications"
+date: "`r format(Sys.Date())`"
+output: html_document
+---
+
+Overview
+
+Fetch publications from Google Scholar for a given author and export them to an Excel sheet.
+
+Setup
+
+```r
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+```
+
+Inputs
+
+```r
+# Edit these values
+first_name <- "FirstName"
+last_name  <- "LastName"
+out_xlsx   <- "path/to/articles.xlsx"
+```
+
+Export
+
+```r
+get_scholar_citations(first_name, last_name, out_xlsx)
+cat("Exported to:", out_xlsx, "\n")
+```
+
