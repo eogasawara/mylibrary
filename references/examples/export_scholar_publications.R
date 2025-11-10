@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env Rscript
 # Export publications from Google Scholar to an Excel file.
 
-source(file.path("..", "ref_utils.R"))
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
 
 first_name <- "FirstName"                 # edit me
 last_name  <- "LastName"                  # edit me

@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env Rscript
 # Detect and remove unused references across a directory of .tex files.
 
-source(file.path("..", "ref_utils.R"))
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
 
 dir_tex  <- "path/to/tex_dir"             # edit me
 bib_file <- "path/to/references.bib"      # edit me

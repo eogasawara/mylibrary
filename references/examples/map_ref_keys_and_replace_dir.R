@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env Rscript
 # Map old->new BibTeX keys and apply replacements in all .tex files under a directory.
 
-source(file.path("..", "ref_utils.R"))
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
 
 bib_old <- "path/to/references-old.bib"  # edit me
 bib_new <- "path/to/references.bib"      # edit me

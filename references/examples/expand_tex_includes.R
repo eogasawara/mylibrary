@@ -2,7 +2,7 @@
 # Expand LaTeX includes: \input, \include, \import, \subimport
 # Usage: set input/output paths below and source this file, or run with Rscript.
 
-source(file.path("..", "ref_utils.R"))
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
 
 # Edit these paths
 input_tex  <- "path/to/main.tex"
