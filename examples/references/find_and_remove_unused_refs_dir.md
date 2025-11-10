@@ -1,0 +1,33 @@
+---
+title: "Find and Remove Unused References (Directory)"
+date: "2025-11-10"
+output: html_document
+---
+
+Overview
+
+Detect unused BibTeX references across all `.tex` files in a directory and remove them from the `.bib` file.
+
+Setup
+
+```r
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+```
+
+Inputs
+
+```r
+dir_tex  <- "path/to/tex_dir"        # directory with .tex files
+bib_file <- "path/to/references.bib" # target .bib to clean
+```
+
+Find and Remove
+
+```r
+refs <- unusedRefs(dir_tex, bib_file)
+print(refs)
+removeUnused(bib_file, refs)
+cat("Removed", length(refs), "unused references from:", bib_file, "\n")
+```
+

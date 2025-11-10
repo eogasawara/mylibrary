@@ -1,0 +1,31 @@
+---
+title: "Union of BibTeX Files"
+date: "2025-11-10"
+output: html_document
+---
+
+Overview
+
+Create a union `.bib` by collecting all entries from a source directory into a single target file.
+
+Setup
+
+```r
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+```
+
+Inputs
+
+```r
+source_dir <- "path/to/source_dir"
+target_bib <- "path/to/union.bib"
+```
+
+Build Union
+
+```r
+unionBibs(source_dir, target_bib)
+cat("Union written to:", target_bib, "\n")
+```
+

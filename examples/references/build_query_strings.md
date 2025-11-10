@@ -1,0 +1,40 @@
+---
+title: "Build Query Strings from BibTeX"
+date: "2025-11-10"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+Overview
+
+This example builds boolean query strings from a `.bib` file using two modes:
+
+- DOI mode: `DOI("...")` for entries that have a DOI.
+- Title mode: `TITLE("normalized title")` for entries without DOI (title is normalized).
+
+Setup
+
+```r
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+```
+
+Inputs
+
+```r
+# Edit this path to your .bib file
+bib_file <- "path/to/references.bib"
+```
+
+Build Queries
+
+```r
+qry_doi   <- queryString(bib_file, doi = TRUE)
+qry_title <- queryString(bib_file, doi = FALSE)
+
+cat("\nQuery by DOI:\n");   print(qry_doi,   quote = FALSE)
+cat("\nQuery by Title:\n"); print(qry_title, quote = FALSE)
+```
+

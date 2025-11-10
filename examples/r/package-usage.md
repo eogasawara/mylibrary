@@ -1,0 +1,137 @@
+---
+title: "CRAN Downloads and Country Distribution"
+author: "mylibrary"
+date: "2025-11-10"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: false
+    df_print: paged
+---
+
+Introduction
+
+This document demonstrates two common analytic tasks using public CRAN logs:
+
+- Track and visualize download counts for a set of packages over time.
+- Inspect the geographic distribution (by country) of downloads for a specific
+  package on a given day.
+
+It is intended to be didactic: each step is explained, and functions are kept
+small and clear. You can replace the example package names and dates with your
+own as needed.
+
+Requirements
+
+- R 4.1+
+- Packages: `dlstats`, `packageRank`, `ggplot2`, `dplyr`, `countrycode`, `scales`
+
+Setup
+
+```r
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4)
+
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(dlstats)
+  library(packageRank)
+  library(dplyr)
+  library(countrycode)
+  library(scales)
+})
+
+# Helper: fetch CRAN downloads for multiple packages
+fetch_cran_downloads <- function(pkgs) {
+  dlstats::cran_stats(pkgs)
+}
+
+# Helper: plot downloads over time on a log scale
+plot_downloads <- function(downloads) {
+  ggplot(downloads, aes(x = end, y = downloads, color = package)) +
+    geom_line() +
+    geom_point(size = 1.2) +
+    scale_y_log10(labels = scales::label_number_si()) +
+    labs(
+      title = "CRAN downloads over time",
+      x = "Date",
+      y = "Downloads (log scale)",
+      color = "Package"
+    ) +
+    theme_minimal(base_size = 11)
+}
+
+# Helper: aggregate downloads by country for a single day
+count_downloads_by_country <- function(pkg, date) {
+  logs <- packageRank::packageLog(packages = pkg, date = date)
+  if (is.null(logs) || nrow(logs) == 0) return(tibble(country = character(), qtd = integer()))
+  logs |>
+    group_by(country) |>
+    summarise(qtd = n(), .groups = "drop") |>
+    arrange(desc(qtd))
+}
+
+# Helper: convert ISO2 codes to full country names
+iso2_to_name <- function(x) countrycode(x, origin = "iso2c", destination = "country.name")
+```
+
+Downloads Over Time
+
+We query CRAN download counts for a small set of packages and visualize them on
+logarithmic scale to handle different magnitudes.
+
+```r
+packages_to_check <- c("harbinger", "daltoolbox", "heimdall", "tspredit", "TSPred")
+downloads <- fetch_cran_downloads(packages_to_check)
+
+if (!is.null(downloads) && nrow(downloads) > 0) {
+  head(downloads)
+} else {
+  cat("No download data returned. Check package names or connectivity.\n")
+}
+```
+
+```r
+if (!is.null(downloads) && nrow(downloads) > 0) {
+  plot_downloads(downloads)
+}
+```
+
+Country Distribution (Single Day)
+
+CRAN also provides daily logs. We can aggregate requests by country for a given
+date and convert ISO2 codes into human-readable country names.
+
+```r
+target_pkg  <- "harbinger"
+target_date <- "2025-01-15"  # YYYY-MM-DD
+
+by_country <- count_downloads_by_country(target_pkg, target_date) |>
+  mutate(country = iso2_to_name(country))
+
+by_country
+```
+
+Optionally, visualize the top countries:
+
+```r
+if (nrow(by_country) > 0) {
+  by_country |>
+    slice_max(qtd, n = 10) |>
+    mutate(country = forcats::fct_reorder(country, qtd)) |>
+    ggplot(aes(x = country, y = qtd)) +
+    geom_col(fill = "steelblue") +
+    coord_flip() +
+    labs(title = paste0("Top 10 countries — ", target_pkg, " (", target_date, ")"),
+         x = "Country", y = "Requests") +
+    theme_minimal(base_size = 11)
+}
+```
+
+Notes
+
+- CRAN log availability and coverage may vary; try other dates if a given day
+  returns no rows.
+- For longitudinal country analysis, iterate over a range of dates and bind the
+  results to create time series per country.
+
