@@ -1,6 +1,4 @@
 # mylibrary
-My Data Mining Wrapper Library
-
 General Description
 
 This repository gathers reusable utilities, tutorials, and example notebooks for data analysis, statistics, bibliography/LaTeX workflows, and small supporting tools. Use the links below to explore rendered examples and additional documentation. Files under `Rmd/` contain source notebooks; this index focuses on Markdown (`.md`) and example outputs outside `Rmd/`.
