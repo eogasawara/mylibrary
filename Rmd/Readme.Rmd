@@ -1,0 +1,42 @@
+---
+title: "Index of R Markdown Notebooks"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+Overview
+
+This README indexes all R Markdown notebooks under `Rmd/`, with a short
+description and a direct link to each file.
+
+R
+
+- [CRAN Downloads and Country Distribution](r/package-usage.md) — Analyze CRAN downloads over time and inspect country distribution for a selected day.
+
+References
+
+- [Reference Utilities (BibTeX/LaTeX/Scholar)](references/Readme.md) — Overview of utilities to manage bibliographies and LaTeX projects.
+- [Build Query Strings from BibTeX](references/build_query_strings.md) — Construct boolean queries from a `.bib` by DOI or normalized title.
+- [Check BibTeX File for Issues](references/check_bib_errors.md) — Identify missing fields and common issues in a `.bib` file.
+- [Clean a Single BibTeX File](references/clean_bib_file.md) — Normalize and clean one `.bib` file.
+- [Clean All BibTeX Files in a Directory](references/clean_bibs_dir.md) — Recursively clean every `.bib` in a directory.
+- [Expand LaTeX Includes](references/expand_tex_includes.md) — Expand `\input{}`, `\include{}`, `\import{}`, and `\subimport{}` directives in a main LaTeX file.
+- [Export Google Scholar Publications](references/export_scholar_publications.md) — Fetch an author's publications and export them to Excel.
+- [Find and Remove Unused References (Directory)](references/find_and_remove_unused_refs_dir.md) — Detect unused references across a directory of `.tex` files and remove them from the `.bib`.
+- [Find and Remove Unused References (Single File)](references/find_and_remove_unused_refs_single.md) — Detect unused references for one main `.tex` and remove them from the `.bib`.
+- [Map and Replace Reference Keys (Directory)](references/map_ref_keys_and_replace_dir.md) — Map old→new BibTeX keys and update all `.tex` files in a directory.
+- [Map and Replace Reference Keys (Single .tex)](references/map_ref_keys_and_replace_single.md) — Map old→new keys and update a single `.tex` file.
+- [Merge BibTeX Files Pairwise](references/merge_bibs_pairwise.md) — Enumerate `.bib` files and perform pairwise merges to reconcile entries.
+- [Print DOI URLs](references/print_doi_urls.md) — Print `https://doi.org/<doi>` URLs for `.bib` entries that contain a DOI.
+- [Union of BibTeX Files](references/union_bibs.md) — Build a union `.bib` by collecting entries from a source directory.
+
+Statistics
+
+- [Regression](statistics/linear_regression.md) — Hands-on linear, polynomial, multiple, and logistic regression with plots and examples.
+- [Effect Size Tutorial](statistics/tut_effect_size.md) — Paired-sample comparison with Wilcoxon test and effect size computation.
+- [Nonparametric Tests Tutorial](statistics/tut_nonparametric.md) — Normality checks (Shapiro–Wilk, Anderson–Darling) and Wilcoxon tests for independent and paired samples.
+- [Parametric Tests Tutorial](statistics/tut_parametric.md) — Normality checks and t-tests (two-sample, paired, one-sided alternatives).
+
