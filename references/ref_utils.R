@@ -1,3 +1,13 @@
+# Reference Utilities (BibTeX/LaTeX/Scholar)
+# This file provides helper functions to:
+# - read/clean/merge BibTeX files and build queries
+# - map old→new citation keys and substitute in .tex
+# - expand LaTeX includes (input/include/import/subimport)
+# - detect/remove unused references
+# - export publications from Google Scholar
+# Usage examples were extracted from inline if(FALSE) blocks and moved into
+# separate scripts under `references/examples/` for clarity and reusability.
+#
 # ================================
 # Utilitários para gerenciar .bib/.tex e citações
 # - Limpeza e normalização de campos BibTeX

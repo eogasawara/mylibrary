@@ -35,3 +35,9 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+
+# Python caches and OS cruft
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
