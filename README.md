@@ -37,3 +37,10 @@ Additional Docs
 - Datasets Overview: [data/README.md](data/README.md)
 - References Folder Guide: [references/README.md](references/README.md)
 - Subtitles Generator Guide: [subtitles/README.md](subtitles/README.md)
+- [bigquery](bigquery) — R scripts and notes for Google BigQuery access.
+- [pytorch](pytorch) — PyTorch experiments for tabular, time series, and graph data; standardized datasets under `pytorch/data`.
+- [reticulate](reticulate) — R↔Python interoperability examples using reticulate and pyreadr.
+- [stocks](stocks) — IBX50 dataset and scripts for basic stock data handling.
+- [timeseries](timeseries) — Miscellaneous R time series scripts and examples.
+- [tsfm](tsfm) — Tiny time series foundation model experiments and vanilla Transformer baseline.
+- [mobility](mobility) — Bus mobility dataset loaders and merge scripts.
