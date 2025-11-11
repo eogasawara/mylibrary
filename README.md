@@ -16,7 +16,7 @@ Examples
   - [Check BibTeX File for Issues](examples/references/check_bib_errors.md) - Identify missing fields and common issues in a `.bib` file.
   - [Clean a Single BibTeX File](examples/references/clean_bib_file.md) - Normalize and clean one `.bib` file.
   - [Clean All BibTeX Files in a Directory](examples/references/clean_bibs_dir.md) - Recursively clean every `.bib` in a directory.
-  - [Expand LaTeX Includes](examples/references/expand_tex_includes.md) - Expand `\input{}`, `\include{}`, `\import{}`, and `\subimport{}` directives in a main LaTeX file.
+  - [Expand LaTeX Includes](examples/references/expand_tex_includes.md) - Expand `\\input{}`, `\\include{}`, `\\import{}`, and `\\subimport{}` directives in a main LaTeX file.
   - [Export Google Scholar Publications](examples/references/export_scholar_publications.md) - Fetch an author's publications and export them to Excel.
   - [Find and Remove Unused References (Directory)](examples/references/find_and_remove_unused_refs_dir.md) - Detect unused references across a directory of `.tex` files and remove them from the `.bib`.
   - [Find and Remove Unused References (Single File)](examples/references/find_and_remove_unused_refs_single.md) - Detect unused references for one main `.tex` and remove them from the `.bib`.
@@ -34,13 +34,14 @@ Examples
 
 Additional Docs
 
-- Datasets Overview: [data/README.md](data/README.md)
-- References Folder Guide: [references/README.md](references/README.md)
-- Subtitles Generator Guide: [subtitles/README.md](subtitles/README.md)
-- [bigquery](bigquery) — R scripts and notes for Google BigQuery access.
-- [pytorch](pytorch) — PyTorch experiments for tabular, time series, and graph data; standardized datasets under `pytorch/data`.
-- [reticulate](reticulate) — R↔Python interoperability examples using reticulate and pyreadr.
-- [stocks](stocks) — IBX50 dataset and scripts for basic stock data handling.
-- [timeseries](timeseries) — Miscellaneous R time series scripts and examples.
-- [tsfm](tsfm) — Tiny time series foundation model experiments and vanilla Transformer baseline.
-- [mobility](mobility) — Bus mobility dataset loaders and merge scripts.
+- [Datasets Overview](data/README.md) - Curated datasets by domain (aviation, classic ML, WEKA, marketing, graphics, time series) with brief descriptions and file links.
+- [References Utilities](references/README.md) - Manage BibTeX/LaTeX projects: include expansion, key mapping, cleaning, Scholar export, and citation styles.
+- [Subtitle Generator](subtitles/README.md) - Generate SRT subtitles from an Excel worksheet (PT/EN), with configurable timing and step size.
+- [BigQuery](bigquery/README.md) - R helpers to query Google BigQuery (basedosdados), download geometries, and compute simple population-derived estimates.
+- [PyTorch Experiments](pytorch/README.md) - Didactic PyTorch scripts for tabular, time series, and graph tasks; data standardized under `pytorch/data`.
+- [Reticulate Interoperability](reticulate/README.md) - Roundtrip data between R and Python using reticulate and pyreadr (in-memory and file-based flows).
+- [Stocks](stocks/README.md) - IBX50 dataset plus R helpers for basic stock data handling.
+- [Time Series](timeseries/README.md) - R experiments on forecasting, Kalman filtering, event detection, multivariate anomalies, reshaping, and animation.
+- [TSFM](tsfm/README.md) - Tiny time series foundation model experiments and a vanilla Transformer baseline.
+- [Mobility](mobility/README.md) - Merge Rio bus mobility Parquet parts (A–E) into a single artifact using Python+R.
+
