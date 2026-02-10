@@ -425,7 +425,7 @@ cleanBib <- function(bib, doi=FALSE) {
   for (campo in c("title", "booktitle", "journal", "publisher")) {
     lines <- sanitize_bib_field(lines, field = campo)
   }
-  for (campo in c("abstract", "keywords", "note", "copyright", "url")) {
+  for (campo in c("abstract", "keywords", "note", "copyright", "url", "file")) {
     lines <- sanitize_bib_field(lines, field = campo, clean = TRUE)
   }
   if (doi) {
