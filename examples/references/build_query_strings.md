@@ -48,6 +48,12 @@ source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/r
 ```
 
 ```
+## The following object is masked from 'package:MASS':
+## 
+##     select
+```
+
+```
 ## The following objects are masked from 'package:stats':
 ## 
 ##     filter, lag

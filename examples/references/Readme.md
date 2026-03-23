@@ -9,7 +9,9 @@ output:
 
 Overview
 
-This folder provides a small set of R utilities to manage bibliographies and LaTeX projects:
+This folder provides a small set of R utilities to manage bibliographies and LaTeX projects. The rendered examples below are available under `../../examples/references/`.
+
+Capabilities
 
 - Read, clean, and merge BibTeX files.
 - Build boolean query strings by DOI or title.
@@ -32,19 +34,20 @@ Usage Notes
 
 Examples
 
-- Build Query Strings: `examples/build_query_strings.Rmd` — Construct boolean queries from a `.bib` via DOI or normalized title.
-- Check BibTeX Errors: `examples/check_bib_errors.Rmd` — Report common issues in a `.bib` file.
-- Clean One BibTeX: `examples/clean_bib_file.Rmd` — Normalize and clean a single `.bib`.
-- Clean Directory of BibTeX: `examples/clean_bibs_dir.Rmd` — Clean all `.bib` files recursively in a directory.
-- Expand LaTeX Includes: `examples/expand_tex_includes.Rmd` — Expand LaTeX include/import directives to a single `.tex`.
-- Export Scholar Publications: `examples/export_scholar_publications.Rmd` — Save Google Scholar publications to Excel.
-- Find/Remove Unused (Single): `examples/find_and_remove_unused_refs_single.Rmd` — Detect and remove unused refs for one main `.tex`.
-- Find/Remove Unused (Directory): `examples/find_and_remove_unused_refs_dir.Rmd` — Detect and remove unused refs across a directory of `.tex` files.
-- Map & Replace Keys (Single): `examples/map_ref_keys_and_replace_single.Rmd` — Map old→new keys and update one `.tex` file.
-- Map & Replace Keys (Directory): `examples/map_ref_keys_and_replace_dir.Rmd` — Map keys and update all `.tex` under a directory.
-- Merge BibTeX Pairwise: `examples/merge_bibs_pairwise.Rmd` — Pairwise merge of all `.bib` files found in a folder.
-- Print DOI URLs: `examples/print_doi_urls.Rmd` — Print `https://doi.org/<doi>` for `.bib` entries with DOI.
-- Union of BibTeX Files: `examples/union_bibs.Rmd` — Build a union `.bib` from a source directory.
+- [Reference Utilities Overview](../../examples/references/Readme.md) - Overview of the bibliography and LaTeX utilities available in this repository.
+- [Build Query Strings from BibTeX](../../examples/references/build_query_strings.md) - Generate boolean search expressions from DOI fields or normalized titles.
+- [Check BibTeX File for Issues](../../examples/references/check_bib_errors.md) - Validate entries and report missing fields or common inconsistencies.
+- [Clean a Single BibTeX File](../../examples/references/clean_bib_file.md) - Normalize one bibliography file before reuse.
+- [Clean All BibTeX Files in a Directory](../../examples/references/clean_bibs_dir.md) - Apply the cleaning workflow to every `.bib` file in a directory tree.
+- [Expand LaTeX Includes](../../examples/references/expand_tex_includes.md) - Resolve `\input{}`, `\include{}`, `\import{}`, and related directives into a single expanded file.
+- [Export Google Scholar Publications](../../examples/references/export_scholar_publications.md) - Collect an author's publications and export the result to a spreadsheet.
+- [Find and Remove Unused References in a Directory](../../examples/references/find_and_remove_unused_refs_dir.md) - Detect unused citation keys across multiple `.tex` files and prune the bibliography.
+- [Find and Remove Unused References in a Single File](../../examples/references/find_and_remove_unused_refs_single.md) - Detect unused citation keys for one main LaTeX document and prune the bibliography.
+- [Map and Replace Reference Keys in a Directory](../../examples/references/map_ref_keys_and_replace_dir.md) - Update BibTeX keys and propagate the replacements across a directory of LaTeX files.
+- [Map and Replace Reference Keys in a Single File](../../examples/references/map_ref_keys_and_replace_single.md) - Update BibTeX keys and rewrite citations in one LaTeX document.
+- [Merge BibTeX Files Pairwise](../../examples/references/merge_bibs_pairwise.md) - Reconcile multiple `.bib` files through pairwise merges.
+- [Print DOI URLs](../../examples/references/print_doi_urls.md) - Emit `https://doi.org/...` links for entries that contain DOI values.
+- [Union of BibTeX Files](../../examples/references/union_bibs.md) - Build a consolidated bibliography from a directory of source files.
 
 Reproducibility
 
