@@ -1,47 +1,89 @@
 # mylibrary
-General Description
 
-This repository gathers reusable utilities, tutorials, and example notebooks for data analysis, statistics, bibliography/LaTeX workflows, and small supporting tools. Use the links below to explore rendered examples and additional documentation. Files under `Rmd/` contain source notebooks; this index focuses on Markdown (`.md`) and example outputs outside `Rmd/`.
+This repository centralizes rendered examples for data analysis, statistics, bibliographic workflows, interoperability between languages, and small applied experiments. The source notebooks live under `Rmd/`; the index below points only to the generated Markdown files in `examples/`.
 
-Examples
+## Example Index
 
-- [Index of Example Notebooks](examples/Readme.md) - Complete listing of notebooks.
+- [Complete Index of Examples](examples/Readme.md)
 
-- R
-  - [CRAN Downloads and Country Distribution](examples/r/package-usage.md) - Analyze CRAN downloads over time and inspect country distribution for a selected day.
+### BigQuery
 
-- References (BibTeX/LaTeX/Scholar)
-  - [Reference Utilities (BibTeX/LaTeX/Scholar)](examples/references/Readme.md) - Overview of utilities to manage bibliographies and LaTeX projects.
-  - [Build Query Strings from BibTeX](examples/references/build_query_strings.md) - Construct boolean queries from a `.bib` by DOI or normalized title.
-  - [Check BibTeX File for Issues](examples/references/check_bib_errors.md) - Identify missing fields and common issues in a `.bib` file.
-  - [Clean a Single BibTeX File](examples/references/clean_bib_file.md) - Normalize and clean one `.bib` file.
-  - [Clean All BibTeX Files in a Directory](examples/references/clean_bibs_dir.md) - Recursively clean every `.bib` in a directory.
-  - [Expand LaTeX Includes](examples/references/expand_tex_includes.md) - Expand `\\input{}`, `\\include{}`, `\\import{}`, and `\\subimport{}` directives in a main LaTeX file.
-  - [Export Google Scholar Publications](examples/references/export_scholar_publications.md) - Fetch an author's publications and export them to Excel.
-  - [Find and Remove Unused References (Directory)](examples/references/find_and_remove_unused_refs_dir.md) - Detect unused references across a directory of `.tex` files and remove them from the `.bib`.
-  - [Find and Remove Unused References (Single File)](examples/references/find_and_remove_unused_refs_single.md) - Detect unused references for one main `.tex` and remove them from the `.bib`.
-  - [Map and Replace Reference Keys (Directory)](examples/references/map_ref_keys_and_replace_dir.md) - Map old–new BibTeX keys and update all `.tex` files in a directory.
-  - [Map and Replace Reference Keys (Single .tex)](examples/references/map_ref_keys_and_replace_single.md) - Map old–new keys and update a single `.tex` file.
-  - [Merge BibTeX Files Pairwise](examples/references/merge_bibs_pairwise.md) - Enumerate `.bib` files and perform pairwise merges to reconcile entries.
-  - [Print DOI URLs](examples/references/print_doi_urls.md) - Print `https://doi.org/<doi>` URLs for `.bib` entries that contain a DOI.
-  - [Union of BibTeX Files](examples/references/union_bibs.md) - Build a union `.bib` by collecting entries from a source directory.
+- [BigQuery Walkthrough](examples/bigquery/BigQuery.md) - Query BigQuery tables, join geographic data, and derive simple population-based estimates.
 
-- Statistics
-  - [Regression](examples/statistics/linear_regression.md) - Hands-on linear, polynomial, multiple, and logistic regression with plots and examples.
-  - [Effect Size Tutorial](examples/statistics/tut_effect_size.md) - Paired-sample comparison with Wilcoxon test and effect size computation.
-  - [Nonparametric Tests Tutorial](examples/statistics/tut_nonparametric.md) - Normality checks (Shapiro-Wilk, Anderson-Darling) and Wilcoxon tests for independent and paired samples.
-  - [Parametric Tests Tutorial](examples/statistics/tut_parametric.md) - Normality checks and t-tests (two-sample, paired, one-sided alternatives).
+### Mobility
 
-Additional Docs
+- [Merge and Save Mobility Data](examples/mobility/02-merge-and-save.md) - Combine partitioned mobility data into a single output artifact.
 
-- [Datasets Overview](data/README.md) - Curated datasets by domain (aviation, classic ML, WEKA, marketing, graphics, time series) with brief descriptions and file links.
-- [References Utilities](references/README.md) - Manage BibTeX/LaTeX projects: include expansion, key mapping, cleaning, Scholar export, and citation styles.
-- [Subtitle Generator](subtitles/README.md) - Generate SRT subtitles from an Excel worksheet (PT/EN), with configurable timing and step size.
-- [BigQuery](bigquery/README.md) - R helpers to query Google BigQuery (basedosdados), download geometries, and compute simple population-derived estimates.
-- [PyTorch Experiments](pytorch/README.md) - Didactic PyTorch scripts for tabular, time series, and graph tasks; data standardized under `pytorch/data`.
-- [Reticulate Interoperability](reticulate/README.md) - Roundtrip data between R and Python using reticulate and pyreadr (in-memory and file-based flows).
-- [Stocks](stocks/README.md) - IBX50 dataset plus R helpers for basic stock data handling.
-- [Time Series](timeseries/README.md) - R experiments on forecasting, Kalman filtering, event detection, multivariate anomalies, reshaping, and animation.
-- [TSFM](tsfm/README.md) - Tiny time series foundation model experiments and a vanilla Transformer baseline.
-- [Mobility](mobility/README.md) - Merge Rio bus mobility Parquet parts (A–E) into a single artifact using Python+R.
+### PyTorch
 
+- [Generate Classification Data](examples/pytorch/01-generate-classification-data.md) - Build a synthetic dataset for tabular classification experiments.
+- [Generate Regression Data](examples/pytorch/02-generate-regression-data.md) - Build a synthetic dataset for regression experiments.
+- [Generate Time Series Data](examples/pytorch/03-generate-timeseries-data.md) - Create univariate time series data for forecasting tests.
+- [Generate Time Series Classification Data](examples/pytorch/04-generate-ts-classification-data.md) - Create labeled temporal sequences for classification tasks.
+- [Iris Classification in R](examples/pytorch/21-classification-iris.md) - Train and inspect a simple classification workflow using the Iris dataset.
+- [Event Classification](examples/pytorch/22-event-classification.md) - Prepare and model event-oriented data for supervised classification.
+- [Autoencoder Example](examples/pytorch/51-autoencoder-example.md) - Train an autoencoder and inspect compressed representations or reconstruction behavior.
+
+### R
+
+- [CRAN Downloads and Country Distribution](examples/r/package-usage.md) - Analyze CRAN downloads over time and inspect country distribution for a selected day.
+
+### References
+
+- [Reference Utilities Overview](examples/references/Readme.md) - Overview of the bibliography and LaTeX utilities available in this repository.
+- [Build Query Strings from BibTeX](examples/references/build_query_strings.md) - Generate boolean search expressions from DOI fields or normalized titles.
+- [Check BibTeX File for Issues](examples/references/check_bib_errors.md) - Validate entries and report missing fields or common inconsistencies.
+- [Clean a Single BibTeX File](examples/references/clean_bib_file.md) - Normalize one bibliography file before reuse.
+- [Clean All BibTeX Files in a Directory](examples/references/clean_bibs_dir.md) - Apply the cleaning workflow to every `.bib` file in a directory tree.
+- [Expand LaTeX Includes](examples/references/expand_tex_includes.md) - Resolve `\input{}`, `\include{}`, `\import{}`, and related directives into a single expanded file.
+- [Export Google Scholar Publications](examples/references/export_scholar_publications.md) - Collect an author's publications and export the result to a spreadsheet.
+- [Find and Remove Unused References in a Directory](examples/references/find_and_remove_unused_refs_dir.md) - Detect unused citation keys across multiple `.tex` files and prune the bibliography.
+- [Find and Remove Unused References in a Single File](examples/references/find_and_remove_unused_refs_single.md) - Detect unused citation keys for one main LaTeX document and prune the bibliography.
+- [Map and Replace Reference Keys in a Directory](examples/references/map_ref_keys_and_replace_dir.md) - Update BibTeX keys and propagate the replacements across a directory of LaTeX files.
+- [Map and Replace Reference Keys in a Single File](examples/references/map_ref_keys_and_replace_single.md) - Update BibTeX keys and rewrite citations in one LaTeX document.
+- [Merge BibTeX Files Pairwise](examples/references/merge_bibs_pairwise.md) - Reconcile multiple `.bib` files through pairwise merges.
+- [Print DOI URLs](examples/references/print_doi_urls.md) - Emit `https://doi.org/...` links for entries that contain DOI values.
+- [Union of BibTeX Files](examples/references/union_bibs.md) - Build a consolidated bibliography from a directory of source files.
+
+### Reticulate
+
+- [Invoke Python from R with Reticulate](examples/reticulate/02-invoke-reticulate.md) - Exchange data and function calls between R and Python.
+
+### Statistics
+
+- [Regression](examples/statistics/linear_regression.md) - Explore linear, polynomial, multiple, and logistic regression with plots and worked examples.
+- [Effect Size Tutorial](examples/statistics/tut_effect_size.md) - Compare paired methods and compute effect size alongside nonparametric testing.
+- [Nonparametric Tests Tutorial](examples/statistics/tut_nonparametric.md) - Perform normality checks and Wilcoxon-based comparisons for independent and paired samples.
+- [Parametric Tests Tutorial](examples/statistics/tut_parametric.md) - Review t-test variants, assumptions, and interpretation for common experimental setups.
+
+### Stocks
+
+- [IBX50 Example](examples/stocks/ibx50.md) - Load and explore the IBX50 stock dataset with a small analysis workflow.
+
+### Time Series
+
+- [Reshape Data with Pivot Operations](examples/timeseries/01-data-reshape-pivot.md) - Transform time-indexed tables between wide and long formats.
+- [Forecasting with ARIMA and Fourier Terms](examples/timeseries/02-forecasting-arima-fourier.md) - Fit a seasonal forecasting model using ARIMA components and Fourier features.
+- [Kalman Filter for AR(1)](examples/timeseries/03-kalman-filter-ar1.md) - Implement and visualize a Kalman filtering workflow for an autoregressive process.
+- [Event Detection with K-Means](examples/timeseries/04-event-detection-kmeans.md) - Cluster temporal behavior to identify event-like patterns.
+- [Multivariate Anomaly Detection with PCA](examples/timeseries/05-multivariate-anomaly-pca.md) - Use principal components to monitor multivariate trajectories and flag anomalies.
+- [Animated Detections](examples/timeseries/06-animated-detections.md) - Build animated visual summaries for evolving detections over time.
+- [Maximum Likelihood for the Binomial Model](examples/timeseries/11-mle-binomial.md) - Derive and inspect likelihood and log-likelihood behavior for a binomial parameter.
+- [Change Detection with EWMA](examples/timeseries/12-change-detection-ewma.md) - Use exponentially weighted moving averages to detect shifts in a process.
+- [MLE for the Normal Mean](examples/timeseries/13-mle-normal-mean.md) - Estimate the mean parameter by maximizing the normal log-likelihood.
+- [MLE for Normal Mean and Variance](examples/timeseries/14-mle-normal-params.md) - Estimate multiple normal parameters under a constrained optimization setup.
+- [Density-Based Outlier Detection](examples/timeseries/15-density-outlier-detection.md) - Score observations with density estimation and highlight low-probability points.
+- [Entropy and Surprisal for Anomaly Detection](examples/timeseries/16-entropy-surprisal-anomaly.md) - Convert empirical probabilities into surprisal-based anomaly scores.
+- [Rolling Grubbs Test for Anomaly Detection](examples/timeseries/17-rolling-grubbs-anomaly.md) - Apply a rolling hypothesis test to identify local outliers.
+- [Plot System Fonts](examples/timeseries/18-plot-system-fonts.md) - Enumerate and visualize fonts available in the local plotting environment.
+- [Color Palette Demo](examples/timeseries/19-color-palette-demo.md) - Compare palette choices for charts and exploratory graphics.
+- [Spline Example](examples/timeseries/21-spline.md) - Fit and visualize spline-based curves for smooth approximation.
+
+### TSFM
+
+- [Time Series Foundation Model Example](examples/tsfm/00-run-example.md) - Run a compact end-to-end example with a toy time series foundation model.
+
+### Tutorial
+
+- [Additional Graphics Examples](examples/tutorial/graphics_extra.md) - Small plotting demonstrations complementary to the statistics material.
+- [Plot Drift Example](examples/tutorial/plot_drift.md) - Illustrate how distribution drift can be visualized over time.
