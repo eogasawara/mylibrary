@@ -22,8 +22,8 @@
 ## Authentication
 - Set your billing project: `basedosdados::set_billing_id("<your-gcp-project-id>")`
 - Point `BIGQUERY_TOKEN` to a JSON credentials file (service account or user token), e.g.:
-  - macOS/Linux: `Sys.setenv(BIGQUERY_TOKEN = "~/my-creds.json")`
-  - Windows: `Sys.setenv(BIGQUERY_TOKEN = "C:/Users/<you>/my-creds.json")`
+  - macOS/Linux: `Sys.setenv(BIGQUERY_TOKEN = "~/path/to/bigquery-credentials.json")`
+  - Windows: `Sys.setenv(BIGQUERY_TOKEN = "C:/path/to/bigquery-credentials.json")`
 
 ## Usage
 1. Install packages once if needed (inside the script or via `install.packages`).
