@@ -356,13 +356,13 @@ head(train)
 ```
 
 ```
-##     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species versicolor
-## 27           5.0         3.4          1.6         0.4      other          0
-## 36           5.0         3.2          1.2         0.2      other          0
-## 43           4.4         3.2          1.3         0.2      other          0
-## 66           6.7         3.1          4.4         1.4 versicolor          1
-## 80           5.7         2.6          3.5         1.0 versicolor          1
-## 130          7.2         3.0          5.8         1.6      other          0
+##     Sepal.Length Sepal.Width Petal.Length Petal.Width Species versicolor
+## 8            5.0         3.4          1.5         0.2   other          0
+## 125          6.7         3.3          5.7         2.1   other          0
+## 113          6.8         3.0          5.5         2.1   other          0
+## 39           4.4         3.0          1.3         0.2   other          0
+## 27           5.0         3.4          1.6         0.4   other          0
+## 123          7.7         2.8          6.7         2.0   other          0
 ```
 
 This dataset is unbalanced using this perspective. If the prediction for $versicolor$ is higher than its probability, it can be classified as $versicolor$. 
@@ -374,7 +374,7 @@ print(t)
 ```
 
 ```
-## [1] 0.325
+## [1] 0.3083333
 ```
 
 The creation of the logistic regression model using all independent variables uses $glm$ function.
@@ -396,8 +396,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 58 12
-##   1 23 27
+##   0 63 10
+##   1 20 27
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -412,8 +412,8 @@ table(res, test$versicolor)
 ```
 ##        
 ## res      0  1
-##   FALSE 16  3
-##   TRUE   3  8
+##   FALSE 10  2
+##   TRUE   7 11
 ```
 
 Creation of the logistic regression model using the independent variables with lower entropy during binning transformation.  
@@ -435,8 +435,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 61  9
-##   1 20 30
+##   0 65  7
+##   1 18 30
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -451,7 +451,7 @@ table(res, test$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 17  2
-##   1  2  9
+##   0 13  1
+##   1  4 12
 ```
 

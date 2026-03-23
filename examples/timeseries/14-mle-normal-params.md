@@ -1,0 +1,57 @@
+---
+title: "Mle normal params"
+date: "2026-03-23"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+Overview
+
+This R Markdown document preserves the original example script and adds enough context to help you study, adapt, and rerun the workflow safely.
+
+14-mle-normal-params.R MLE of both mean (mu) and standard deviation (sigma) for a Normal distribution.
+
+How To Read
+
+- Comece pelo resumo em `Overview` para entender o objetivo do exemplo antes de olhar o codigo.
+- Revise caminhos de arquivos, pacotes e dependencias externas antes de adaptar o script ao seu ambiente.
+- Use este documento como material de estudo: primeiro entenda o fluxo, depois ajuste entradas, credenciais e saidas para o seu caso.
+
+Execution Notes
+
+- O chunk principal foi mantido com `eval=FALSE` para que a documentacao possa ser convertida com seguranca, mesmo quando houver dependencias externas, APIs, Python auxiliar ou datasets locais indisponiveis.
+- Para executar o exemplo de verdade, rode o codigo em uma sessao interativa ou remova `eval=FALSE` depois de conferir caminhos, pacotes e arquivos auxiliares.
+- Mantenha os arquivos desta pasta juntos, porque varios exemplos dependem de recursos vizinhos como `.py`, `.csv`, `.xlsx`, `.RData`, imagens ou `README`.
+
+Original Script
+
+The chunk below reproduces the original script with minimal structural changes so the example remains faithful to the source material.
+
+
+``` r
+## 14-mle-normal-params.R
+## MLE of both mean (mu) and standard deviation (sigma) for a Normal distribution.
+
+set.seed(2)
+x <- rnorm(500, mean = 0, sd = 1)
+
+# Parameterization: pars = (mu, log_sigma) to enforce sigma > 0
+NLL <- function(pars, data) {
+  mu <- pars[1]
+  log_sigma <- pars[2]
+  sigma <- exp(log_sigma)
+  -sum(dnorm(x = data, mean = mu, sd = sigma, log = TRUE))
+}
+
+fit <- optim(par = c(mu = 0, log_sigma = 0), fn = NLL, data = x)
+mu_hat <- fit$par[1]
+sigma_hat <- exp(fit$par[2])
+
+cat(sprintf("MLE mu = %.4f, sigma = %.4f\n", mu_hat, sigma_hat))
+```
+
+
+
+

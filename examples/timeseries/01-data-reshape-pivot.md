@@ -1,0 +1,75 @@
+---
+title: "Data reshape pivot"
+date: "2026-03-23"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+Overview
+
+This R Markdown document preserves the original example script and adds enough context to help you study, adapt, and rerun the workflow safely.
+
+01-data-reshape-pivot.R Data wrangling examples: join yearly temperatures with oil metrics and pivot monthly data.
+
+How To Read
+
+- Comece pelo resumo em `Overview` para entender o objetivo do exemplo antes de olhar o codigo.
+- Revise caminhos de arquivos, pacotes e dependencias externas antes de adaptar o script ao seu ambiente.
+- Use este documento como material de estudo: primeiro entenda o fluxo, depois ajuste entradas, credenciais e saidas para o seu caso.
+
+Execution Notes
+
+- O chunk principal foi mantido com `eval=FALSE` para que a documentacao possa ser convertida com seguranca, mesmo quando houver dependencias externas, APIs, Python auxiliar ou datasets locais indisponiveis.
+- Para executar o exemplo de verdade, rode o codigo em uma sessao interativa ou remova `eval=FALSE` depois de conferir caminhos, pacotes e arquivos auxiliares.
+- Mantenha os arquivos desta pasta juntos, porque varios exemplos dependem de recursos vizinhos como `.py`, `.csv`, `.xlsx`, `.RData`, imagens ou `README`.
+
+Original Script
+
+The chunk below reproduces the original script with minimal structural changes so the example remains faithful to the source material.
+
+
+``` r
+## 01-data-reshape-pivot.R
+## Data wrangling examples: join yearly temperatures with oil metrics and pivot monthly data.
+
+library(dplyr)
+library(reshape)
+
+# Load yearly temperatures
+yearly_path <- file.path("timeseries", "data", "noaa-global", "temp_yearly.RData")
+if (!file.exists(yearly_path)) stop(paste("Dataset not found:", yearly_path))
+load(yearly_path)  # loads temp_yearly
+
+# Load oil metrics (three columns repeated per period: production, demand, gap)
+oil_path <- file.path("timeseries", "data", "oil", "data.csv")
+if (!file.exists(oil_path)) stop(paste("Dataset not found:", oil_path))
+oil <- read.csv(oil_path, header = FALSE)
+oil <- as.vector(t(oil))
+
+data <- temp_yearly[temp_yearly$x >= '1971-01-01' & temp_yearly$x <= '2020-01-01',]
+
+data$production <- oil[(1:length(oil))%%3 == 1]
+data$demand <- oil[(1:length(oil))%%3 == 2]
+data$gap <- oil[(1:length(oil))%%3 == 0]
+data$x <- format(data$x, "%Y")
+data <- head(data |> dplyr::select(year = x, temperature, production), 10)
+
+
+# Load monthly temperatures and pivot to wide (year x month)
+monthly_path <- file.path("timeseries", "data", "noaa-global", "temp_monthly.RData")
+if (!file.exists(monthly_path)) stop(paste("Dataset not found:", monthly_path))
+load(monthly_path)  # loads temp_monthly
+data_m <- temp_monthly[temp_monthly$x >= '1971-01-01' & temp_monthly$x <= '2020-12-01',]
+data_m$year <- as.integer(format(data_m$x, "%Y"))
+data_m$month <- as.integer(format(data_m$x, "%m"))
+data_m$x <- NULL
+data_m <- data_m |> dplyr::select(year, month, temperature)
+
+result <- head(cast(data_m, year ~ month, fun=max), 10)
+```
+
+
+
+

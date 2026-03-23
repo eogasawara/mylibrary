@@ -1,0 +1,57 @@
+---
+title: "Mle binomial"
+date: "2026-03-23"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+Overview
+
+This R Markdown document preserves the original example script and adds enough context to help you study, adapt, and rerun the workflow safely.
+
+11-mle-binomial.R Maximum Likelihood Estimation (MLE) for a binomial coin-flip probability p. Demonstrates likelihood, log-likelihood, and MLE using optimize.
+
+How To Read
+
+- Comece pelo resumo em `Overview` para entender o objetivo do exemplo antes de olhar o codigo.
+- Revise caminhos de arquivos, pacotes e dependencias externas antes de adaptar o script ao seu ambiente.
+- Use este documento como material de estudo: primeiro entenda o fluxo, depois ajuste entradas, credenciais e saidas para o seu caso.
+
+Execution Notes
+
+- O chunk principal foi mantido com `eval=FALSE` para que a documentacao possa ser convertida com seguranca, mesmo quando houver dependencias externas, APIs, Python auxiliar ou datasets locais indisponiveis.
+- Para executar o exemplo de verdade, rode o codigo em uma sessao interativa ou remova `eval=FALSE` depois de conferir caminhos, pacotes e arquivos auxiliares.
+- Mantenha os arquivos desta pasta juntos, porque varios exemplos dependem de recursos vizinhos como `.py`, `.csv`, `.xlsx`, `.RData`, imagens ou `README`.
+
+Original Script
+
+The chunk below reproduces the original script with minimal structural changes so the example remains faithful to the source material.
+
+
+``` r
+## 11-mle-binomial.R
+## Maximum Likelihood Estimation (MLE) for a binomial coin-flip probability p.
+## Demonstrates likelihood, log-likelihood, and MLE using optimize.
+
+set.seed(22)
+n <- 100
+heads <- rbinom(1, n, 0.5)  # observed number of heads
+
+# Likelihood and log-likelihood for Binomial(n, p)
+likelihood <- function(p) dbinom(heads, n, p)
+loglik <- function(p) dbinom(heads, n, p, log = TRUE)
+
+# Maximize log-likelihood over p in (0,1)
+neg_loglik <- function(p) -loglik(p)
+fit <- optimize(neg_loglik, interval = c(1e-6, 1 - 1e-6))
+mle_p <- fit$minimum
+
+cat(sprintf("Observed heads = %d out of n = %d\n", heads, n))
+cat(sprintf("MLE for p = %.4f (observed proportion = %.4f)\n", mle_p, heads / n))
+```
+
+
+
+

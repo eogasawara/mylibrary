@@ -1,0 +1,58 @@
+---
+title: "Density outlier detection"
+date: "2026-03-23"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+Overview
+
+This R Markdown document preserves the original example script and adds enough context to help you study, adapt, and rerun the workflow safely.
+
+15-density-outlier-detection.R Kernel density estimate (KDE) based outlier detection: flag low-density points.
+
+How To Read
+
+- Comece pelo resumo em `Overview` para entender o objetivo do exemplo antes de olhar o codigo.
+- Revise caminhos de arquivos, pacotes e dependencias externas antes de adaptar o script ao seu ambiente.
+- Use este documento como material de estudo: primeiro entenda o fluxo, depois ajuste entradas, credenciais e saidas para o seu caso.
+
+Execution Notes
+
+- O chunk principal foi mantido com `eval=FALSE` para que a documentacao possa ser convertida com seguranca, mesmo quando houver dependencias externas, APIs, Python auxiliar ou datasets locais indisponiveis.
+- Para executar o exemplo de verdade, rode o codigo em uma sessao interativa ou remova `eval=FALSE` depois de conferir caminhos, pacotes e arquivos auxiliares.
+- Mantenha os arquivos desta pasta juntos, porque varios exemplos dependem de recursos vizinhos como `.py`, `.csv`, `.xlsx`, `.RData`, imagens ou `README`.
+
+Original Script
+
+The chunk below reproduces the original script with minimal structural changes so the example remains faithful to the source material.
+
+
+``` r
+## 15-density-outlier-detection.R
+## Kernel density estimate (KDE) based outlier detection: flag low-density points.
+
+set.seed(123)
+n <- 300
+x <- c(rnorm(n, 0, 1), rnorm(5, 6, 0.5))  # include a few outliers
+
+dens <- density(x, n = 2048)
+# Interpolate KDE at observed points
+px <- approx(dens$x, dens$y, xout = x, rule = 2)$y
+
+# Flag as anomalies those below a low-density quantile
+thr <- quantile(px, probs = 0.05)
+is_anom <- px < thr
+
+cat(sprintf("Detected %d anomalies out of %d points\n", sum(is_anom), length(x)))
+
+if (interactive()) {
+  plot(x, pch = 19, col = ifelse(is_anom, "red", "blue"), main = "KDE-based Outlier Detection")
+}
+```
+
+
+
+
