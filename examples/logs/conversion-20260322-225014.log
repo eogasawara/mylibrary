@@ -1,0 +1,41 @@
+Conversion run started at 2026-03-22 22:50:14
+Working directory: C:/Git/eogasawara/mylibrary/Rmd
+
+================================================================================
+[2026-03-22 22:50:22] rmd->docx
+file: C:/Git/eogasawara/mylibrary/Rmd/tutorial/tut_effect_size.Rmd
+message: there is no package called 'rstatix'
+call: library(rstatix)
+stack:
+001: run_phase(texs, "rmd->docx", convert_rmd_docx)
+002: tryCatch({     converter(input)     list(ok = TRUE, input = input, phase = phase, message = NULL) }, error = function(err) {     record_condition(phase, input, err)     list(ok = FALSE, input = input, phase = phase, message = conditionMessage(err)) })
+003: tryCatchList(expr, classes, parentenv, handlers)
+004: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+005: value[[3L]](cond)
+006: record_condition(phase, input, err)
+
+================================================================================
+[2026-03-22 22:50:22] rmd->docx
+file: C:/Git/eogasawara/mylibrary/Rmd/tutorial/tut_nonparametric.Rmd
+message: there is no package called 'nortest'
+call: library(nortest)
+stack:
+001: run_phase(texs, "rmd->docx", convert_rmd_docx)
+002: tryCatch({     converter(input)     list(ok = TRUE, input = input, phase = phase, message = NULL) }, error = function(err) {     record_condition(phase, input, err)     list(ok = FALSE, input = input, phase = phase, message = conditionMessage(err)) })
+003: tryCatchList(expr, classes, parentenv, handlers)
+004: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+005: value[[3L]](cond)
+006: record_condition(phase, input, err)
+
+================================================================================
+[2026-03-22 22:50:22] rmd->docx
+file: C:/Git/eogasawara/mylibrary/Rmd/tutorial/tut_parametric.Rmd
+message: there is no package called 'nortest'
+call: library(nortest)
+stack:
+001: run_phase(texs, "rmd->docx", convert_rmd_docx)
+002: tryCatch({     converter(input)     list(ok = TRUE, input = input, phase = phase, message = NULL) }, error = function(err) {     record_condition(phase, input, err)     list(ok = FALSE, input = input, phase = phase, message = conditionMessage(err)) })
+003: tryCatchList(expr, classes, parentenv, handlers)
+004: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+005: value[[3L]](cond)
+006: record_condition(phase, input, err)

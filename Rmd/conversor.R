@@ -11,9 +11,30 @@
 #   copy/move failures.
 ################################################################################
 
-# Root directory containing source Rmd files
-dir <- "Rmd"
-log_dir <- file.path("examples", "logs")
+# Resolve paths from the script location so the converter works whether it is
+# launched from the repository root or from inside 'Rmd/'.
+get_script_path <- function() {
+  args <- commandArgs(trailingOnly = FALSE)
+  file_arg <- "--file="
+  match <- grep(file_arg, args, value = TRUE)
+
+  if (length(match) > 0) {
+    return(normalizePath(sub(file_arg, "", match[[1]]), winslash = "/", mustWork = TRUE))
+  }
+
+  if (!is.null(sys.frames()[[1]]$ofile)) {
+    return(normalizePath(sys.frames()[[1]]$ofile, winslash = "/", mustWork = TRUE))
+  }
+
+  normalizePath(getwd(), winslash = "/", mustWork = TRUE)
+}
+
+script_path <- get_script_path()
+script_dir <- dirname(script_path)
+repo_root <- dirname(script_dir)
+rmd_dir <- script_dir
+examples_dir <- file.path(repo_root, "examples")
+log_dir <- file.path(examples_dir, "logs")
 if (!dir.exists(log_dir)) {
   dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
 }
@@ -100,8 +121,19 @@ delete_ipynb <- function(input) {
 # - the special leading folder 'examples/' is dropped to avoid
 #   creating 'examples/examples/...'
 normalize_examples_rel <- function(path) {
-  rel <- gsub("^Rmd/", "", path)
+  rel <- normalizePath(path, winslash = "/", mustWork = FALSE)
+  rmd_root <- paste0(normalizePath(rmd_dir, winslash = "/", mustWork = TRUE), "/")
+  examples_root <- paste0(normalizePath(examples_dir, winslash = "/", mustWork = FALSE), "/")
+
+  if (startsWith(rel, rmd_root)) {
+    return(sub(rmd_root, "", rel, fixed = TRUE))
+  }
+
+  rel <- gsub("^Rmd/", "", rel)
   rel <- gsub("^examples/", "", rel)
+  if (startsWith(rel, examples_root)) {
+    return(sub(examples_root, "", rel, fixed = TRUE))
+  }
   rel
 }
 
@@ -111,8 +143,8 @@ build_output_paths <- function(input) {
   rel_md         <- xfun::with_ext(rel_input, "md")
   rel_dir        <- dirname(rel_md)
   base_filename  <- xfun::sans_ext(basename(rel_md))
-  mdfile         <- file.path("examples", rel_md)
-  base_out_dir   <- if (rel_dir == ".") "examples" else file.path("examples", rel_dir)
+  mdfile         <- file.path(examples_dir, rel_md)
+  base_out_dir   <- if (rel_dir == ".") examples_dir else file.path(examples_dir, rel_dir)
   docxfile       <- file.path(base_out_dir, "doc", paste0(base_filename, ".docx"))
   rfile          <- file.path(base_out_dir, "r", paste0(base_filename, ".R"))
   figdir         <- file.path(dirname(mdfile), "fig", base_filename)
@@ -235,7 +267,7 @@ convert_rmd_r <- function(input) {
 
 
 # Convert .ipynb -> .Rmd (disabled by default; enable by toggling to TRUE)
-texs <- list.files(path = dir, pattern = ".ipynb$", full.names = TRUE, recursive = TRUE)
+texs <- list.files(path = rmd_dir, pattern = ".ipynb$", full.names = TRUE, recursive = TRUE)
 if (FALSE) {
   for (tex in texs) {
     print(tex)
@@ -255,7 +287,7 @@ if (FALSE) {
 # 1. generate all Markdown files
 # 2. generate all Word files
 # 3. generate all extracted R scripts
-texs <- list.files(path = dir, pattern = ".Rmd$", full.names = TRUE, recursive = TRUE)
+texs <- list.files(path = rmd_dir, pattern = ".Rmd$", full.names = TRUE, recursive = TRUE)
 if (TRUE) {
   append_log(sprintf("Conversion run started at %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S")))
   append_log(sprintf("Working directory: %s\n", normalizePath(getwd(), winslash = "/")))

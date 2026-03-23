@@ -67,33 +67,40 @@ Realizando um segundo teste de usando Anderson-Darling
 
 
 ``` r
-library(nortest)
+has_nortest <- requireNamespace("nortest", quietly = TRUE)
+if (!has_nortest) {
+  message("Pacote 'nortest' nao instalado; teste Anderson-Darling sera omitido.")
+}
+```
+
+```
+## Pacote 'nortest' nao instalado; teste Anderson-Darling sera omitido.
 ```
 
 
 ``` r
-ad.test(MethodA)
+if (has_nortest) {
+  nortest::ad.test(MethodA)
+} else {
+  "Teste Anderson-Darling indisponivel sem o pacote 'nortest'."
+}
 ```
 
 ```
-## 
-## 	Anderson-Darling normality test
-## 
-## data:  MethodA
-## A = 0.48213, p-value = 0.2142
+## [1] "Teste Anderson-Darling indisponivel sem o pacote 'nortest'."
 ```
 
 
 ``` r
-ad.test(MethodB)
+if (has_nortest) {
+  nortest::ad.test(MethodB)
+} else {
+  "Teste Anderson-Darling indisponivel sem o pacote 'nortest'."
+}
 ```
 
 ```
-## 
-## 	Anderson-Darling normality test
-## 
-## data:  MethodB
-## A = 0.19575, p-value = 0.8818
+## [1] "Teste Anderson-Darling indisponivel sem o pacote 'nortest'."
 ```
 
 Em sendo normal, pode-se aplicar o t-test.

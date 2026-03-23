@@ -50,24 +50,16 @@ Análise do Effect Size
 
 
 ``` r
-library(rstatix)
+has_rstatix <- requireNamespace("rstatix", quietly = TRUE)
+if (has_rstatix) {
+  library(rstatix)
+} else {
+  message("Pacote 'rstatix' nao instalado; usando calculo alternativo de effect size.")
+}
 ```
 
 ```
-## 
-## Attaching package: 'rstatix'
-```
-
-```
-## The following object is masked from 'package:MASS':
-## 
-##     select
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     filter
+## Pacote 'rstatix' nao instalado; usando calculo alternativo de effect size.
 ```
 
 Execute este mesmo experimento com menos tentativas (trials) (5, 10)
@@ -80,14 +72,27 @@ data_effect = data.frame(methods, y = c(MethodA, MethodB))
 
 
 ``` r
-wilcox_effsize(y ~ methods, paired=TRUE, data=data_effect)
+if (has_rstatix) {
+  wilcox_effsize(y ~ methods, paired=TRUE, data=data_effect)
+} else {
+  diffs <- MethodA - MethodB
+  diffs <- diffs[diffs != 0]
+  ranks <- rank(abs(diffs))
+  signed_rank_sum <- sum(sign(diffs) * ranks)
+  rank_biserial <- signed_rank_sum / sum(ranks)
+  data.frame(
+    .y. = "y",
+    group1 = "MethodA",
+    group2 = "MethodB",
+    effect_size = "rank_biserial",
+    effsize = rank_biserial
+  )
+}
 ```
 
 ```
-## # A tibble: 1 × 7
-##   .y.   group1  group2  effsize    n1    n2 magnitude
-## * <chr> <chr>   <chr>     <dbl> <int> <int> <ord>    
-## 1 y     MethodA MethodB   0.389    30    30 moderate
+##   .y.  group1  group2   effect_size    effsize
+## 1   y MethodA MethodB rank_biserial -0.4451613
 ```
 
 Altere as médias para avaliar a magnitude do efeito.

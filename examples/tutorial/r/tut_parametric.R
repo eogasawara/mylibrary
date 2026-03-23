@@ -12,11 +12,22 @@ shapiro.test(MethodA)
 
 shapiro.test(MethodB)
 
-library(nortest)
+has_nortest <- requireNamespace("nortest", quietly = TRUE)
+if (!has_nortest) {
+  message("Pacote 'nortest' nao instalado; teste Anderson-Darling sera omitido.")
+}
 
-ad.test(MethodA)
+if (has_nortest) {
+  nortest::ad.test(MethodA)
+} else {
+  "Teste Anderson-Darling indisponivel sem o pacote 'nortest'."
+}
 
-ad.test(MethodB)
+if (has_nortest) {
+  nortest::ad.test(MethodB)
+} else {
+  "Teste Anderson-Darling indisponivel sem o pacote 'nortest'."
+}
 
 res <- t.test(MethodA, MethodB, paired=FALSE)
 res

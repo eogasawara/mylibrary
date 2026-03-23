@@ -23,21 +23,19 @@ library(daltoolbox)
 
 ``` r
 library(MASS)
-```
-
-```
-## 
-## Attaching package: 'MASS'
-```
-
-```
-## The following object is masked from 'package:dplyr':
-## 
-##     select
-```
-
-``` r
 library(plotly)
+```
+
+```
+## Warning: package 'plotly' was built under R version 4.5.2
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 4.5.2
 ```
 
 ```
@@ -46,15 +44,15 @@ library(plotly)
 ```
 
 ```
-## The following object is masked from 'package:MASS':
-## 
-##     select
-```
-
-```
 ## The following object is masked from 'package:ggplot2':
 ## 
 ##     last_plot
+```
+
+```
+## The following object is masked from 'package:MASS':
+## 
+##     select
 ```
 
 ```
@@ -73,6 +71,10 @@ library(plotly)
 library(reshape2)
 ```
 
+```
+## Warning: package 'reshape2' was built under R version 4.5.2
+```
+
 ## Dataset
 Both independent and dependent variables are numeric. 
 
@@ -82,13 +84,20 @@ head(Boston)
 ```
 
 ```
-##      crim zn indus chas   nox    rm  age    dis rad tax ptratio  black lstat medv
-## 1 0.00632 18  2.31    0 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98 24.0
-## 2 0.02731  0  7.07    0 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14 21.6
-## 3 0.02729  0  7.07    0 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03 34.7
-## 4 0.03237  0  2.18    0 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94 33.4
-## 5 0.06905  0  2.18    0 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33 36.2
-## 6 0.02985  0  2.18    0 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21 28.7
+##      crim zn indus chas   nox    rm  age    dis rad tax ptratio  black lstat
+## 1 0.00632 18  2.31    0 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
+## 2 0.02731  0  7.07    0 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14
+## 3 0.02729  0  7.07    0 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03
+## 4 0.03237  0  2.18    0 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94
+## 5 0.06905  0  2.18    0 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33
+## 6 0.02985  0  2.18    0 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21
+##   medv
+## 1 24.0
+## 2 21.6
+## 3 34.7
+## 4 33.4
+## 5 36.2
+## 6 28.7
 ```
 
 ## Fitting a first model
@@ -334,12 +343,12 @@ head(train)
 
 ```
 ##     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species versicolor
-## 28           5.2         3.5          1.5         0.2      other          0
-## 132          7.9         3.8          6.4         2.0      other          0
-## 86           6.0         3.4          4.5         1.6 versicolor          1
-## 97           5.7         2.9          4.2         1.3 versicolor          1
-## 46           4.8         3.0          1.4         0.3      other          0
-## 8            5.0         3.4          1.5         0.2      other          0
+## 11           5.4         3.7          1.5         0.2      other          0
+## 96           5.7         3.0          4.2         1.2 versicolor          1
+## 137          6.3         3.4          5.6         2.4      other          0
+## 75           6.4         2.9          4.3         1.3 versicolor          1
+## 44           5.0         3.5          1.6         0.6      other          0
+## 146          6.7         3.0          5.2         2.3      other          0
 ```
 
 This dataset is unbalanced using this perspective. If the prediction for $versicolor$ is higher than its probability, it can be classified as $versicolor$. 
@@ -351,7 +360,7 @@ print(t)
 ```
 
 ```
-## [1] 0.325
+## [1] 0.3583333
 ```
 
 The creation of the logistic regression model using all independent variables uses $glm$ function.
@@ -373,8 +382,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 61 10
-##   1 20 29
+##   0 59  8
+##   1 18 35
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -389,8 +398,8 @@ table(res, test$versicolor)
 ```
 ##        
 ## res      0  1
-##   FALSE 12  2
-##   TRUE   7  9
+##   FALSE 14  2
+##   TRUE   9  5
 ```
 
 Creation of the logistic regression model using the independent variables with lower entropy during binning transformation.  
@@ -412,8 +421,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 63  9
-##   1 18 30
+##   0 59  8
+##   1 18 35
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -428,7 +437,7 @@ table(res, test$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 14  2
-##   1  5  9
+##   0 17  0
+##   1  6  7
 ```
 
