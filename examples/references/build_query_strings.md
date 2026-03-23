@@ -19,11 +19,7 @@ Setup
 
 ``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("../../references/myReferences.R")
-```
-
-```
-## Loading required package: RefManageR
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
 ```
 
 ```
@@ -31,15 +27,7 @@ source("../../references/myReferences.R")
 ```
 
 ```
-## Loading required package: tibble
-```
-
-```
 ## Warning: package 'tibble' was built under R version 4.5.2
-```
-
-```
-## Loading required package: readxl
 ```
 
 ```
@@ -47,15 +35,7 @@ source("../../references/myReferences.R")
 ```
 
 ```
-## Loading required package: writexl
-```
-
-```
 ## Warning: package 'writexl' was built under R version 4.5.1
-```
-
-```
-## Loading required package: dplyr
 ```
 
 ```
@@ -80,15 +60,7 @@ source("../../references/myReferences.R")
 ```
 
 ```
-## Loading required package: stringr
-```
-
-```
 ## Warning: package 'stringr' was built under R version 4.5.2
-```
-
-```
-## Loading required package: scholar
 ```
 
 ```
@@ -96,9 +68,8 @@ source("../../references/myReferences.R")
 ```
 
 ``` r
-source("../../references/ref_utils.R")
-source("reference_examples_setup.R")
-ensure_reference_example_files()
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/reference_examples_setup.R")
+download_reference_example_files()
 ```
 
 Inputs
