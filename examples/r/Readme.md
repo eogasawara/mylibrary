@@ -4,6 +4,7 @@ This folder groups small R-only examples and utilities. The rendered example bel
 
 Examples
 
-- [CRAN Downloads and Country Distribution](examples/r/package-usage.md) - Analyze CRAN downloads over time and inspect country distribution for a selected day.
+- [CRAN Downloads and Country Distribution](../../examples/r/package-usage.md) - Analyze CRAN downloads over time and inspect country distribution for a selected day.
+
 
 

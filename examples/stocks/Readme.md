@@ -4,6 +4,7 @@ This folder groups the stock-market-related examples. The rendered example below
 
 Examples
 
-- [IBX50 Example](examples/stocks/ibx50.md) - Load and explore the IBX50 stock dataset with a small analysis workflow.
+- [IBX50 Example](../../examples/stocks/ibx50.md) - Load and explore the IBX50 stock dataset with a small analysis workflow.
+
 
 

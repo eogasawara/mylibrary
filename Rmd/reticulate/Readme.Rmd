@@ -4,6 +4,7 @@ This folder groups the R/Python interoperability materials built with `reticulat
 
 Examples
 
-- [Invoke Python from R with Reticulate](examples/reticulate/02-invoke-reticulate.md) - Exchange data and function calls between R and Python.
+- [Invoke Python from R with Reticulate](../../examples/reticulate/02-invoke-reticulate.md) - Exchange data and function calls between R and Python.
+
 
 

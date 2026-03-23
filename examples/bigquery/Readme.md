@@ -4,6 +4,7 @@ This folder groups the BigQuery-oriented materials. The rendered example below i
 
 Examples
 
-- [BigQuery Walkthrough](examples/bigquery/BigQuery.md) - Query BigQuery tables, join geographic data, and derive simple population-based estimates.
+- [BigQuery Walkthrough](../../examples/bigquery/BigQuery.md) - Query BigQuery tables, join geographic data, and derive simple population-based estimates.
+
 
 
