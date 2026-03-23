@@ -1,0 +1,64 @@
+---
+title: "Invoke reticulate"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+Overview
+
+This R Markdown document preserves the original example script and adds enough context to help you study, adapt, and rerun the workflow safely.
+
+02-invoke-reticulate.R ---------------------- Demonstrates interoperability between R and Python using reticulate. - Calls a simple Python function add(x, y) - Sends an R data.frame to Python, computes z = x + y, and gets it back - Saves a data.frame to RData, has Python update it, and loads it again
+
+How To Read
+
+- Comece pelo resumo em `Overview` para entender o objetivo do exemplo antes de olhar o codigo.
+- Revise caminhos de arquivos, pacotes e dependencias externas antes de adaptar o script ao seu ambiente.
+- Use este documento como material de estudo: primeiro entenda o fluxo, depois ajuste entradas, credenciais e saidas para o seu caso.
+
+Execution Notes
+
+- O chunk principal foi mantido com `eval=FALSE` para que a documentacao possa ser convertida com seguranca, mesmo quando houver dependencias externas, APIs, Python auxiliar ou datasets locais indisponiveis.
+- Para executar o exemplo de verdade, rode o codigo em uma sessao interativa ou remova `eval=FALSE` depois de conferir caminhos, pacotes e arquivos auxiliares.
+- Mantenha os arquivos desta pasta juntos, porque varios exemplos dependem de recursos vizinhos como `.py`, `.csv`, `.xlsx`, `.RData`, imagens ou `README`.
+
+Original Script
+
+The chunk below reproduces the original script with minimal structural changes so the example remains faithful to the source material.
+
+```{r, eval=FALSE}
+##
+## 02-invoke-reticulate.R
+## ----------------------
+## Demonstrates interoperability between R and Python using reticulate.
+## - Calls a simple Python function add(x, y)
+## - Sends an R data.frame to Python, computes z = x + y, and gets it back
+## - Saves a data.frame to RData, has Python update it, and loads it again
+
+library(reticulate)
+source_python('reticulate/01-python-bridge.py')
+
+# 1) Sanity check: call a Python function
+x <- add(5, 10)
+print(sprintf("add(5, 10) = %s", x))
+
+# 2) In-memory roundtrip: R -> Python (pandas) -> R
+data <- data.frame(x = c(1:5), y = c(11:15))
+dfm <- read_rdata_mem(data)
+print(dfm)
+
+# 3) File-based roundtrip via .RData
+data <- data.frame(x = c(1:5), y = c(11:15))
+filename <- file.path("reticulate", "table.RData")
+save(data, file = filename, compress = TRUE)
+read_rdata_file(filename)
+load(file = filename)
+print(data)
+```
+
+
+
+
