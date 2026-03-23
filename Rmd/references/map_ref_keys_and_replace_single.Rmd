@@ -1,0 +1,33 @@
+---
+title: "Map and Replace Reference Keys (Single .tex)"
+date: "`r format(Sys.Date())`"
+output: html_document
+---
+
+Overview
+
+Map old→new BibTeX keys between two `.bib` files and replace them in a single `.tex` file.
+
+Setup
+
+```r
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+```
+
+Inputs
+
+```r
+bib_old  <- "path/to/references-old.bib"
+bib_new  <- "path/to/references.bib"
+tex_file <- "path/to/main.tex"
+```
+
+Map and Replace
+
+```r
+mapRf <- mapRefs(bib_old, bib_new)
+subMap(tex_file, mapRf)
+cat("Applied key replacements to:", tex_file, "\n")
+```
+

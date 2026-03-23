@@ -1,0 +1,31 @@
+---
+title: "Clean All BibTeX Files in a Directory"
+date: "`r format(Sys.Date())`"
+output: html_document
+---
+
+Overview
+
+Scan a directory recursively and normalize/clean every `.bib` file found.
+
+Setup
+
+```r
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+```
+
+Inputs
+
+```r
+# Edit this path to your directory containing .bib files
+dir_path <- "path/to/dir_with_bibs"
+```
+
+Clean
+
+```r
+cleanBibs(dir_path)
+cat("Directory cleaned:", dir_path, "\n")
+```
+
