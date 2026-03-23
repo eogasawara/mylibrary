@@ -1,17 +1,10 @@
----
-title: "Tutorial Examples"
-date: "2026-03-23"
-output:
-  html_document:
-    toc: true
-    toc_depth: 2
----
-
 Overview
 
-This folder groups complementary tutorial materials outside the main statistics track. The rendered examples below are available under `../../examples/tutorial/`.
+This folder groups complementary tutorial materials outside the main statistics track. The rendered examples below are available under `examples/tutorial/`.
 
 Examples
 
-- [Additional Graphics Examples](../../examples/tutorial/graphics_extra.md) - Small plotting demonstrations complementary to the statistics material.
-- [Plot Drift Example](../../examples/tutorial/plot_drift.md) - Illustrate how distribution drift can be visualized over time.
+- [Additional Graphics Examples](examples/tutorial/graphics_extra.md) - Small plotting demonstrations complementary to the statistics material.
+- [Plot Drift Example](examples/tutorial/plot_drift.md) - Illustrate how distribution drift can be visualized over time.
+
+

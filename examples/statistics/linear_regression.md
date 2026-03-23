@@ -274,12 +274,12 @@ head(train)
 
 ```
 ##     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species versicolor
-## 103          7.1         3.0          5.9         2.1      other          0
-## 60           5.2         2.7          3.9         1.4 versicolor          1
-## 51           7.0         3.2          4.7         1.4 versicolor          1
-## 34           5.5         4.2          1.4         0.2      other          0
-## 138          6.4         3.1          5.5         1.8      other          0
-## 129          6.4         2.8          5.6         2.1      other          0
+## 89           5.6         3.0          4.1         1.3 versicolor          1
+## 150          5.9         3.0          5.1         1.8      other          0
+## 69           6.2         2.2          4.5         1.5 versicolor          1
+## 120          6.0         2.2          5.0         1.5      other          0
+## 59           6.6         2.9          4.6         1.3 versicolor          1
+## 66           6.7         3.1          4.4         1.4 versicolor          1
 ```
 
 This dataset is unbalanced using this perspective. If the prediction for $versicolor$ is higher than its probability, it can be classified as $versicolor$. 
@@ -313,8 +313,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 62  6
-##   1 18 34
+##   0 59 11
+##   1 21 29
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -329,8 +329,8 @@ table(res, test$versicolor)
 ```
 ##        
 ## res      0  1
-##   FALSE 11  1
-##   TRUE   9  9
+##   FALSE 16  4
+##   TRUE   4  6
 ```
 
 Creation of the logistic regression model using the independent variables with lower entropy during binning transformation.  
@@ -352,8 +352,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 66  7
-##   1 14 33
+##   0 61  9
+##   1 19 31
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -368,7 +368,7 @@ table(res, test$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 12  1
-##   1  8  9
+##   0 18  2
+##   1  2  8
 ```
 
