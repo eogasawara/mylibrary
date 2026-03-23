@@ -70,6 +70,10 @@ Realizando um segundo teste de usando Anderson-Darling
 library(nortest)
 ```
 
+```
+## Warning: package 'nortest' was built under R version 4.5.2
+```
+
 
 ``` r
 ad.test(MethodA)

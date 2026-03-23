@@ -37,9 +37,9 @@
 # # 2) Configure basedosdados/BigQuery access and query population data
 # #    - Replace with your GCP billing project ID
 # #    - Ensure BIGQUERY_TOKEN points to your credentials JSON (service account or
-# #      user token). Example path: "~/projeto-ibge-edu.json"
-# basedosdados::set_billing_id("projeto-ibge-edu")
-# Sys.setenv(BIGQUERY_TOKEN = "~/projeto-ibge-edu.json")
+# #      user token). Example path: "~/path/to/bigquery-credentials.json"
+# basedosdados::set_billing_id("<your-gcp-project-id>")
+# Sys.setenv(BIGQUERY_TOKEN = "~/path/to/bigquery-credentials.json")
 # 
 # # Query the latest available population for Campos dos Goytacazes
 # pop_campos <- read_sql("

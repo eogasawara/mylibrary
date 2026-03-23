@@ -8,9 +8,85 @@
 
 
 library(daltoolbox)
+```
+
+```
+## 
+## Attaching package: 'daltoolbox'
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     transform
+```
+
+``` r
 library(MASS)
+```
+
+```
+## 
+## Attaching package: 'MASS'
+```
+
+```
+## The following object is masked from 'package:dplyr':
+## 
+##     select
+```
+
+``` r
 library(plotly)
+```
+
+```
+## Warning: package 'plotly' was built under R version 4.5.2
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 4.5.2
+```
+
+```
+## 
+## Attaching package: 'plotly'
+```
+
+```
+## The following object is masked from 'package:ggplot2':
+## 
+##     last_plot
+```
+
+```
+## The following object is masked from 'package:MASS':
+## 
+##     select
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     filter
+```
+
+```
+## The following object is masked from 'package:graphics':
+## 
+##     layout
+```
+
+``` r
 library(reshape2)
+```
+
+```
+## Warning: package 'reshape2' was built under R version 4.5.2
 ```
 
 ## Dataset
@@ -274,12 +350,12 @@ head(train)
 
 ```
 ##     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species versicolor
-## 89           5.6         3.0          4.1         1.3 versicolor          1
-## 150          5.9         3.0          5.1         1.8      other          0
-## 69           6.2         2.2          4.5         1.5 versicolor          1
-## 120          6.0         2.2          5.0         1.5      other          0
-## 59           6.6         2.9          4.6         1.3 versicolor          1
-## 66           6.7         3.1          4.4         1.4 versicolor          1
+## 90           5.5         2.5          4.0         1.3 versicolor          1
+## 51           7.0         3.2          4.7         1.4 versicolor          1
+## 145          6.7         3.3          5.7         2.5      other          0
+## 81           5.5         2.4          3.8         1.1 versicolor          1
+## 4            4.6         3.1          1.5         0.2      other          0
+## 60           5.2         2.7          3.9         1.4 versicolor          1
 ```
 
 This dataset is unbalanced using this perspective. If the prediction for $versicolor$ is higher than its probability, it can be classified as $versicolor$. 
@@ -291,7 +367,7 @@ print(t)
 ```
 
 ```
-## [1] 0.3333333
+## [1] 0.3583333
 ```
 
 The creation of the logistic regression model using all independent variables uses $glm$ function.
@@ -313,8 +389,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 59 11
-##   1 21 29
+##   0 59  8
+##   1 18 35
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -329,8 +405,8 @@ table(res, test$versicolor)
 ```
 ##        
 ## res      0  1
-##   FALSE 16  4
-##   TRUE   4  6
+##   FALSE 18  3
+##   TRUE   5  4
 ```
 
 Creation of the logistic regression model using the independent variables with lower entropy during binning transformation.  
@@ -352,8 +428,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 61  9
-##   1 19 31
+##   0 62  9
+##   1 15 34
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -368,7 +444,7 @@ table(res, test$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 18  2
-##   1  2  8
+##   0 16  2
+##   1  7  5
 ```
 

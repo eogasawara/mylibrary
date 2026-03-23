@@ -20,6 +20,54 @@ Setup
 ``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+```
+
+```
+## Warning: package 'RefManageR' was built under R version 4.5.1
+```
+
+```
+## Warning: package 'tibble' was built under R version 4.5.2
+```
+
+```
+## Warning: package 'readxl' was built under R version 4.5.1
+```
+
+```
+## Warning: package 'writexl' was built under R version 4.5.1
+```
+
+```
+## Warning: package 'dplyr' was built under R version 4.5.2
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```
+## Warning: package 'stringr' was built under R version 4.5.2
+```
+
+```
+## Warning: package 'scholar' was built under R version 4.5.1
+```
+
+``` r
 # As duas linhas abaixo sao apenas para o cenario de teste desta documentacao.
 # Em uso real, basta remover esse bloco e configurar corretamente as variaveis
 # de entrada para apontarem para os seus arquivos reais.

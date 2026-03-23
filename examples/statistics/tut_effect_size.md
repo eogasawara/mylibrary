@@ -53,6 +53,27 @@ Análise do Effect Size
 library(rstatix)
 ```
 
+```
+## Warning: package 'rstatix' was built under R version 4.5.3
+```
+
+```
+## 
+## Attaching package: 'rstatix'
+```
+
+```
+## The following object is masked from 'package:MASS':
+## 
+##     select
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     filter
+```
+
 Execute este mesmo experimento com menos tentativas (trials) (5, 10)
 
 
