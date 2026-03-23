@@ -16,21 +16,22 @@ This example builds boolean query strings from a `.bib` file using two modes:
 
 Setup
 
-```r
+```{r}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/reference_examples_setup.R")
+download_reference_example_files()
 ```
 
 Inputs
 
-```r
-# Edit this path to your .bib file
-bib_file <- "path/to/references.bib"
+```{r}
+bib_file <- "query_references.bib" # arquivo .bib no diretorio atual
 ```
 
 Build Queries
 
-```r
+```{r}
 qry_doi   <- queryString(bib_file, doi = TRUE)
 qry_title <- queryString(bib_file, doi = FALSE)
 

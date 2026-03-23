@@ -462,6 +462,46 @@ cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
 }
 
 # -----------------------------------------------
+# Função: unionBibs
+# Objetivo: unir todas as entradas BibTeX encontradas em um diretório recursivo
+#           em um único arquivo .bib de saída.
+# Parâmetros:
+#   dir      : diretório raiz contendo arquivos .bib
+#   filename : arquivo .bib de saída
+# Retorno: nenhum (efeito colateral: escreve arquivo .bib consolidado)
+# -----------------------------------------------
+unionBibs <- function(dir, filename) {
+  bibs <- list.files(path = dir, pattern = ".bib$", full.names = TRUE, recursive = TRUE)
+  
+  all <- list()
+  for (bibfile in bibs) {
+    bib <- ReadBib(bibfile, check = FALSE)
+    all <- append(all, bib)
+  }
+  WriteBib(all, filename)
+}
+
+# -----------------------------------------------
+# Função: join_Bib
+# Objetivo: identificar chaves repetidas entre dois arquivos .bib.
+# Parâmetros:
+#   bibA : caminho do primeiro .bib
+#   bibB : caminho do segundo .bib
+# Retorno: invisível; imprime os códigos repetidos quando houver interseção.
+# -----------------------------------------------
+join_Bib <- function(bibA, bibB) {
+  bibA_df <- as.data.frame(ReadBib(bibA, check = FALSE))
+  bibA_df$code <- rownames(bibA_df)
+  bibB_df <- as.data.frame(ReadBib(bibB, check = FALSE))
+  bibB_df$code <- rownames(bibB_df)
+  bib_df <- merge(x = bibA_df, y = bibB_df, by = ("code"))
+  if (nrow(bib_df) > 0) {
+    print(sprintf("%s-%s", bibA, bibB))
+    print(bib_df$code)
+  }
+}
+
+# -----------------------------------------------
 # Função: get_scholar_citations
 # Objetivo: obter publicações de um autor no Google Scholar e exportar para .xlsx.
 # Parâmetros:
