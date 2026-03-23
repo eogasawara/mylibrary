@@ -23,6 +23,20 @@ library(daltoolbox)
 
 ``` r
 library(MASS)
+```
+
+```
+## 
+## Attaching package: 'MASS'
+```
+
+```
+## The following object is masked from 'package:dplyr':
+## 
+##     select
+```
+
+``` r
 library(plotly)
 ```
 
@@ -342,13 +356,13 @@ head(train)
 ```
 
 ```
-##     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species versicolor
-## 53           6.9         3.1          4.9         1.5 versicolor          1
-## 120          6.0         2.2          5.0         1.5      other          0
-## 71           5.9         3.2          4.8         1.8 versicolor          1
-## 30           4.7         3.2          1.6         0.2      other          0
-## 39           4.4         3.0          1.3         0.2      other          0
-## 98           6.2         2.9          4.3         1.3 versicolor          1
+##     Sepal.Length Sepal.Width Petal.Length Petal.Width Species versicolor
+## 4            4.6         3.1          1.5         0.2   other          0
+## 147          6.3         2.5          5.0         1.9   other          0
+## 128          6.1         3.0          4.9         1.8   other          0
+## 43           4.4         3.2          1.3         0.2   other          0
+## 2            4.9         3.0          1.4         0.2   other          0
+## 136          7.7         3.0          6.1         2.3   other          0
 ```
 
 This dataset is unbalanced using this perspective. If the prediction for $versicolor$ is higher than its probability, it can be classified as $versicolor$. 
@@ -360,7 +374,7 @@ print(t)
 ```
 
 ```
-## [1] 0.3416667
+## [1] 0.3166667
 ```
 
 The creation of the logistic regression model using all independent variables uses $glm$ function.
@@ -383,7 +397,7 @@ table(res, train$versicolor)
 ##    
 ## res  0  1
 ##   0 61  9
-##   1 18 32
+##   1 21 29
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -398,8 +412,8 @@ table(res, test$versicolor)
 ```
 ##        
 ## res      0  1
-##   FALSE 14  3
-##   TRUE   7  6
+##   FALSE 14  5
+##   TRUE   4  7
 ```
 
 Creation of the logistic regression model using the independent variables with lower entropy during binning transformation.  
@@ -421,8 +435,8 @@ table(res, train$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 62  9
-##   1 17 32
+##   0 64  8
+##   1 18 30
 ```
 
 The quality of prediction using the test data is measured using the confusion table. 
@@ -437,7 +451,7 @@ table(res, test$versicolor)
 ```
 ##    
 ## res  0  1
-##   0 16  2
-##   1  5  7
+##   0 15  3
+##   1  3  9
 ```
 

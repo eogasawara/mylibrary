@@ -10,22 +10,31 @@ Normalize and clean one `.bib` file: fix common field issues, trim extra braces,
 
 Setup
 
-```r
+
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("../../references/myReferences.R")
+source("../../references/ref_utils.R")
+source("reference_examples_setup.R")
+ensure_reference_example_files()
 ```
 
 Inputs
 
-```r
-# Edit this path to your .bib file
-bib_file <- "path/to/references.bib"
+
+``` r
+bib_file <- "clean_references.bib" # arquivo .bib no diretorio atual
 ```
 
 Clean
 
-```r
+
+``` r
 cleanBib(bib_file)
 cat("Cleaning completed for:", bib_file, "\n")
+```
+
+```
+## Cleaning completed for: clean_references.bib
 ```
 

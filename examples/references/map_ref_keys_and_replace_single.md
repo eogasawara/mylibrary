@@ -10,24 +10,34 @@ Map old→new BibTeX keys between two `.bib` files and replace them in a single 
 
 Setup
 
-```r
+
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("../../references/myReferences.R")
+source("../../references/ref_utils.R")
+source("reference_examples_setup.R")
+ensure_reference_example_files()
 ```
 
 Inputs
 
-```r
-bib_old  <- "path/to/references-old.bib"
-bib_new  <- "path/to/references.bib"
-tex_file <- "path/to/main.tex"
+
+``` r
+bib_old  <- "map_old_references.bib" # arquivo .bib antigo no diretorio atual
+bib_new  <- "map_new_references.bib" # arquivo .bib novo no diretorio atual
+tex_file <- "map_main.tex" # arquivo .tex no diretorio atual
 ```
 
 Map and Replace
 
-```r
+
+``` r
 mapRf <- mapRefs(bib_old, bib_new)
 subMap(tex_file, mapRf)
 cat("Applied key replacements to:", tex_file, "\n")
+```
+
+```
+## Applied key replacements to: map_main.tex
 ```
 

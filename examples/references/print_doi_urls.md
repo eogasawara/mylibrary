@@ -10,20 +10,34 @@ Print `https://doi.org/<doi>` URLs for all entries in a `.bib` file that contain
 
 Setup
 
-```r
+
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("../../references/myReferences.R")
+source("../../references/ref_utils.R")
+source("reference_examples_setup.R")
+ensure_reference_example_files()
 ```
 
 Inputs
 
-```r
-bib_file <- "path/to/references.bib"
+
+``` r
+bib_file <- "doi_references.bib" # arquivo .bib no diretorio atual
 ```
 
 Print URLs
 
-```r
+
+``` r
 urlDOI(bib_file)
+```
+
+```
+## https://doi.org/10.1000/sample-doi
+```
+
+```
+## NULL
 ```
 

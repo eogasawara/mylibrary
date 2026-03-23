@@ -10,22 +10,31 @@ Scan a directory recursively and normalize/clean every `.bib` file found.
 
 Setup
 
-```r
+
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("../../references/myReferences.R")
+source("../../references/ref_utils.R")
+source("reference_examples_setup.R")
+ensure_reference_example_files()
 ```
 
 Inputs
 
-```r
-# Edit this path to your directory containing .bib files
-dir_path <- "path/to/dir_with_bibs"
+
+``` r
+dir_path <- "clean_dir" # diretorio com arquivos .bib no diretorio atual
 ```
 
 Clean
 
-```r
+
+``` r
 cleanBibs(dir_path)
 cat("Directory cleaned:", dir_path, "\n")
+```
+
+```
+## Directory cleaned: clean_dir
 ```
 

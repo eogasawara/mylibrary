@@ -16,25 +16,140 @@ This example builds boolean query strings from a `.bib` file using two modes:
 
 Setup
 
-```r
+
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("../../references/myReferences.R")
+```
+
+```
+## Loading required package: RefManageR
+```
+
+```
+## Warning: package 'RefManageR' was built under R version 4.5.1
+```
+
+```
+## Loading required package: tibble
+```
+
+```
+## Warning: package 'tibble' was built under R version 4.5.2
+```
+
+```
+## Loading required package: readxl
+```
+
+```
+## Warning: package 'readxl' was built under R version 4.5.1
+```
+
+```
+## Loading required package: writexl
+```
+
+```
+## Warning: package 'writexl' was built under R version 4.5.1
+```
+
+```
+## Loading required package: dplyr
+```
+
+```
+## Warning: package 'dplyr' was built under R version 4.5.2
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```
+## Loading required package: stringr
+```
+
+```
+## Warning: package 'stringr' was built under R version 4.5.2
+```
+
+```
+## Loading required package: scholar
+```
+
+```
+## Warning: package 'scholar' was built under R version 4.5.1
+```
+
+``` r
+source("../../references/ref_utils.R")
+source("reference_examples_setup.R")
+ensure_reference_example_files()
 ```
 
 Inputs
 
-```r
-# Edit this path to your .bib file
-bib_file <- "path/to/references.bib"
+
+``` r
+bib_file <- "query_references.bib" # arquivo .bib no diretorio atual
 ```
 
 Build Queries
 
-```r
-qry_doi   <- queryString(bib_file, doi = TRUE)
-qry_title <- queryString(bib_file, doi = FALSE)
 
+``` r
+qry_doi   <- queryString(bib_file, doi = TRUE)
+```
+
+```
+## DOI("10.1000/sample-doi")
+```
+
+``` r
+qry_title <- queryString(bib_file, doi = FALSE)
+```
+
+```
+## TITLE("a sample title only")
+```
+
+``` r
 cat("\nQuery by DOI:\n");   print(qry_doi,   quote = FALSE)
+```
+
+```
+## 
+## Query by DOI:
+```
+
+```
+## NULL
+```
+
+``` r
 cat("\nQuery by Title:\n"); print(qry_title, quote = FALSE)
+```
+
+```
+## 
+## Query by Title:
+```
+
+```
+## NULL
 ```
 

@@ -10,21 +10,30 @@ Run basic checks on a `.bib` file to identify missing fields, casing/braces prob
 
 Setup
 
-```r
+
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("../../references/myReferences.R")
+source("../../references/ref_utils.R")
+source("reference_examples_setup.R")
+ensure_reference_example_files()
 ```
 
 Inputs
 
-```r
-# Edit this path to your .bib file
-bib_file <- "path/to/references.bib"
+
+``` r
+bib_file <- "check_references.bib" # arquivo .bib no diretorio atual
 ```
 
 Check
 
-```r
+
+``` r
 checkErrors(bib_file)
+```
+
+```
+## [1] 8
 ```
 

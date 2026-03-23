@@ -10,20 +10,26 @@ Enumerate all `.bib` files in a directory and call pairwise merges. Useful when 
 
 Setup
 
-```r
+
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("../../references/myReferences.R")
+source("../../references/ref_utils.R")
+source("reference_examples_setup.R")
+ensure_reference_example_files()
 ```
 
 Inputs
 
-```r
-dir_path <- "path/to/dir_with_bibs"
+
+``` r
+dir_path <- "merge_dir" # diretorio com arquivos .bib no diretorio atual
 ```
 
 Merge Pairwise
 
-```r
+
+``` r
 bibs <- list.files(path = dir_path, pattern = "\\.bib$", full.names = TRUE, recursive = TRUE)
 if (length(bibs) >= 2) {
   for (i in 1:(length(bibs)-1)) {
@@ -34,5 +40,10 @@ if (length(bibs) >= 2) {
 } else {
   message("Found fewer than two .bib files in ", dir_path)
 }
+```
+
+```
+## [1] "merge_dir/left.bib-merge_dir/right.bib"
+## [1] "smith2020"
 ```
 

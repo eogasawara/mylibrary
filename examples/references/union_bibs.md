@@ -10,22 +10,32 @@ Create a union `.bib` by collecting all entries from a source directory into a s
 
 Setup
 
-```r
+
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-source("https://raw.githubusercontent.com/eogasawara/mylibrary/refs/heads/main/references/ref_utils.R")
+source("../../references/myReferences.R")
+source("../../references/ref_utils.R")
+source("reference_examples_setup.R")
+ensure_reference_example_files()
 ```
 
 Inputs
 
-```r
-source_dir <- "path/to/source_dir"
-target_bib <- "path/to/union.bib"
+
+``` r
+source_dir <- "union_source" # diretorio com arquivos .bib no diretorio atual
+target_bib <- "union_output.bib" # arquivo .bib de saida no diretorio atual
 ```
 
 Build Union
 
-```r
+
+``` r
 unionBibs(source_dir, target_bib)
 cat("Union written to:", target_bib, "\n")
+```
+
+```
+## Union written to: union_output.bib
 ```
 
