@@ -224,12 +224,14 @@ cleanBib <- function(bib, doi=FALSE) {
     if (doi)
       keep_idx[field_names == "doi"] <- FALSE
 
-    has_doi <- any(field_names == "doi" & nzchar(field_values) & keep_idx)
+    entry_has_doi <- any(field_names == "doi" & nzchar(field_values))
     has_volume <- any(field_names == "volume" & nzchar(field_values) & keep_idx)
     has_number <- any(field_names == "number" & nzchar(field_values) & keep_idx)
 
-    if (has_doi)
+    if (entry_has_doi) {
       keep_idx[field_names == "url"] <- FALSE
+      keep_idx[field_names == "urldate"] <- FALSE
+    }
 
     if (has_volume && has_number)
       keep_idx[field_names == "number"] <- FALSE
