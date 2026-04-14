@@ -173,17 +173,145 @@ checkErrors <- function(bibfile) {
 
 cleanBib <- function(bib, doi=FALSE) {
   bibfile <- bib
-  bib <- ReadBib(bibfile, check = FALSE)
-  bib_df <- as.data.frame(bib)
-  bib_df$abstract <- NA
-  bib_df$keywords <- NA
-  bib_df$url[bib$bibtype!="Misc"] <- NA
-  bib_df$note <- NA
-  bib_df$copyright <- NA
-  if (doi)
-    bib_df$doi <- NA
-  bib <- as.BibEntry(bib_df)
-  WriteBib(bib, bibfile)
+  lines <- readLines(con <- file(bibfile, encoding = "UTF-8"), warn = FALSE)
+  close(con)
+
+  field_is_complete <- function(field_lines) {
+    text <- paste(field_lines, collapse = "\n")
+    rhs <- sub("^[^=]*=\\s*", "", text)
+    rhs <- trimws(rhs)
+
+    braces <- lengths(regmatches(rhs, gregexpr("(?<!\\\\)\\{", rhs, perl = TRUE))) -
+      lengths(regmatches(rhs, gregexpr("(?<!\\\\)\\}", rhs, perl = TRUE)))
+    quotes <- lengths(regmatches(rhs, gregexpr("(?<!\\\\)\"", rhs, perl = TRUE)))
+
+    return(braces <= 0 && quotes %% 2 == 0 && grepl(",\\s*$", rhs))
+  }
+
+  field_value <- function(field_lines) {
+    text <- paste(field_lines, collapse = "\n")
+    rhs <- sub("^[^=]*=\\s*", "", text)
+    rhs <- sub(",\\s*$", "", trimws(rhs))
+    rhs <- trimws(rhs)
+
+    if (grepl("^\\{.*\\}$", rhs))
+      rhs <- sub("^\\{(.*)\\}$", "\\1", rhs)
+    else if (grepl("^\".*\"$", rhs))
+      rhs <- sub("^\"(.*)\"$", "\\1", rhs)
+
+    return(trimws(rhs))
+  }
+
+  removable_fields <- c("abstract", "keywords", "copyright", "note")
+  cleaned <- character()
+  field_buffer <- character()
+  field_name <- NULL
+  in_entry <- FALSE
+  entry_header <- NULL
+  entry_fields <- list()
+  entry_footer <- NULL
+
+  flush_entry <- function() {
+    if (!in_entry)
+      return()
+
+    keep_idx <- rep(TRUE, length(entry_fields))
+    field_names <- vapply(entry_fields, function(x) x$name, character(1))
+    field_values <- vapply(entry_fields, function(x) field_value(x$lines), character(1))
+
+    keep_idx[field_names %in% removable_fields] <- FALSE
+
+    if (doi)
+      keep_idx[field_names == "doi"] <- FALSE
+
+    has_doi <- any(field_names == "doi" & nzchar(field_values) & keep_idx)
+    has_volume <- any(field_names == "volume" & nzchar(field_values) & keep_idx)
+    has_number <- any(field_names == "number" & nzchar(field_values) & keep_idx)
+
+    if (has_doi)
+      keep_idx[field_names == "url"] <- FALSE
+
+    if (has_volume && has_number)
+      keep_idx[field_names == "number"] <- FALSE
+
+    cleaned <<- c(cleaned, entry_header)
+    for (idx in seq_along(entry_fields)) {
+      if (keep_idx[idx])
+        cleaned <<- c(cleaned, entry_fields[[idx]]$lines)
+    }
+    cleaned <<- c(cleaned, entry_footer)
+  }
+
+  flush_field <- function() {
+    if (length(field_buffer) == 0)
+      return()
+
+    entry_fields[[length(entry_fields) + 1]] <<- list(
+      name = field_name,
+      lines = field_buffer
+    )
+  }
+
+  for (line in lines) {
+    if (!in_entry) {
+      if (grepl("^\\s*@", line)) {
+        in_entry <- TRUE
+        entry_header <- line
+        entry_fields <- list()
+        entry_footer <- NULL
+      } else {
+        cleaned <- c(cleaned, line)
+      }
+      next
+    }
+
+    if (length(field_buffer) > 0) {
+      field_buffer <- c(field_buffer, line)
+      if (field_is_complete(field_buffer)) {
+        flush_field()
+        field_buffer <- character()
+        field_name <- NULL
+      }
+      next
+    }
+
+    if (grepl("^\\s*}\\s*$", line)) {
+      entry_footer <- line
+      flush_entry()
+      in_entry <- FALSE
+      entry_header <- NULL
+      entry_fields <- list()
+      entry_footer <- NULL
+      next
+    }
+
+    matches <- regexec("^\\s*([A-Za-z][A-Za-z0-9_-]*)\\s*=", line)
+    parts <- regmatches(line, matches)[[1]]
+
+    if (length(parts) > 1) {
+      field_name <- tolower(parts[2])
+      field_buffer <- line
+      if (field_is_complete(field_buffer)) {
+        flush_field()
+        field_buffer <- character()
+        field_name <- NULL
+      }
+    } else {
+      entry_fields[[length(entry_fields) + 1]] <- list(
+        name = NA_character_,
+        lines = line
+      )
+    }
+  }
+
+  if (length(field_buffer) > 0)
+    flush_field()
+
+  if (in_entry && !is.null(entry_footer))
+    flush_entry()
+
+  writeLines(cleaned, con <- file(bibfile, encoding = "UTF-8"))
+  close(con)
 }
 
 cleanBibs <- function(dir, doi=FALSE, diroutput = "") {
