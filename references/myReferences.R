@@ -46,21 +46,24 @@ urlDOI <- function(bib) {
 }
 
 
-queryString <- function(bib, doi=TRUE) {
+queryString <- function(bib, doi=TRUE, forceTitle=FALSE) {
   bib <- ReadBib(bib, check = FALSE)
   bib_df <- as.data.frame(bib)
   bib_df <- rownames_to_column(bib_df)
   bib_df$title <- adjust_text(bib_df$title, lower=TRUE)
   if (doi && !is.null(bib_df$doi)) {
     bib_df <- bib_df[!is.na(bib_df$doi),]
-    str <- sprintf("DOI(\"%s\")", bib_df$doi)
+    if (forceTitle)
+      str <- sprintf("TITLE(\"%s\")", bib_df$title)
+    else
+      str <- sprintf("DOI(\"%s\")", bib_df$doi)
   }
   else {
     if (!is.null(bib_df$doi))
       bib_df <- bib_df[is.na(bib_df$doi),]
     str <- sprintf("TITLE(\"%s\")", bib_df$title)
   }
-  str <- cat(str, sep = "\n OR ")
+  str <- cat(str, sep = " OR ")
   return(str)
 }
 
