@@ -89,22 +89,29 @@ urlDOI <- function(bib) {
 #   - Se doi==TRUE: filtra entradas com DOI e gera DOI("...").
 #   - Se doi==FALSE: se houver DOI, remove-as e usa TITLE("titulo normalizado").
 # -----------------------------------------------
-queryString <- function(bib, doi=TRUE) {
+queryString <- function(bib, doi=TRUE, forceTitle=FALSE) {
   bib <- ReadBib(bib, check = FALSE)
   bib_df <- as.data.frame(bib)
   bib_df <- rownames_to_column(bib_df)
   bib_df$title <- adjust_text(bib_df$title, lower=TRUE)
-  if (doi && !is.null(bib_df$doi)) {
+  has_doi_column <- !is.null(bib_df$doi)
+
+  if (forceTitle && has_doi_column) {
+    bib_df <- bib_df[!is.na(bib_df$doi),]
+    str <- sprintf("TITLE(\"%s\")", bib_df$title)
+  }
+  else if (doi && has_doi_column) {
     bib_df <- bib_df[!is.na(bib_df$doi),]
     str <- sprintf("DOI(\"%s\")", bib_df$doi)
   }
   else {
-    if (!is.null(bib_df$doi))
+    if (has_doi_column)
       bib_df <- bib_df[is.na(bib_df$doi),]
     str <- sprintf("TITLE(\"%s\")", bib_df$title)
   }
-  str <- cat(str, sep = "\n OR ")
-  return(str)
+  str <- paste(str, collapse = " OR ")
+  cat(str, "\n", sep = "")
+  return(invisible(str))
 }
 
 # -----------------------------------------------
@@ -421,20 +428,150 @@ sanitize_bib_field <- function(lines, field = "title", clean = FALSE) {
 #   - Se doi==TRUE, remove 'doi'.
 # -----------------------------------------------
 cleanBib <- function(bib, doi=FALSE) {
-  lines <- readLines(bib, encoding = "UTF-8")
-  for (campo in c("title", "booktitle", "journal", "publisher")) {
-    lines <- sanitize_bib_field(lines, field = campo)
+  bibfile <- bib
+  lines <- readLines(con <- file(bibfile, encoding = "UTF-8"), warn = FALSE)
+  close(con)
+
+  field_is_complete <- function(field_lines) {
+    text <- paste(field_lines, collapse = "\n")
+    rhs <- sub("^[^=]*=\\s*", "", text)
+    rhs <- trimws(rhs)
+
+    braces <- lengths(regmatches(rhs, gregexpr("(?<!\\\\)\\{", rhs, perl = TRUE))) -
+      lengths(regmatches(rhs, gregexpr("(?<!\\\\)\\}", rhs, perl = TRUE)))
+    quotes <- lengths(regmatches(rhs, gregexpr("(?<!\\\\)\"", rhs, perl = TRUE)))
+
+    return(braces <= 0 && quotes %% 2 == 0 && grepl(",\\s*$", rhs))
   }
-  for (campo in c("abstract", "keywords", "note", "copyright", "url", "file")) {
-    lines <- sanitize_bib_field(lines, field = campo, clean = TRUE)
+
+  field_value <- function(field_lines) {
+    text <- paste(field_lines, collapse = "\n")
+    rhs <- sub("^[^=]*=\\s*", "", text)
+    rhs <- sub(",\\s*$", "", trimws(rhs))
+    rhs <- trimws(rhs)
+
+    if (grepl("^\\{.*\\}$", rhs))
+      rhs <- sub("^\\{(.*)\\}$", "\\1", rhs)
+    else if (grepl("^\".*\"$", rhs))
+      rhs <- sub("^\"(.*)\"$", "\\1", rhs)
+
+    return(trimws(rhs))
   }
-  if (doi) {
-    for (campo in c("doi")) {
-      lines <- sanitize_bib_field(lines, field = campo, clean = TRUE)
+
+  removable_fields <- c("abstract", "keywords", "copyright", "note")
+  cleaned <- character()
+  field_buffer <- character()
+  field_name <- NULL
+  in_entry <- FALSE
+  entry_header <- NULL
+  entry_fields <- list()
+  entry_footer <- NULL
+
+  flush_entry <- function() {
+    if (!in_entry)
+      return()
+
+    keep_idx <- rep(TRUE, length(entry_fields))
+    field_names <- vapply(entry_fields, function(x) x$name, character(1))
+    field_values <- vapply(entry_fields, function(x) field_value(x$lines), character(1))
+
+    keep_idx[field_names %in% removable_fields] <- FALSE
+
+    if (doi)
+      keep_idx[field_names == "doi"] <- FALSE
+
+    entry_has_doi <- any(field_names == "doi" & nzchar(field_values))
+    has_volume <- any(field_names == "volume" & nzchar(field_values) & keep_idx)
+    has_number <- any(field_names == "number" & nzchar(field_values) & keep_idx)
+
+    if (entry_has_doi) {
+      keep_idx[field_names == "url"] <- FALSE
+      keep_idx[field_names == "urldate"] <- FALSE
+    }
+
+    if (has_volume && has_number)
+      keep_idx[field_names == "number"] <- FALSE
+
+    cleaned <<- c(cleaned, entry_header)
+    for (idx in seq_along(entry_fields)) {
+      if (keep_idx[idx])
+        cleaned <<- c(cleaned, entry_fields[[idx]]$lines)
+    }
+    cleaned <<- c(cleaned, entry_footer)
+  }
+
+  flush_field <- function() {
+    if (length(field_buffer) == 0)
+      return()
+
+    entry_fields[[length(entry_fields) + 1]] <<- list(
+      name = field_name,
+      lines = field_buffer
+    )
+  }
+
+  for (line in lines) {
+    if (!in_entry) {
+      if (grepl("^\\s*@", line)) {
+        in_entry <- TRUE
+        entry_header <- line
+        entry_fields <- list()
+        entry_footer <- NULL
+      } else {
+        cleaned <- c(cleaned, line)
+      }
+      next
+    }
+
+    if (length(field_buffer) > 0) {
+      field_buffer <- c(field_buffer, line)
+      if (field_is_complete(field_buffer)) {
+        flush_field()
+        field_buffer <- character()
+        field_name <- NULL
+      }
+      next
+    }
+
+    if (grepl("^\\s*}\\s*$", line)) {
+      entry_footer <- line
+      flush_entry()
+      in_entry <- FALSE
+      entry_header <- NULL
+      entry_fields <- list()
+      entry_footer <- NULL
+      next
+    }
+
+    matches <- regexec("^\\s*([A-Za-z][A-Za-z0-9_-]*)\\s*=", line)
+    parts <- regmatches(line, matches)[[1]]
+
+    if (length(parts) > 1) {
+      field_name <- tolower(parts[2])
+      field_buffer <- line
+      if (field_is_complete(field_buffer)) {
+        flush_field()
+        field_buffer <- character()
+        field_name <- NULL
+      }
+    } else {
+      entry_fields[[length(entry_fields) + 1]] <- list(
+        name = NA_character_,
+        lines = line
+      )
     }
   }
-  writeLines(lines, bib, useBytes = TRUE)
+
+  if (length(field_buffer) > 0)
+    flush_field()
+
+  if (in_entry && !is.null(entry_footer))
+    flush_entry()
+
+  writeLines(cleaned, con <- file(bibfile, encoding = "UTF-8"))
+  close(con)
 }
+
 
 # -----------------------------------------------
 # Função: cleanBibs
