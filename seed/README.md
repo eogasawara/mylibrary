@@ -15,16 +15,6 @@ Python e PyTorch.
 - Quando CUDA estiver disponivel, define o seed de todos os dispositivos.
 - Ativa modo deterministico do cuDNN e desativa `benchmark`.
 
-## Onde este codigo e chamado no repositorio
-
-Os exemplos abaixo carregam `code/seed.py` via `reticulate::source_python(...)`
-e chamam `seed_everything(1)`:
-
-- `Rmd/chapter4/chap4_multivariate_autoencoder.Rmd`
-- `Rmd/chapter4/chap4_multivariate_autoencoder3d.Rmd`
-- `examples/chapter4/r/chap4_multivariate_autoencoder.R`
-- `examples/chapter4/r/chap4_multivariate_autoencoder3d.R`
-
 ## Uso rapido em Python
 
 ```python
@@ -42,3 +32,8 @@ source_python("code/seed.py")
 set.seed(123)
 seed_everything(123)
 ```
+
+## Exemplos
+
+- [Python Seed Example](examples/seed_example.py)
+- [R and Python Seed Example](examples/seed_example.R)
