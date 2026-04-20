@@ -46,22 +46,29 @@ urlDOI <- function(bib) {
 }
 
 
-queryString <- function(bib, doi=TRUE) {
+queryString <- function(bib, doi=TRUE, forceTitle=FALSE) {
   bib <- ReadBib(bib, check = FALSE)
   bib_df <- as.data.frame(bib)
   bib_df <- rownames_to_column(bib_df)
   bib_df$title <- adjust_text(bib_df$title, lower=TRUE)
-  if (doi && !is.null(bib_df$doi)) {
+  has_doi_column <- !is.null(bib_df$doi)
+
+  if (forceTitle && has_doi_column) {
+    bib_df <- bib_df[!is.na(bib_df$doi),]
+    str <- sprintf("TITLE(\"%s\")", bib_df$title)
+  }
+  else if (doi && has_doi_column) {
     bib_df <- bib_df[!is.na(bib_df$doi),]
     str <- sprintf("DOI(\"%s\")", bib_df$doi)
   }
   else {
-    if (!is.null(bib_df$doi))
+    if (has_doi_column)
       bib_df <- bib_df[is.na(bib_df$doi),]
     str <- sprintf("TITLE(\"%s\")", bib_df$title)
   }
-  str <- cat(str, sep = "\n OR ")
-  return(str)
+  str <- paste(str, collapse = " OR ")
+  cat(str, "\n", sep = "")
+  return(invisible(str))
 }
 
 mapRefs <- function(bib_old, bib_new) {
