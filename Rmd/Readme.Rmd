@@ -5,6 +5,7 @@ This index lives under `Rmd/`, but the links below point to the rendered Markdow
 Examples
 
 - [Complete Index of Examples](../examples/Readme.md)
+- [Seed Utility README](../seed/README.md)
 
 ## BigQuery
 
@@ -27,6 +28,12 @@ Examples
 ## R
 
 - [CRAN Downloads and Country Distribution](../examples/r/package-usage.md) - Analyze CRAN downloads over time and inspect country distribution for a selected day.
+
+## Seed
+
+- [Seed Utility README](../seed/README.md) - Documentacao do modulo `seed.py` para reproducibilidade entre Python, NumPy, PyTorch e R via `reticulate`.
+- [Python Seed Example](../seed/examples/seed_example.py) - Exemplo Python chamando `seed_everything(123)`.
+- [R and Python Seed Example](../seed/examples/seed_example.R) - Exemplo R definindo `set.seed(123)` e depois o seed do Python.
 
 ## References
 
